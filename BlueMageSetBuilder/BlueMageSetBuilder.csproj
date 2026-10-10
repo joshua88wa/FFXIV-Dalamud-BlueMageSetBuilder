@@ -1,0 +1,18 @@
+<Project Sdk="Dalamud.NET.Sdk/15.0.0">
+  <PropertyGroup>
+    <Version>0.1.0.0</Version>
+    <Authors>joshua88wa</Authors>
+    <Company></Company>
+    <Description>Reads which Blue Mage spells you have learned and builds the best 24-spell active set for the content you pick.</Description>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The built-in profiles ship inside the DLL. A copy in the plugin config folder,
+         if one exists, is loaded instead, so players can edit their own. -->
+    <None Remove="Profiles.json" />
+    <EmbeddedResource Include="Profiles.json" LogicalName="BlueMageSetBuilder.Profiles.json" />
+  </ItemGroup>
+</Project>
