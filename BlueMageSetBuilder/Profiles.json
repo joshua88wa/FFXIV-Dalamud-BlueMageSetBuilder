@@ -13,10 +13,9 @@
   "Profiles": [
     {
       "Id": "solo",
-      "Name": "Solo and FATE leveling",
-      "Description": "Open-world play on your own: FATEs, hunts, leveling. Leans on Basic Instinct and Mighty Guard for survival, with plenty of area damage for packs.",
+      "Name": "Open world and FATEs",
+      "Description": "Open-world play on your own: FATEs, hunts, leveling. Leans on Mighty Guard and self-healing for survival, with plenty of area damage for packs. No Basic Instinct: it only works inside duties.",
       "Picks": [
-        { "Any": [ 91 ], "Why": "Large damage and speed boost while solo. Does nothing in a party." },
         { "Any": [ 30 ], "Why": "Tank stance. Cuts damage taken, which matters more than damage when nobody heals you." },
         { "Any": [ 105 ], "Why": "Melee filler. Strongest single-target filler while Mighty Guard is up." },
         { "Any": [ 63, 1 ], "Why": "Ranged single-target filler." },
@@ -47,6 +46,44 @@
         { "Any": [ 5 ], "Why": "Early-level line area damage." },
         { "Any": [ 121 ], "Why": "Long damage over time." },
         { "Any": [ 109 ], "Why": "Damage over time." }
+      ]
+    },
+    {
+      "Id": "soloduty",
+      "Name": "Solo duties",
+      "Description": "Taking a duty meant for two or more players on your own, such as an older dungeon or trial unsynced, or synced to learn its spells. Built around Basic Instinct, which only works in exactly this situation.",
+      "Picks": [
+        { "Any": [ 91 ], "Why": "Doubles damage and healing and speeds you up when you are alone in a duty meant for two or more. Ends if anyone joins." },
+        { "Any": [ 30 ], "Why": "Tank stance. With Basic Instinct up it no longer lowers your damage." },
+        { "Any": [ 105 ], "Why": "Melee filler. Strongest single-target filler while Mighty Guard is up." },
+        { "Any": [ 63, 1 ], "Why": "Ranged single-target filler." },
+        { "Any": [ 13 ], "Why": "Heal that scales with your HP." },
+        { "Any": [ 58 ], "Why": "Single-target heal." },
+        { "Any": [ 108 ], "Why": "Self heal." },
+        { "Any": [ 29 ], "Why": "Emergency mitigation for boss mechanics. You cannot act while it lasts." },
+        { "Any": [ 11, 2 ], "Why": "Area damage around you for trash packs." },
+        { "Any": [ 48 ], "Why": "Frontal area damage." },
+        { "Any": [ 44, 19 ], "Why": "Ground-targeted area damage." },
+        { "Any": [ 33 ], "Why": "Area damage that freezes, setting up Ultravibration." },
+        { "Any": [ 92 ], "Why": "Kills frozen or petrified non-boss enemies outright." },
+        { "Any": [ 101 ], "Why": "Line area damage. Sets up Mustard Bomb." },
+        { "Any": [ 94 ], "Why": "Area damage, stronger after Peripheral Synthesis." },
+        { "Any": [ 47 ], "Why": "Area damage on a cooldown." },
+        { "Any": [ 12 ], "Why": "Boosts the next spell's damage." },
+        { "Any": [ 64 ], "Why": "Boosts the next physical spell's damage." },
+        { "Any": [ 104 ], "Why": "Damage over time on a cooldown, for bosses." },
+        { "Any": [ 9 ], "Why": "Damage over time, for bosses." },
+        { "Any": [ 78 ], "Why": "Charges that stack damage when used back to back." },
+        { "Any": [ 100 ], "Why": "Multi-hit single-target damage." },
+        { "Any": [ 90 ], "Why": "Strong single-target cooldown." },
+        { "Any": [ 80 ], "Why": "Gap closer with heavy damage." },
+        { "Any": [ 81 ], "Why": "Heavy physical damage." },
+        { "Any": [ 103 ], "Why": "Channeled frontal area damage." },
+        { "Any": [ 124 ], "Why": "Big area damage on a long cooldown." },
+        { "Any": [ 75 ], "Why": "Heals you and raises max HP." },
+        { "Any": [ 89 ], "Why": "Damage barrier that turns into a follow-up attack." },
+        { "Any": [ 7 ], "Why": "Dash for getting out of mechanics." },
+        { "Any": [ 24 ], "Why": "Interrupts enemy casts." }
       ]
     },
     {
