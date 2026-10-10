@@ -99,10 +99,14 @@ the game shows.
   spells, same order), and the learned count matches the spellbook's Total Actions.
 - Confirmed 2026-10-10 from the log: Aetheric Mimicry blocks changes. An apply with
   it up returned `reported=False` and the slots did not change.
-- Failed twice 2026-10-10: removing Mimicry. `ExecuteStatusOff` returned false with
-  the real source (the player) and with any source, and the `/statusoff "name"`
-  fallback did not remove it either. Cause unknown; waiting on how Joshua removes it
-  by hand and whether `/statusoff` printed an error in chat.
+- Failed twice 2026-10-10: removing Mimicry by clicking it off. `ExecuteStatusOff`
+  returned false with the real source and with any source, and `/statusoff "name"`
+  did nothing. Joshua ends it by recasting Aetheric Mimicry, which matches the spell's
+  "Effect ends upon reuse". Mimicry statuses now map to action 18322 in
+  `Blockers.KnownBlockingStatuses`: check it is slotted, `GetActionStatus` (non-zero is
+  a LogMessage id, shown to the player), then `UseAction`. Untested. The open question
+  is whether reuse needs a party-member target, since the spell "cannot be cast on
+  self"; if so, `GetActionStatus` will say so.
 - 2026-10-10: an apply with no buffs at all was refused (`reported=False`). Joshua
   recalls the game will not move a spell that is on cooldown. KeepSlots was off, so
   every slot was shifting. Applies now check `RemainingRecast` for every spell whose

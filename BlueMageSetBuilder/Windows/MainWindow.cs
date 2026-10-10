@@ -179,7 +179,7 @@ public sealed class MainWindow : Window
                 reason = $"Wait for cooldowns: {SetApplier.DescribeCooldowns(cooldowns)}";
         }
 
-        var label = removable ? $"Remove {names} and apply" : "Apply this set";
+        var label = removable ? $"End {names} and apply" : "Apply this set";
 
         ImGui.BeginDisabled(reason is not null || this.applier.IsPending);
         if (ImGui.Button(label))
@@ -187,7 +187,9 @@ public sealed class MainWindow : Window
         ImGui.EndDisabled();
 
         if (removable && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip($"Spells cannot be changed while {names} is active.\nThis clicks it off, applies the set, and you recast it afterwards.");
+            ImGui.SetTooltip($"Spells cannot be changed while {names} is active.\n" +
+                             "This recasts Aetheric Mimicry, which ends it. Stand still: it has a 1 second cast.\n" +
+                             "Then it waits for the global cooldown, applies the set, and you mimic again afterwards.");
 
         ImGui.SameLine();
         if (reason is not null)
@@ -390,9 +392,9 @@ public sealed class MainWindow : Window
         ImGui.TextDisabled("A spell that is already active and also in the new set stays where it is.");
 
         ImGui.Spacing();
-        if (ImGui.Checkbox("Let /blusets apply click off Aetheric Mimicry", ref this.config.AutoRemoveBlockers))
+        if (ImGui.Checkbox("Let /blusets apply end Aetheric Mimicry", ref this.config.AutoRemoveBlockers))
             this.config.Save();
-        ImGui.TextDisabled("Spells cannot be changed while Mimicry is active. With this off, the command stops and\nsays so. The button in the window always asks first by naming the buff it will remove.");
+        ImGui.TextDisabled("Spells cannot be changed while Mimicry is active. Ending it means recasting Aetheric\nMimicry, so with this off the command stops and says so. The button in the window\nalways names the buff before ending it.");
 
         ImGui.Spacing();
         ImGui.Separator();

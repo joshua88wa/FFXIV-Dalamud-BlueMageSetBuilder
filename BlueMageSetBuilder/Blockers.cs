@@ -9,8 +9,10 @@ using StatusSheet = Lumina.Excel.Sheets.Status;
 namespace BlueMageSetBuilder;
 
 /// <summary>A buff on the player that stops spells being changed.</summary>
-/// <param name="SourceId">Entity id of whoever applied the buff. Removing it the way a right-click does needs this.</param>
-public sealed record BlockingStatus(uint Id, string Name, bool CanRemove, uint SourceId);
+/// <param name="CanRemove">The plugin has a way to end it: a spell that ends it on reuse, or the game allows clicking it off.</param>
+/// <param name="SourceId">Entity id of whoever applied the buff, for clicking it off.</param>
+/// <param name="EndedByActionId">A spell that ends this buff when cast again, or 0.</param>
+public sealed record BlockingStatus(uint Id, string Name, bool CanRemove, uint SourceId, uint EndedByActionId);
 
 /// <summary>
 /// Everything that stops the active set from changing, in one place.
@@ -19,16 +21,23 @@ public sealed record BlockingStatus(uint Id, string Name, bool CanRemove, uint S
 /// own check (ActionManager.CanAssignBlueMageAction) is known only by address, with no
 /// signature or parameters, so it is not called. Instead there are two layers: a list
 /// of known blockers checked up front, and a read-back after every apply that catches
-/// anything the list misses and names the player's buffs so it can be added here.
+/// anything the list misses and logs buffs and cooldowns so it can be added here.
 /// </summary>
 public static class Blockers
 {
-    // Status ids from the Status sheet. Add to this when a refused apply turns up a new one.
-    private static readonly uint[] KnownBlockingStatuses =
+    public const uint AethericMimicryAction = 18322;
+
+    // Status id -> the spell that ends it when cast again (0 if none). Status ids are
+    // from the Status sheet. Add to this when a refused apply turns up a new blocker.
+    //
+    // Aetheric Mimicry cannot be clicked off: the game refuses ExecuteStatusOff and
+    // /statusoff for it (tested 2026-10-10). Its tooltip says "Effect ends upon reuse",
+    // and recasting it is how players remove it, so that is what the plugin does.
+    private static readonly Dictionary<uint, uint> KnownBlockingStatuses = new()
     {
-        2124, // Aetheric Mimicry: Tank
-        2125, // Aetheric Mimicry: DPS
-        2126, // Aetheric Mimicry: Healer
+        [2124] = AethericMimicryAction, // Aetheric Mimicry: Tank
+        [2125] = AethericMimicryAction, // Aetheric Mimicry: DPS
+        [2126] = AethericMimicryAction, // Aetheric Mimicry: Healer
     };
 
     /// <summary>States that block changes, or where changing spells makes no sense.</summary>
@@ -68,15 +77,16 @@ public static class Blockers
 
         foreach (var status in player.StatusList)
         {
-            if (status.StatusId != 0 && KnownBlockingStatuses.Contains(status.StatusId))
-            {
-                var row = Service.Data.GetExcelSheet<StatusSheet>().GetRowOrDefault(status.StatusId);
-                result.Add(new BlockingStatus(
-                    status.StatusId,
-                    row?.Name.ExtractText() ?? $"Status {status.StatusId}",
-                    row?.CanStatusOff ?? false,
-                    status.SourceId));
-            }
+            if (status.StatusId == 0 || !KnownBlockingStatuses.TryGetValue(status.StatusId, out var endedBy))
+                continue;
+
+            var row = Service.Data.GetExcelSheet<StatusSheet>().GetRowOrDefault(status.StatusId);
+            result.Add(new BlockingStatus(
+                status.StatusId,
+                row?.Name.ExtractText() ?? $"Status {status.StatusId}",
+                endedBy != 0 || (row?.CanStatusOff ?? false),
+                status.SourceId,
+                endedBy));
         }
 
         return result;
@@ -97,32 +107,76 @@ public static class Blockers
     }
 
     /// <summary>
-    /// Clicks the buffs off. Three ways, stopping at the first the game accepts:
-    ///   1. StatusManager.ExecuteStatusOff with the buff's real source, as a right-click does.
-    ///   2. The same with no source, which matches the first buff with that id.
-    ///   3. The game's own /statusoff "name" text command.
-    /// The first version used only (2) and the game silently declined it for Aetheric
-    /// Mimicry, so every attempt and its answer is logged.
+    /// Starts ending the buffs. Returns null once every request is on its way, or a
+    /// reason it could not be done. Either way the buff only disappears a moment later
+    /// (after a cast, or when the server answers), so the caller waits for it.
     /// </summary>
-    public static void RequestRemoval(IEnumerable<BlockingStatus> statuses)
+    public static unsafe string? RequestRemoval(IReadOnlyList<BlockingStatus> statuses, uint[] activeActionIds)
     {
+        var castAlready = new HashSet<uint>();
+
         foreach (var s in statuses.Where(s => s.CanRemove))
         {
-            if (s.SourceId is not 0 and not 0xE0000000)
+            if (s.EndedByActionId != 0)
             {
-                var withSource = StatusManager.ExecuteStatusOff(s.Id, s.SourceId);
-                Service.Log.Info($"Status off {s.Name} ({s.Id}) with source {s.SourceId:X}: {withSource}");
-                if (withSource)
+                if (!castAlready.Add(s.EndedByActionId))
                     continue;
+
+                var error = CastToEnd(s, activeActionIds);
+                if (error is not null)
+                    return error;
+                continue;
             }
 
-            var anySource = StatusManager.ExecuteStatusOff(s.Id);
-            Service.Log.Info($"Status off {s.Name} ({s.Id}) with any source: {anySource}");
-            if (anySource)
-                continue;
-
-            SendTextCommand($"/statusoff \"{s.Name}\"");
+            if (!ClickOff(s))
+                SendTextCommand($"/statusoff \"{s.Name}\"");
         }
+
+        return null;
+    }
+
+    // Recasts the spell that ends the buff, the way a player would. It has to be one of
+    // the 24 active spells, and the game has to be willing to cast it right now, which
+    // it reports through GetActionStatus as a LogMessage id (0 means it can).
+    private static unsafe string? CastToEnd(BlockingStatus s, uint[] activeActionIds)
+    {
+        var spellName = Service.Data.GetExcelSheet<Lumina.Excel.Sheets.Action>()
+            .GetRowOrDefault(s.EndedByActionId)?.Name.ExtractText() ?? "the spell";
+
+        if (!activeActionIds.Contains(s.EndedByActionId))
+            return $"{s.Name} ends when you recast {spellName}, but {spellName} is not in your active spells. End it by hand.";
+
+        var am = ActionManager.Instance();
+        if (am == null)
+            return "The game is not ready to cast.";
+
+        var status = am->GetActionStatus(ActionType.Action, s.EndedByActionId);
+        if (status != 0)
+        {
+            var why = DescribeLogMessage(status);
+            Service.Log.Info($"Cannot cast {spellName} to end {s.Name}: status {status} ({why})");
+            return $"Could not recast {spellName} to end {s.Name}: {why}";
+        }
+
+        var used = am->UseAction(ActionType.Action, s.EndedByActionId);
+        Service.Log.Info($"Recast {spellName} ({s.EndedByActionId}) to end {s.Name} ({s.Id}): {used}");
+        return used ? null : $"The game would not cast {spellName}. End {s.Name} by hand.";
+    }
+
+    // Right-click equivalent: with the real source first, then any source.
+    private static bool ClickOff(BlockingStatus s)
+    {
+        if (s.SourceId is not 0 and not 0xE0000000)
+        {
+            var withSource = StatusManager.ExecuteStatusOff(s.Id, s.SourceId);
+            Service.Log.Info($"Status off {s.Name} ({s.Id}) with source {s.SourceId:X}: {withSource}");
+            if (withSource)
+                return true;
+        }
+
+        var anySource = StatusManager.ExecuteStatusOff(s.Id);
+        Service.Log.Info($"Status off {s.Name} ({s.Id}) with any source: {anySource}");
+        return anySource;
     }
 
     // Runs a game text command as if typed in the chat box. Only ever called with a
@@ -143,6 +197,23 @@ public static class Blockers
         {
             str->Dtor(true);
         }
+    }
+
+    /// <summary>The game's own wording for a LogMessage id, such as "Target not in range."</summary>
+    private static string DescribeLogMessage(uint id)
+    {
+        try
+        {
+            var text = Service.SeStrings.EvaluateFromLogMessage(id).ExtractText().Trim();
+            if (text.Length > 0)
+                return text;
+        }
+        catch
+        {
+            // Fall through to the number.
+        }
+
+        return $"game message {id}";
     }
 
     public static string Describe(IReadOnlyList<BlockingStatus> statuses) =>

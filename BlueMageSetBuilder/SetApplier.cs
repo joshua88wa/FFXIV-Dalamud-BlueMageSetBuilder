@@ -100,12 +100,18 @@ public sealed class SetApplier : IDisposable
             return;
         }
 
-        Blockers.RequestRemoval(statuses);
+        var removalError = Blockers.RequestRemoval(statuses, this.book.GetActiveActionIds());
+        if (removalError is not null)
+        {
+            onDone(new ApplyResult(ApplyOutcome.Blocked, removalError));
+            return;
+        }
+
         this.pendingProfile = profile;
         this.pendingCallback = onDone;
         this.pendingDeadline = DateTime.UtcNow + RemovalTimeout;
         this.pendingWaitingOnCooldowns = false;
-        onDone(new ApplyResult(ApplyOutcome.Pending, $"Removing {names}..."));
+        onDone(new ApplyResult(ApplyOutcome.Pending, $"Ending {names}..."));
     }
 
     private void OnUpdate(IFramework framework)
@@ -123,11 +129,16 @@ public sealed class SetApplier : IDisposable
                 var still = Blockers.Describe(Blockers.ActiveStatuses());
                 Service.Log.Warning($"Status removal timed out; still active: {still}");
                 this.ClearPending();
-                callback(new ApplyResult(ApplyOutcome.Failed, $"{still} did not come off. Remove it by hand and try again."));
+                callback(new ApplyResult(ApplyOutcome.Failed, $"{still} did not end. If the cast was interrupted, stand still and try again, or end it by hand."));
             }
 
             return;
         }
+
+        // The buff ends as the recast finishes, so the casting flag can still be up for a
+        // frame or two. Wait it out rather than reporting "wait for your cast".
+        if (Service.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.Casting] && now <= this.pendingDeadline)
+            return;
 
         // The buff is gone. Wait out any cooldowns on spells that would move, giving
         // the deadline enough room for the longest of them.

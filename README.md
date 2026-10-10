@@ -32,8 +32,10 @@ Magic Spellbook.
   Any spell can be excluded from every suggestion, for example one you find awkward.
 - Applying keeps spells that are already active in the slots they are in, so as little
   moves as possible.
-- Aetheric Mimicry handled for you: spells cannot be changed while it is up, so the
-  button offers to click it off, apply the set, and remind you to recast it.
+- Aetheric Mimicry and cooldowns handled for you: spells cannot be changed while
+  Mimicry is up or while a spell that would move is recasting. The button offers to
+  end Mimicry by recasting it, waits out the cooldowns, applies the set, and reminds
+  you to mimic again.
 - `/blusets apply <profile>` for macros.
 - Profiles are a plain JSON file you can export, edit in any text editor, and reload
   without touching the plugin.
@@ -85,10 +87,14 @@ while Aetheric Mimicry is active, and once a Masked Carnivale stage has started.
 plugin checks for all of these before trying except the Carnivale lock, which it
 reports when the game refuses.
 
-When Mimicry is the only thing in the way, the button changes to **Remove Aetheric
-Mimicry and apply**. It clicks the buff off, waits for it to drop, applies the set,
-and reminds you to recast it. `/blusets apply` stops and tells you instead, unless you
-turn on **Let /blusets apply click off Aetheric Mimicry** in Settings.
+Aetheric Mimicry cannot be clicked off; it ends when you cast Aetheric Mimicry again.
+So when it is the only thing in the way, the button changes to **End Aetheric
+Mimicry and apply**. It recasts Aetheric Mimicry for you (stand still, it has a one
+second cast), waits for the global cooldown, applies the set, and reminds you to
+mimic again. Aetheric Mimicry has to be one of your active spells for this to work,
+and if the game will not cast it right then, the plugin shows the game's own reason.
+`/blusets apply` stops and tells you instead, unless you turn on **Let /blusets apply
+end Aetheric Mimicry** in Settings.
 
 If the game refuses a change for a reason the plugin does not know about, the message
 lists your current buffs. Please report it with that list so the cause can be added.
@@ -96,8 +102,9 @@ lists your current buffs. Please report it with that list so the cause can be ad
 ## Settings
 
 - **Keep spells in the same slot when applying.** On by default.
-- **Let /blusets apply click off Aetheric Mimicry.** Off by default, because it means
-  recasting Mimicry. The button in the window always names the buff before removing it.
+- **Let /blusets apply end Aetheric Mimicry.** Off by default, because it casts a spell
+  and means mimicking again afterwards. The button in the window always names the buff
+  before ending it.
 - **Show spells I have not learned** on the Spellbook tab.
 - **Exclude** any spell from every suggested set, on the Spellbook tab.
 - **Profiles:** export, reload, open the config folder, or go back to the built-in set.
@@ -148,9 +155,11 @@ with cast, recast and MP cost read live from the game while you are on Blue Mage
 they include your spell speed. On other jobs they show base values. They are not the
 game's tooltip window itself, which can only attach to the game's own interface.
 
-**Aetheric Mimicry** is removed with `StatusManager.ExecuteStatusOff`, which is what
-right-clicking a buff does. If the game declines that, the plugin falls back to the
-game's own `/statusoff` command.
+**Aetheric Mimicry** is ended by casting Aetheric Mimicry through
+`ActionManager.UseAction`, after `GetActionStatus` confirms the game will allow it.
+That is one cast per button press, the same as pressing it on your hotbar. The game
+refuses both `StatusManager.ExecuteStatusOff` (right-click) and `/statusoff` for this
+buff; those remain as the fallback for any other blocking buff added later.
 
 ## Problems and suggestions
 
