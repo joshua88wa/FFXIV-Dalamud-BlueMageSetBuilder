@@ -54,6 +54,7 @@ public sealed class MainWindow : Window
         {
             ApplyOutcome.Applied => ImGuiColors.HealerGreen,
             ApplyOutcome.AlreadyActive => ImGuiColors.DalamudWhite,
+            ApplyOutcome.Pending => ImGuiColors.DalamudOrange,
             ApplyOutcome.Blocked => ImGuiColors.DalamudYellow,
             _ => ImGuiColors.DalamudRed,
         };
@@ -153,14 +154,27 @@ public sealed class MainWindow : Window
         var built = this.applier.Build(profile);
         var active = this.book.GetActiveActionIds().ToHashSet();
 
-        var reason = SetApplier.BlockReason();
+        var reason = Blockers.HardBlockReason();
         if (reason is null && built.Chosen.Count == 0)
             reason = "None of your learned spells are in this profile.";
 
-        ImGui.BeginDisabled(reason is not null);
-        if (ImGui.Button("Apply this set"))
-            this.ShowResult(this.applier.Apply(profile));
+        // Known buffs that stop spells changing. The button names the buff it will click
+        // off, so pressing it is an explicit choice to lose it.
+        var blocking = reason is null ? Blockers.ActiveStatuses() : new();
+        var names = Blockers.Describe(blocking);
+        var removable = blocking.Count > 0 && blocking.All(s => s.CanRemove);
+        if (reason is null && blocking.Count > 0 && !removable)
+            reason = $"{names} stops spells being changed. Wait for it to end.";
+
+        var label = removable ? $"Remove {names} and apply" : "Apply this set";
+
+        ImGui.BeginDisabled(reason is not null || this.applier.IsPending);
+        if (ImGui.Button(label))
+            this.applier.Request(profile, removeBlockers: true, this.ShowResult);
         ImGui.EndDisabled();
+
+        if (removable && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            ImGui.SetTooltip($"Spells cannot be changed while {names} is active.\nThis clicks it off, applies the set, and you recast it afterwards.");
 
         ImGui.SameLine();
         if (reason is not null)
@@ -307,6 +321,11 @@ public sealed class MainWindow : Window
         if (ImGui.Checkbox("Keep spells in the same slot when applying", ref this.config.KeepSlots))
             this.config.Save();
         ImGui.TextDisabled("A spell that is already active and also in the new set stays where it is.");
+
+        ImGui.Spacing();
+        if (ImGui.Checkbox("Let /blusets apply click off Aetheric Mimicry", ref this.config.AutoRemoveBlockers))
+            this.config.Save();
+        ImGui.TextDisabled("Spells cannot be changed while Mimicry is active. With this off, the command stops and\nsays so. The button in the window always asks first by naming the buff it will remove.");
 
         ImGui.Spacing();
         ImGui.Separator();

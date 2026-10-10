@@ -32,9 +32,18 @@ applies it with one click.
 
 ## Rules the game enforces
 
-You can only change spells as a Blue Mage and out of combat, and a Masked Carnivale
-stage locks them once it starts. The plugin checks the first two before trying and
-reports it if the game refuses.
+Spells cannot be changed in combat, mid-cast, while zoning or in a cutscene, while
+Aetheric Mimicry is active, or once a Masked Carnivale stage has started. The plugin
+checks for all of these before trying except the Carnivale lock, which it reports when
+the game refuses.
+
+When Mimicry is the only thing in the way, the button changes to **Remove Aetheric
+Mimicry and apply**. It clicks the buff off, waits for it to drop, applies the set,
+and reminds you to recast it. `/blusets apply` stops and tells you instead, unless
+you turn on **Let /blusets apply click off Aetheric Mimicry** in Settings.
+
+If the game refuses a change for a reason the plugin does not know about, the message
+lists your current buffs so the culprit can be found and added.
 
 ## Editing the profiles
 

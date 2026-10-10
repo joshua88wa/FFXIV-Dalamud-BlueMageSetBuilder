@@ -24,6 +24,10 @@ public class Configuration : IPluginConfiguration
 
     public bool ShowUnlearned = true;
 
+    // Click off buffs that stop spells being changed (Aetheric Mimicry) before applying.
+    // Off by default because it means recasting Mimicry afterwards.
+    public bool AutoRemoveBlockers = false;
+
     [NonSerialized] private IDalamudPluginInterface? pluginInterface;
 
     public void Initialize(IDalamudPluginInterface pi) => this.pluginInterface = pi;

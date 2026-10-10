@@ -54,6 +54,7 @@ public sealed class Plugin : IDalamudPlugin
 
         Service.Commands.RemoveHandler(CommandName);
         this.windowSystem.RemoveAllWindows();
+        this.applier.Dispose();
     }
 
     private void OpenMain() => this.mainWindow.IsOpen = true;
@@ -95,13 +96,16 @@ public sealed class Plugin : IDalamudPlugin
             return;
         }
 
-        var result = this.applier.Apply(profile);
-        this.mainWindow.ShowResult(result);
+        // Called once with Pending if Mimicry has to come off first, then with the result.
+        this.applier.Request(profile, this.config.AutoRemoveBlockers, result =>
+        {
+            this.mainWindow.ShowResult(result);
 
-        if (result.Outcome is ApplyOutcome.Applied or ApplyOutcome.AlreadyActive)
-            Service.Chat.Print($"[Blue Mage Set Builder] {result.Message}");
-        else
-            Service.Chat.PrintError($"[Blue Mage Set Builder] {result.Message}");
+            if (result.Outcome is ApplyOutcome.Applied or ApplyOutcome.AlreadyActive or ApplyOutcome.Pending)
+                Service.Chat.Print($"[Blue Mage Set Builder] {result.Message}");
+            else
+                Service.Chat.PrintError($"[Blue Mage Set Builder] {result.Message}");
+        });
     }
 
     // A self-check for the parts that depend on reverse-engineered game memory: every
@@ -114,6 +118,10 @@ public sealed class Plugin : IDalamudPlugin
         Line($"Logged in: {Spellbook.IsLoggedIn}, on Blue Mage: {Spellbook.IsBlueMage}");
         Line($"Spells in game data: {this.book.Spells.Count}, learned: {this.book.LearnedCount()}");
         Line($"Profiles: {this.store.Profiles.Count} from {this.store.LoadedFrom}");
+        Line($"Blocked by state: {Blockers.HardBlockReason() ?? "no"}");
+        var blocking = Blockers.ActiveStatuses();
+        Line($"Blocking buffs: {(blocking.Count == 0 ? "none" : string.Join(", ", blocking.Select(b => $"{b.Name} ({b.Id}, removable: {b.CanRemove})")))}");
+        Line($"All buffs: {string.Join(", ", Blockers.AllStatusNames())}");
 
         var active = this.book.GetActiveActionIds();
         var names = active.Select((id, i) =>

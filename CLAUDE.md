@@ -49,9 +49,18 @@ Dalamud Settings -> Experimental -> Dev Plugin Locations.
 - `SetBuilder` is pure logic: profile + learned predicate + exclusions in, chosen spells
   and "worth learning" list out. `Layout` places them in slots, keeping already-active
   spells where they are.
-- `SetApplier` holds the guards (logged in, on Blue Mage, out of combat) and is shared
-  by the window and `/blusets apply`. It reads the slots back after writing, because the
-  return value alone does not prove the change took.
+- `Blockers` is every reason a change cannot happen: conditions (combat, casting,
+  zoning, cutscenes) and known blocking buffs (`KnownBlockingStatuses`, currently the
+  three Aetheric Mimicry statuses 2124-2126). The game has no data table or message for
+  this; the spellbook just greys out. Its own `CanAssignBlueMageAction` is known only
+  by address, so it is not called. When an apply is refused for an unknown reason the
+  player's buffs are listed in the message and the log; add the culprit to the list.
+- `SetApplier` is shared by the window and `/blusets apply`. If a removable blocking
+  buff is up it calls `StatusManager.ExecuteStatusOff` (the same as right-clicking the
+  buff), then applies on the first framework tick the buff is gone, with a 5 second
+  timeout. The callback gets a Pending result first, then the final one. It reads the
+  slots back after writing, because the return value alone does not prove the change
+  took.
 - `ProfileStore` loads `Profiles.json`: the embedded copy by default, or a user copy in
   the plugin config folder, which replaces it entirely.
 
@@ -67,5 +76,11 @@ the game shows.
   check the spellbook.
 - `/blusets debug` self-checks the learned test: every active spell must read as
   learned. A contradiction means `UnlockLink` is the wrong source.
+- That Aetheric Mimicry really blocks changes (Joshua's observation, not confirmed
+  from data), and that the remove-then-apply flow works.
+- Whether other buffs block (Basic Instinct, Mighty Guard, etc.). Unknown; the refusal
+  message will name them.
+- Whether the Blue Mage job check is needed at all: log message 9470 suggests active
+  actions can be changed on other jobs, with hotbars only saved on Blue Mage.
 - Behaviour inside duties and Masked Carnivale. The game's `CanAssignBlueMageAction`
   is in ClientStructs' data.yml but not yet in the C# structs.
