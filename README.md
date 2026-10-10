@@ -24,7 +24,8 @@ Magic Spellbook.
   says what it is standing in for, so a low-level Blue Mage still gets a usable set.
 - Any slots left once a profile runs out of picks are topped up with generally useful
   spells you know, marked as extras, so the set is never left with gaps.
-- The whole spellbook in one table: number, rank, learned or not, and where to get it.
+- The whole spellbook in one table: number, rank, learned or not, and where to get it,
+  with a search box that matches the name, the spellbook number, or where to learn it.
   Any spell can be excluded from every suggestion, for example one you find awkward.
 - Applying keeps spells that are already active in the slots they are in, so as little
   moves as possible.
@@ -139,7 +140,8 @@ confirm the change took. It does not touch your five saved active sets or your
 hotbars.
 
 **Aetheric Mimicry** is removed with `StatusManager.ExecuteStatusOff`, which is what
-right-clicking a buff does.
+right-clicking a buff does. If the game declines that, the plugin falls back to the
+game's own `/statusoff` command.
 
 ## Problems and suggestions
 

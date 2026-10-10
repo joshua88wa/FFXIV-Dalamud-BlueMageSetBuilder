@@ -2,12 +2,15 @@ using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.ClientState.Conditions;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.System.String;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using StatusSheet = Lumina.Excel.Sheets.Status;
 
 namespace BlueMageSetBuilder;
 
 /// <summary>A buff on the player that stops spells being changed.</summary>
-public sealed record BlockingStatus(uint Id, string Name, bool CanRemove);
+/// <param name="SourceId">Entity id of whoever applied the buff. Removing it the way a right-click does needs this.</param>
+public sealed record BlockingStatus(uint Id, string Name, bool CanRemove, uint SourceId);
 
 /// <summary>
 /// Everything that stops the active set from changing, in one place.
@@ -71,7 +74,8 @@ public static class Blockers
                 result.Add(new BlockingStatus(
                     status.StatusId,
                     row?.Name.ExtractText() ?? $"Status {status.StatusId}",
-                    row?.CanStatusOff ?? false));
+                    row?.CanStatusOff ?? false,
+                    status.SourceId));
             }
         }
 
@@ -93,15 +97,51 @@ public static class Blockers
     }
 
     /// <summary>
-    /// Clicks the buffs off, the same as right-clicking them. This only sends the
-    /// request; the buff disappears when the server answers, a frame or more later.
+    /// Clicks the buffs off. Three ways, stopping at the first the game accepts:
+    ///   1. StatusManager.ExecuteStatusOff with the buff's real source, as a right-click does.
+    ///   2. The same with no source, which matches the first buff with that id.
+    ///   3. The game's own /statusoff "name" text command.
+    /// The first version used only (2) and the game silently declined it for Aetheric
+    /// Mimicry, so every attempt and its answer is logged.
     /// </summary>
     public static void RequestRemoval(IEnumerable<BlockingStatus> statuses)
     {
         foreach (var s in statuses.Where(s => s.CanRemove))
         {
-            Service.Log.Info($"Requesting status off: {s.Name} ({s.Id})");
-            StatusManager.ExecuteStatusOff(s.Id);
+            if (s.SourceId is not 0 and not 0xE0000000)
+            {
+                var withSource = StatusManager.ExecuteStatusOff(s.Id, s.SourceId);
+                Service.Log.Info($"Status off {s.Name} ({s.Id}) with source {s.SourceId:X}: {withSource}");
+                if (withSource)
+                    continue;
+            }
+
+            var anySource = StatusManager.ExecuteStatusOff(s.Id);
+            Service.Log.Info($"Status off {s.Name} ({s.Id}) with any source: {anySource}");
+            if (anySource)
+                continue;
+
+            SendTextCommand($"/statusoff \"{s.Name}\"");
+        }
+    }
+
+    // Runs a game text command as if typed in the chat box. Only ever called with a
+    // command built here from a status name out of the game's own sheet.
+    private static unsafe void SendTextCommand(string command)
+    {
+        var ui = UIModule.Instance();
+        if (ui == null)
+            return;
+
+        Service.Log.Info($"Falling back to: {command}");
+        var str = Utf8String.FromString(command);
+        try
+        {
+            ui->ProcessChatBoxEntry(str);
+        }
+        finally
+        {
+            str->Dtor(true);
         }
     }
 

@@ -24,6 +24,10 @@ public sealed class MainWindow : Window
     private Vector4 statusColor = ImGuiColors.DalamudWhite;
     private bool jumpToSettings;
 
+    // Spellbook tab search. Deliberately not saved: a filter left on from last time
+    // makes the list look like spells are missing.
+    private string search = string.Empty;
+
     public MainWindow(Configuration config, Spellbook book, ProfileStore store, SetApplier applier)
         : base("Blue Mage Set Builder##BlueMageSetBuilder")
     {
@@ -262,6 +266,16 @@ public sealed class MainWindow : Window
 
     private void DrawSpellbook()
     {
+        ImGui.SetNextItemWidth(260 * ImGuiHelpers.GlobalScale);
+        ImGui.InputTextWithHint("##bms_search", "Search by name, number or where to learn", ref this.search, 64);
+        if (this.search.Length > 0)
+        {
+            ImGui.SameLine();
+            if (ImGui.Button("Clear##bms_search_clear"))
+                this.search = string.Empty;
+        }
+
+        ImGui.SameLine();
         if (ImGui.Checkbox("Show spells I have not learned", ref this.config.ShowUnlearned))
             this.config.Save();
 
@@ -286,11 +300,16 @@ public sealed class MainWindow : Window
             ImGui.TableSetupColumn("Exclude");
             ImGui.TableHeadersRow();
 
+            var shown = 0;
             foreach (var spell in this.book.Spells)
             {
                 var learned = this.book.IsLearned(spell);
                 if (!learned && !this.config.ShowUnlearned)
                     continue;
+                if (!MatchesSearch(spell, this.search))
+                    continue;
+
+                shown++;
 
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
@@ -319,9 +338,34 @@ public sealed class MainWindow : Window
             }
 
             ImGui.EndTable();
+
+            if (shown == 0)
+            {
+                ImGui.TextDisabled(this.search.Length > 0
+                    ? $"No spells match \"{this.search}\"."
+                    : "No spells to show.");
+                if (this.search.Length > 0 && !this.config.ShowUnlearned)
+                    ImGui.TextDisabled("Spells you have not learned are hidden. Tick the box above to include them.");
+            }
         }
 
         ImGui.EndChild();
+    }
+
+    // A number matches the spellbook number exactly, so "1" finds Water Cannon rather
+    // than every spell with a 1 in it. Anything else matches anywhere in the name or
+    // where the spell is learned, ignoring case.
+    private static bool MatchesSearch(BlueSpell spell, string search)
+    {
+        var term = search.Trim();
+        if (term.Length == 0)
+            return true;
+
+        if (uint.TryParse(term.TrimStart('#'), out var number))
+            return spell.Number == number;
+
+        return spell.Name.Contains(term, StringComparison.OrdinalIgnoreCase)
+               || spell.Source.Contains(term, StringComparison.OrdinalIgnoreCase);
     }
 
     private void DrawSettings()

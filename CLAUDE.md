@@ -96,14 +96,17 @@ the game shows.
 ## Things still to verify in game
 
 - Confirmed 2026-10-10: applying changes the game's own Active Actions panel (same
-  spells, same order), the learned count matches the spellbook's Total Actions, and the
-  remove-Mimicry-then-apply flow works.
+  spells, same order), and the learned count matches the spellbook's Total Actions.
+- Confirmed 2026-10-10 from the log: Aetheric Mimicry blocks changes. An apply with
+  it up returned `reported=False` and the slots did not change.
+- Failed 2026-10-10: removing Mimicry. `ExecuteStatusOff(2125)` with the default
+  source was silently declined; Joshua removed it by hand. Now tries the real source,
+  then any source, then `/statusoff "name"`, logging each result. Needs a retest:
+  check `/xllog` for the "Status off" lines.
 - Still open: whether `SetBlueMageActions` persists server-side. Apply a set, then zone
   or relog and check the spellbook.
 - `/blusets debug` self-checks the learned test: every active spell must read as
   learned. A contradiction means `UnlockLink` is the wrong source.
-- That Aetheric Mimicry really blocks changes (Joshua's observation, not confirmed
-  from data). If it does not, the remove step is harmless but unnecessary.
 - Whether other buffs block (Basic Instinct, Mighty Guard, etc.). Unknown; the refusal
   message will name them.
 - Whether the Blue Mage job check is needed at all: log message 9470 suggests active
