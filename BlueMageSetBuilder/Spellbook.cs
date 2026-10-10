@@ -146,6 +146,21 @@ public sealed unsafe class Spellbook
     }
 
     /// <summary>
+    /// Seconds until the spell is off cooldown, or 0 if it is ready. Blue magic shares
+    /// the global cooldown, so right after any cast most spells read as recasting.
+    /// </summary>
+    public float RemainingRecast(uint actionId)
+    {
+        var am = ActionManager.Instance();
+        if (am == null || actionId == 0 || !am->IsRecastTimerActive(ActionType.Action, actionId))
+            return 0;
+
+        var total = am->GetRecastTime(ActionType.Action, actionId);
+        var elapsed = am->GetRecastTimeElapsed(ActionType.Action, actionId);
+        return Math.Max(0, total - elapsed);
+    }
+
+    /// <summary>
     /// Writes all 24 slots in one call, the same way loading a saved active set does.
     /// Must be called on the framework thread, which the UI draw callback already is.
     /// </summary>

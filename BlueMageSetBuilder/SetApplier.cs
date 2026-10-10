@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Plugin.Services;
 
@@ -8,13 +9,15 @@ public enum ApplyOutcome { Applied, AlreadyActive, Pending, Blocked, Refused, Fa
 
 public sealed record ApplyResult(ApplyOutcome Outcome, string Message);
 
+public sealed record Cooldown(BlueSpell Spell, float Seconds);
+
 /// <summary>
 /// Turns a profile into a live active set. Shared by the window's button and the
 /// /blusets apply command so both obey the same checks.
 ///
 /// When a removable buff such as Aetheric Mimicry is in the way, the apply happens in
-/// two steps: ask the server to drop the buff, then apply on the first frame it is gone.
-/// The result arrives through the callback either way.
+/// steps: ask for the buff to come off, wait for it to go, wait for any cooldowns on
+/// spells that would move, then apply. The result arrives through the callback.
 /// </summary>
 public sealed class SetApplier : IDisposable
 {
@@ -26,6 +29,7 @@ public sealed class SetApplier : IDisposable
     private Profile? pendingProfile;
     private Action<ApplyResult>? pendingCallback;
     private DateTime pendingDeadline;
+    private bool pendingWaitingOnCooldowns;
 
     public SetApplier(Configuration config, Spellbook book)
     {
@@ -42,9 +46,23 @@ public sealed class SetApplier : IDisposable
         SetBuilder.Build(profile, this.book, this.book.IsLearned, this.config.Excluded);
 
     /// <summary>
+    /// Spells that would leave or change slot under this profile and are still on
+    /// cooldown. The game will not move a spell that is recasting.
+    /// </summary>
+    public List<Cooldown> CooldownsInTheWay(Profile profile)
+    {
+        var current = this.book.GetActiveActionIds();
+        var layout = SetBuilder.Layout(this.Build(profile).Chosen, current, this.config.KeepSlots);
+        return this.CooldownsInTheWay(current, layout);
+    }
+
+    public static string DescribeCooldowns(IEnumerable<Cooldown> cooldowns) =>
+        string.Join(", ", cooldowns.Select(c => $"{c.Spell.Name} ({Math.Ceiling(c.Seconds):0}s)"));
+
+    /// <summary>
     /// Applies the profile, removing blocking buffs first when <paramref name="removeBlockers"/>
-    /// is true. <paramref name="onDone"/> is called with a Pending result first if a buff
-    /// has to come off, then once more with the final result on a later frame.
+    /// is true. <paramref name="onDone"/> is called with a Pending result first if the
+    /// plugin has to wait, then once more with the final result on a later frame.
     /// </summary>
     public void Request(Profile profile, bool removeBlockers, Action<ApplyResult> onDone)
     {
@@ -86,6 +104,7 @@ public sealed class SetApplier : IDisposable
         this.pendingProfile = profile;
         this.pendingCallback = onDone;
         this.pendingDeadline = DateTime.UtcNow + RemovalTimeout;
+        this.pendingWaitingOnCooldowns = false;
         onDone(new ApplyResult(ApplyOutcome.Pending, $"Removing {names}..."));
     }
 
@@ -95,31 +114,69 @@ public sealed class SetApplier : IDisposable
             return;
 
         var callback = this.pendingCallback!;
+        var now = DateTime.UtcNow;
 
-        if (Blockers.ActiveStatuses().Count == 0)
+        if (Blockers.ActiveStatuses().Count > 0)
         {
-            this.ClearPending();
+            if (now > this.pendingDeadline)
+            {
+                var still = Blockers.Describe(Blockers.ActiveStatuses());
+                Service.Log.Warning($"Status removal timed out; still active: {still}");
+                this.ClearPending();
+                callback(new ApplyResult(ApplyOutcome.Failed, $"{still} did not come off. Remove it by hand and try again."));
+            }
 
-            // Something else may have changed while waiting, such as combat starting.
-            var hard = Blockers.HardBlockReason();
-            var result = hard is null ? this.ApplyNow(profile) : new ApplyResult(ApplyOutcome.Blocked, hard);
-            if (result.Outcome == ApplyOutcome.Applied)
-                result = result with { Message = result.Message + " Recast Aetheric Mimicry if you need it." };
-            callback(result);
             return;
         }
 
-        if (DateTime.UtcNow > this.pendingDeadline)
+        // The buff is gone. Wait out any cooldowns on spells that would move, giving
+        // the deadline enough room for the longest of them.
+        var cooldowns = this.CooldownsInTheWay(profile);
+        if (cooldowns.Count > 0)
         {
-            this.ClearPending();
-            callback(new ApplyResult(ApplyOutcome.Failed, "The buff did not come off. Remove it by hand and try again."));
+            if (!this.pendingWaitingOnCooldowns)
+            {
+                this.pendingWaitingOnCooldowns = true;
+                this.pendingDeadline = now + TimeSpan.FromSeconds(cooldowns.Max(c => c.Seconds) + 2);
+                callback(new ApplyResult(ApplyOutcome.Pending, $"Waiting for cooldowns: {DescribeCooldowns(cooldowns)}"));
+            }
+
+            if (now <= this.pendingDeadline)
+                return;
         }
+
+        this.ClearPending();
+
+        // Something else may have changed while waiting, such as combat starting.
+        var hard = Blockers.HardBlockReason();
+        var result = hard is null ? this.ApplyNow(profile) : new ApplyResult(ApplyOutcome.Blocked, hard);
+        if (result.Outcome == ApplyOutcome.Applied)
+            result = result with { Message = result.Message + " Recast Aetheric Mimicry if you need it." };
+        callback(result);
     }
 
     private void ClearPending()
     {
         this.pendingProfile = null;
         this.pendingCallback = null;
+        this.pendingWaitingOnCooldowns = false;
+    }
+
+    // A slot "moves" when it held a spell and will hold something else afterwards.
+    private List<Cooldown> CooldownsInTheWay(uint[] current, uint[] layout)
+    {
+        var result = new List<Cooldown>();
+        for (var i = 0; i < current.Length && i < layout.Length; i++)
+        {
+            if (current[i] == 0 || current[i] == layout[i])
+                continue;
+
+            var seconds = this.book.RemainingRecast(current[i]);
+            if (seconds > 0 && this.book.ByAction(current[i]) is { } spell)
+                result.Add(new Cooldown(spell, seconds));
+        }
+
+        return result;
     }
 
     private ApplyResult ApplyNow(Profile profile)
@@ -133,6 +190,10 @@ public sealed class SetApplier : IDisposable
 
         if (layout.SequenceEqual(current))
             return new ApplyResult(ApplyOutcome.AlreadyActive, $"{profile.Name} is already your active set.");
+
+        var cooldowns = this.CooldownsInTheWay(current, layout);
+        if (cooldowns.Count > 0)
+            return new ApplyResult(ApplyOutcome.Blocked, $"Wait for cooldowns: {DescribeCooldowns(cooldowns)}");
 
         bool reported;
         try
@@ -150,18 +211,32 @@ public sealed class SetApplier : IDisposable
         var after = this.book.GetActiveActionIds();
         var matches = after.SequenceEqual(layout);
 
-        Service.Log.Info($"Apply {profile.Id}: reported={reported} matches={matches} " +
+        Service.Log.Info($"Apply {profile.Id}: reported={reported} matches={matches} keepSlots={this.config.KeepSlots} " +
                          $"wanted=[{string.Join(",", layout)}] got=[{string.Join(",", after)}]");
 
         if (matches)
             return new ApplyResult(ApplyOutcome.Applied, $"Applied {profile.Name}: {built.Chosen.Count} spells.");
 
-        // Not caught by any known blocker. Name the buffs so the culprit can be added to
-        // Blockers.KnownBlockingStatuses.
+        // Not caught by any known blocker. Record everything that might explain it: buffs,
+        // and any active spell still recasting (not just ones that were meant to move).
         var buffs = Blockers.AllStatusNames();
-        Service.Log.Warning($"Unexplained refusal. Statuses: {string.Join(", ", buffs)}");
-        var buffText = buffs.Count > 0 ? $" Your buffs right now: {string.Join(", ", buffs)}." : string.Empty;
+        var recasting = current
+            .Where(id => id != 0)
+            .Select(id => (Spell: this.book.ByAction(id), Seconds: this.book.RemainingRecast(id)))
+            .Where(x => x.Spell is not null && x.Seconds > 0)
+            .Select(x => new Cooldown(x.Spell!, x.Seconds))
+            .ToList();
+
+        Service.Log.Warning($"Unexplained refusal. Statuses: [{string.Join(", ", buffs)}] " +
+                            $"Recasting: [{DescribeCooldowns(recasting)}]");
+
+        var detail = string.Empty;
+        if (buffs.Count > 0)
+            detail += $" Your buffs: {string.Join(", ", buffs)}.";
+        if (recasting.Count > 0)
+            detail += $" Recasting: {DescribeCooldowns(recasting)}.";
+
         return new ApplyResult(ApplyOutcome.Refused,
-            "The game refused the change. Masked Carnivale stages lock your spells, and a buff may be blocking it." + buffText);
+            "The game refused the change. Masked Carnivale stages lock your spells, and something else may too." + detail);
     }
 }

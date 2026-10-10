@@ -170,6 +170,15 @@ public sealed class MainWindow : Window
         if (reason is null && blocking.Count > 0 && !removable)
             reason = $"{names} stops spells being changed. Wait for it to end.";
 
+        // With no buff to remove, cooldowns block the button outright and count down
+        // live. With a buff to remove, the remove-and-apply flow waits for them itself.
+        if (reason is null && blocking.Count == 0 && !this.applier.IsPending)
+        {
+            var cooldowns = this.applier.CooldownsInTheWay(profile);
+            if (cooldowns.Count > 0)
+                reason = $"Wait for cooldowns: {SetApplier.DescribeCooldowns(cooldowns)}";
+        }
+
         var label = removable ? $"Remove {names} and apply" : "Apply this set";
 
         ImGui.BeginDisabled(reason is not null || this.applier.IsPending);

@@ -99,10 +99,15 @@ the game shows.
   spells, same order), and the learned count matches the spellbook's Total Actions.
 - Confirmed 2026-10-10 from the log: Aetheric Mimicry blocks changes. An apply with
   it up returned `reported=False` and the slots did not change.
-- Failed 2026-10-10: removing Mimicry. `ExecuteStatusOff(2125)` with the default
-  source was silently declined; Joshua removed it by hand. Now tries the real source,
-  then any source, then `/statusoff "name"`, logging each result. Needs a retest:
-  check `/xllog` for the "Status off" lines.
+- Failed twice 2026-10-10: removing Mimicry. `ExecuteStatusOff` returned false with
+  the real source (the player) and with any source, and the `/statusoff "name"`
+  fallback did not remove it either. Cause unknown; waiting on how Joshua removes it
+  by hand and whether `/statusoff` printed an error in chat.
+- 2026-10-10: an apply with no buffs at all was refused (`reported=False`). Joshua
+  recalls the game will not move a spell that is on cooldown. KeepSlots was off, so
+  every slot was shifting. Applies now check `RemainingRecast` for every spell whose
+  slot changes and wait or refuse with a countdown; unexplained refusals now log all
+  recasting active spells. Unconfirmed until the next refusal log.
 - Still open: whether `SetBlueMageActions` persists server-side. Apply a set, then zone
   or relog and check the spellbook.
 - `/blusets debug` self-checks the learned test: every active spell must read as
