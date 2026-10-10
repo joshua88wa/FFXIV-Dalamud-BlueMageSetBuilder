@@ -10,7 +10,7 @@ The point is to skip working out, every time you switch from FATEs to a dungeon 
 trial, which 24 of your spells to bring, and then ticking them one by one in the Blue
 Magic Spellbook.
 
-<img src="images/screenshot.png" alt="The Solo and FATE leveling profile's suggested set, with the reason for each spell and an apply button that offers to remove Aetheric Mimicry first" width="572">
+<img src="images/screenshot.jpg" alt="The game's Blue Magic Spellbook beside the plugin window. The plugin has just applied the Solo and FATE leveling set, and the spellbook's Active Actions panel shows the same spells in the same order.">
 
 ## Features
 

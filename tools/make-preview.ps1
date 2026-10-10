@@ -8,7 +8,12 @@
 Add-Type -AssemblyName System.Drawing
 
 $root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-$source = Join-Path $root 'images\screenshot.png'
+# The screenshot can be a .png or a .jpg; whichever was written most recently wins.
+$source = Get-ChildItem (Join-Path $root 'images') -File |
+    Where-Object { $_.BaseName -eq 'screenshot' -and $_.Extension -in '.png', '.jpg', '.jpeg' } |
+    Sort-Object LastWriteTime -Descending |
+    Select-Object -First 1 -ExpandProperty FullName
+if (-not $source) { 'no images/screenshot.png or .jpg found'; return }
 $target = Join-Path $root 'images\preview.png'
 
 $maxWidth = 730

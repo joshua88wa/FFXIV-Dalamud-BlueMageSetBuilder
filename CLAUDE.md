@@ -74,13 +74,15 @@ The three images are not interchangeable:
 
 | File | Used by | Limit |
 |---|---|---|
-| `images/screenshot.png` | the README | none |
+| `images/screenshot.jpg` (or `.png`) | the README | none |
 | `images/preview.png` | `ImageUrls`, so the in-game installer | **730x380 maximum** |
 | `images/icon.png` | `IconUrl`, so the installer | **512x512 maximum, square** |
 
 To replace the screenshot: copy a new one to the clipboard, run
 `tools/save-clipboard-image.ps1`, then `tools/make-preview.ps1` to regenerate
-`images/preview.png` scaled to fit.
+`images/preview.png` scaled to fit. `make-preview.ps1` uses whichever of
+`screenshot.png` / `screenshot.jpg` is newest; if the extension changes, update the
+`<img>` in the README to match.
 
 `IconUrl` and `ImageUrls` point at `main` on GitHub, so nothing shows in the installer
 until those files are pushed. They are fetched live; replacing one needs no release.
@@ -93,12 +95,15 @@ the game shows.
 
 ## Things still to verify in game
 
-- Whether `SetBlueMageActions` persists server-side: apply a set, then zone or relog and
-  check the spellbook.
+- Confirmed 2026-10-10: applying changes the game's own Active Actions panel (same
+  spells, same order), the learned count matches the spellbook's Total Actions, and the
+  remove-Mimicry-then-apply flow works.
+- Still open: whether `SetBlueMageActions` persists server-side. Apply a set, then zone
+  or relog and check the spellbook.
 - `/blusets debug` self-checks the learned test: every active spell must read as
   learned. A contradiction means `UnlockLink` is the wrong source.
 - That Aetheric Mimicry really blocks changes (Joshua's observation, not confirmed
-  from data), and that the remove-then-apply flow works.
+  from data). If it does not, the remove step is harmless but unnecessary.
 - Whether other buffs block (Basic Instinct, Mighty Guard, etc.). Unknown; the refusal
   message will name them.
 - Whether the Blue Mage job check is needed at all: log message 9470 suggests active
