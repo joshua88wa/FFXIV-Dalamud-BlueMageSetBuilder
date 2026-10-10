@@ -12,5 +12,6 @@
   "RepoUrl": "https://github.com/joshua88wa/FFXIV-Dalamud-BlueMageSetBuilder",
   "AcceptsFeedback": true,
   "FeedbackMessage": "Please report bugs and suggestions on the issue tracker at https://github.com/joshua88wa/FFXIV-Dalamud-BlueMageSetBuilder/issues so they can be tracked and replied to.",
-  "IconUrl": "https://raw.githubusercontent.com/joshua88wa/FFXIV-Dalamud-BlueMageSetBuilder/main/images/icon.png"
+  "IconUrl": "https://raw.githubusercontent.com/joshua88wa/FFXIV-Dalamud-BlueMageSetBuilder/main/images/icon.png",
+  "ImageUrls": [ "https://raw.githubusercontent.com/joshua88wa/FFXIV-Dalamud-BlueMageSetBuilder/main/images/preview.png" ]
 }

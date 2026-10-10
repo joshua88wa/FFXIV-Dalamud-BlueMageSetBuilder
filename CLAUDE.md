@@ -70,11 +70,17 @@ Dalamud Settings -> Experimental -> Dev Plugin Locations.
 source). Change the numbers in the script and re-run it rather than editing the PNG.
 It must stay square and at most 512x512, or Dalamud rejects it and only logs an error.
 
-There is no screenshot yet. When there is: save it as `images/screenshot.png`
-(`tools/save-clipboard-image.ps1` writes the clipboard there), run
-`tools/make-preview.ps1` to produce `images/preview.png` (730x380 maximum), and add
-`ImageUrls` pointing at it to `BlueMageSetBuilder.json`. Then remove the TODO comment
-from the README and add the screenshot there.
+The three images are not interchangeable:
+
+| File | Used by | Limit |
+|---|---|---|
+| `images/screenshot.png` | the README | none |
+| `images/preview.png` | `ImageUrls`, so the in-game installer | **730x380 maximum** |
+| `images/icon.png` | `IconUrl`, so the installer | **512x512 maximum, square** |
+
+To replace the screenshot: copy a new one to the clipboard, run
+`tools/save-clipboard-image.ps1`, then `tools/make-preview.ps1` to regenerate
+`images/preview.png` scaled to fit.
 
 `IconUrl` and `ImageUrls` point at `main` on GitHub, so nothing shows in the installer
 until those files are pushed. They are fetched live; replacing one needs no release.
