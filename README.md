@@ -20,8 +20,10 @@ Magic Spellbook.
   made the cut and which are already active.
 - A **Worth learning** list: spells the profile wants that you do not have yet, and
   where to learn each one.
-- When a profile's first choice is not learned, a weaker stand-in takes the slot, so a
-  low-level Blue Mage still gets a usable set rather than gaps.
+- When a profile's first choice is not learned, a weaker stand-in takes the slot and
+  says what it is standing in for, so a low-level Blue Mage still gets a usable set.
+- Any slots left once a profile runs out of picks are topped up with generally useful
+  spells you know, marked as extras, so the set is never left with gaps.
 - The whole spellbook in one table: number, rank, learned or not, and where to get it.
   Any spell can be excluded from every suggestion, for example one you find awkward.
 - Applying keeps spells that are already active in the slots they are in, so as little
@@ -109,6 +111,10 @@ A pick fills one slot with the first spell in `Any` that you have learned, have 
 excluded, and is not already in the set. The numbers are the ones in the Blue Magic
 Spellbook, which are the same in every client language. Picks stop once 24 slots are
 full. Press **Reload profiles** after saving.
+
+If a profile's picks run out before 24 slots are full, the shared `Fill` list at the
+bottom of the file tops up the rest. Those spells are marked **Extra** in the window.
+A profile can have its own `Fill` list to replace the shared one.
 
 Your copy replaces the built-in profiles completely, so new profiles added in a later
 version will not appear until you delete your copy from the Settings tab or merge them

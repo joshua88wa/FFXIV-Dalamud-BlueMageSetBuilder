@@ -4,9 +4,11 @@ using System.Linq;
 
 namespace BlueMageSetBuilder;
 
-public sealed record ChosenSpell(BlueSpell Spell, string Why, int PickIndex);
+/// <param name="StandInFor">The profile's preferred spell for this slot, when a weaker one took it because the preferred one is not learned.</param>
+/// <param name="IsFill">True when the spell came from the Fill list rather than the profile's own picks.</param>
+public sealed record ChosenSpell(BlueSpell Spell, string Why, BlueSpell? StandInFor, bool IsFill);
 
-public sealed record MissingSpell(BlueSpell Spell, string Why, int PickIndex);
+public sealed record MissingSpell(BlueSpell Spell, string Why);
 
 public sealed class BuiltSet
 {
@@ -27,37 +29,54 @@ public static class SetBuilder
         var result = new BuiltSet();
         var used = new HashSet<uint>();
 
-        for (var i = 0; i < profile.Picks.Count; i++)
-        {
-            var pick = profile.Picks[i];
-            var candidates = pick.Any
-                .Select(book.ByNumber)
-                .Where(s => s is not null && !excluded.Contains(s.Number))
-                .Cast<BlueSpell>()
-                .ToList();
+        List<BlueSpell> Candidates(Pick pick) => pick.Any
+            .Select(book.ByNumber)
+            .Where(s => s is not null && !excluded.Contains(s.Number))
+            .Cast<BlueSpell>()
+            .ToList();
 
+        // The profile's own picks. A pick whose preferred spell is not learned can be
+        // filled by a stand-in, and the preferred one goes on the worth-learning list.
+        foreach (var pick in profile.Picks)
+        {
+            var candidates = Candidates(pick);
             if (candidates.Count == 0)
                 continue;
 
             var hadRoom = result.Chosen.Count < Spellbook.SlotCount;
+            var preferred = candidates[0];
+
             if (hadRoom)
             {
                 var winner = candidates.FirstOrDefault(s => !used.Contains(s.Number) && isLearned(s));
                 if (winner is not null)
                 {
                     used.Add(winner.Number);
-                    result.Chosen.Add(new ChosenSpell(winner, pick.Why, i));
+                    var standInFor = winner == preferred || isLearned(preferred) ? null : preferred;
+                    result.Chosen.Add(new ChosenSpell(winner, pick.Why, standInFor, false));
                 }
             }
 
-            // The preferred spell is worth learning even if a stand-in filled the slot,
-            // but only while the set still had room for it.
-            var preferred = candidates[0];
             if (hadRoom && !isLearned(preferred) && !used.Contains(preferred.Number)
                 && result.Missing.All(m => m.Spell.Number != preferred.Number))
             {
-                result.Missing.Add(new MissingSpell(preferred, pick.Why, i));
+                result.Missing.Add(new MissingSpell(preferred, pick.Why));
             }
+        }
+
+        // Leftover slots, from the Fill list. Nothing here is worth-learning material:
+        // these are extras, not what the profile is built around.
+        foreach (var pick in profile.Fill)
+        {
+            if (result.Chosen.Count >= Spellbook.SlotCount)
+                break;
+
+            var winner = Candidates(pick).FirstOrDefault(s => !used.Contains(s.Number) && isLearned(s));
+            if (winner is null)
+                continue;
+
+            used.Add(winner.Number);
+            result.Chosen.Add(new ChosenSpell(winner, pick.Why, null, true));
         }
 
         return result;

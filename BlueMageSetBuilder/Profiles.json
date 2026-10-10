@@ -4,6 +4,10 @@
   // set. Numbers are the Blue Magic Spellbook numbers, the same in every language.
   // Picks run until 24 slots are full; anything after that is ignored.
   //
+  // "Fill" at the bottom tops up any slots still empty once a profile's picks run out,
+  // so knowing plenty of spells never leaves gaps. A profile can have its own "Fill"
+  // list to replace the shared one.
+  //
   // These are starting points, not gospel. Export them from the Settings tab, edit the
   // copy in your config folder, and press Reload.
   "Profiles": [
@@ -14,8 +18,8 @@
       "Picks": [
         { "Any": [ 91 ], "Why": "Large damage and speed boost while solo. Does nothing in a party." },
         { "Any": [ 30 ], "Why": "Tank stance. Cuts damage taken, which matters more than damage when nobody heals you." },
-        { "Any": [ 105, 63, 1 ], "Why": "Single-target filler. Goblin Punch is strongest under Mighty Guard." },
-        { "Any": [ 63, 1 ], "Why": "Ranged filler for when you cannot stand in melee." },
+        { "Any": [ 105 ], "Why": "Melee filler. Strongest single-target filler while Mighty Guard is up." },
+        { "Any": [ 63, 1 ], "Why": "Ranged single-target filler." },
         { "Any": [ 13 ], "Why": "Heal that scales with your HP." },
         { "Any": [ 58 ], "Why": "Single-target heal." },
         { "Any": [ 108 ], "Why": "Self heal." },
@@ -126,7 +130,8 @@
       "Picks": [
         { "Any": [ 30 ], "Why": "Tank stance." },
         { "Any": [ 77 ], "Why": "Copy a party member's role. Use it on a tank for the defensive bonus." },
-        { "Any": [ 105, 63, 1 ], "Why": "Single-target filler. Goblin Punch is strongest under Mighty Guard." },
+        { "Any": [ 105 ], "Why": "Melee filler. Strongest single-target filler while Mighty Guard is up." },
+        { "Any": [ 63, 1 ], "Why": "Ranged single-target filler, for pulling and when you cannot reach." },
         { "Any": [ 75 ], "Why": "Heals you and raises max HP." },
         { "Any": [ 89 ], "Why": "Damage barrier that turns into a follow-up attack." },
         { "Any": [ 95 ], "Why": "Damage reduction." },
@@ -189,5 +194,45 @@
         { "Any": [ 24 ], "Why": "Interrupts enemy casts." }
       ]
     }
+  ],
+  "Fill": [
+    { "Any": [ 104 ], "Why": "Damage over time on a cooldown." },
+    { "Any": [ 9 ], "Why": "Damage over time." },
+    { "Any": [ 20 ], "Why": "Raises the damage the target takes." },
+    { "Any": [ 100 ], "Why": "Multi-hit single-target damage." },
+    { "Any": [ 90 ], "Why": "Strong single-target cooldown." },
+    { "Any": [ 81 ], "Why": "Heavy physical damage." },
+    { "Any": [ 80 ], "Why": "Gap closer with heavy damage." },
+    { "Any": [ 78 ], "Why": "Charges that stack damage when used back to back." },
+    { "Any": [ 103 ], "Why": "Channeled damage." },
+    { "Any": [ 124 ], "Why": "Big area damage on a long cooldown." },
+    { "Any": [ 122 ], "Why": "Big damage on a long cooldown." },
+    { "Any": [ 123 ], "Why": "Big channeled damage on a long cooldown." },
+    { "Any": [ 118 ], "Why": "Stacking damage cooldown." },
+    { "Any": [ 109 ], "Why": "Damage over time." },
+    { "Any": [ 121 ], "Why": "Long damage over time." },
+    { "Any": [ 47 ], "Why": "Area damage on a cooldown." },
+    { "Any": [ 48 ], "Why": "Frontal area damage." },
+    { "Any": [ 44 ], "Why": "Ground-targeted area damage." },
+    { "Any": [ 11 ], "Why": "Area damage around you." },
+    { "Any": [ 101 ], "Why": "Line area damage. Sets up Mustard Bomb." },
+    { "Any": [ 94 ], "Why": "Area damage, stronger after Peripheral Synthesis." },
+    { "Any": [ 33 ], "Why": "Area damage that freezes." },
+    { "Any": [ 92 ], "Why": "Kills frozen or petrified non-boss enemies outright." },
+    { "Any": [ 12 ], "Why": "Boosts the next spell's damage." },
+    { "Any": [ 64 ], "Why": "Boosts the next physical spell's damage." },
+    { "Any": [ 82 ], "Why": "Damage plus a boost to the next physical spell." },
+    { "Any": [ 13 ], "Why": "Heal that scales with your HP." },
+    { "Any": [ 58 ], "Why": "Single-target heal." },
+    { "Any": [ 108 ], "Why": "Self heal." },
+    { "Any": [ 72 ], "Why": "Raise." },
+    { "Any": [ 73 ], "Why": "Cleanses debuffs." },
+    { "Any": [ 7 ], "Why": "Dash." },
+    { "Any": [ 24 ], "Why": "Interrupts enemy casts." },
+    { "Any": [ 63 ], "Why": "Ranged single-target filler." },
+    { "Any": [ 34 ], "Why": "Area damage that paralyzes." },
+    { "Any": [ 5 ], "Why": "Line area damage." },
+    { "Any": [ 19 ], "Why": "Ground-targeted area damage." },
+    { "Any": [ 2 ], "Why": "Frontal area damage." }
   ]
 }

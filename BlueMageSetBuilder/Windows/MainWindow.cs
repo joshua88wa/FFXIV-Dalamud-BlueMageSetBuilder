@@ -208,7 +208,15 @@ public sealed class MainWindow : Window
                 ImGui.TableNextColumn();
                 ImGui.TextUnformatted($"{c.Spell.Number}. {c.Spell.Name}");
                 ImGui.TableNextColumn();
+                if (c.IsFill)
+                {
+                    ImGui.TextDisabled("Extra:");
+                    ImGui.SameLine();
+                }
+
                 ImGui.TextWrapped(c.Why);
+                if (c.StandInFor is { } preferred)
+                    ImGui.TextDisabled($"Standing in for {preferred.Name}, which you have not learned.");
                 ImGui.TableNextColumn();
                 if (active.Contains(c.Spell.ActionId))
                     ImGui.TextColored(ImGuiColors.HealerGreen, "active");

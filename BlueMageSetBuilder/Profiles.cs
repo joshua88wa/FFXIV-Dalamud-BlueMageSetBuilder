@@ -9,6 +9,13 @@ namespace BlueMageSetBuilder;
 public sealed class ProfileFile
 {
     public List<Profile> Profiles { get; set; } = new();
+
+    /// <summary>
+    /// Fills any slots left over once a profile's picks run out, so a player who knows
+    /// plenty of spells is not left with gaps. Shared by every profile that does not
+    /// have its own Fill list. Never reported as worth learning.
+    /// </summary>
+    public List<Pick> Fill { get; set; } = new();
 }
 
 public sealed class Profile
@@ -19,6 +26,9 @@ public sealed class Profile
 
     /// <summary>In priority order. Each pick fills at most one slot.</summary>
     public List<Pick> Picks { get; set; } = new();
+
+    /// <summary>Optional. Replaces the file's shared Fill list for this profile.</summary>
+    public List<Pick> Fill { get; set; } = new();
 }
 
 public sealed class Pick
@@ -101,10 +111,18 @@ public sealed class ProfileStore
         this.Profiles.FirstOrDefault(p => string.Equals(p.Id, id, StringComparison.OrdinalIgnoreCase))
         ?? this.Profiles.FirstOrDefault();
 
-    private static List<Profile> Parse(string json) =>
-        (JsonSerializer.Deserialize<ProfileFile>(json, Options) ?? new ProfileFile()).Profiles
-            .Where(p => !string.IsNullOrWhiteSpace(p.Id))
-            .ToList();
+    // Profiles without their own Fill list get the shared one, so SetBuilder only ever
+    // has to look at the profile.
+    private static List<Profile> Parse(string json)
+    {
+        var file = JsonSerializer.Deserialize<ProfileFile>(json, Options) ?? new ProfileFile();
+        var profiles = file.Profiles.Where(p => !string.IsNullOrWhiteSpace(p.Id)).ToList();
+
+        foreach (var p in profiles.Where(p => p.Fill.Count == 0))
+            p.Fill = file.Fill;
+
+        return profiles;
+    }
 
     private static string ReadBuiltIn()
     {
