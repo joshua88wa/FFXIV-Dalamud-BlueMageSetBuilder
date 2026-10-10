@@ -209,8 +209,10 @@ public sealed class MainWindow : Window
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
                 DrawIcon(c.Spell.Icon);
+                SpellTooltip.ShowIfHovered(c.Spell, true);
                 ImGui.TableNextColumn();
                 ImGui.TextUnformatted($"{c.Spell.Number}. {c.Spell.Name}");
+                SpellTooltip.ShowIfHovered(c.Spell, true);
                 ImGui.TableNextColumn();
                 if (c.IsFill)
                 {
@@ -248,8 +250,10 @@ public sealed class MainWindow : Window
                         ImGui.TableNextRow();
                         ImGui.TableNextColumn();
                         DrawIcon(m.Spell.Icon);
+                        SpellTooltip.ShowIfHovered(m.Spell, false);
                         ImGui.TableNextColumn();
                         ImGui.TextUnformatted($"{m.Spell.Number}. {m.Spell.Name}");
+                        SpellTooltip.ShowIfHovered(m.Spell, false);
                         ImGui.TableNextColumn();
                         ImGui.TextUnformatted(m.Spell.Source.Length > 0 ? m.Spell.Source : "-");
                         ImGui.TableNextColumn();
@@ -314,8 +318,10 @@ public sealed class MainWindow : Window
                 ImGui.TableNextRow();
                 ImGui.TableNextColumn();
                 DrawIcon(spell.Icon);
+                SpellTooltip.ShowIfHovered(spell, learned);
                 ImGui.TableNextColumn();
                 ImGui.TextUnformatted($"{spell.Number}. {spell.Name}");
+                SpellTooltip.ShowIfHovered(spell, learned);
                 ImGui.TableNextColumn();
                 ImGui.TextUnformatted(spell.Rank > 0 ? $"{spell.Rank} star" : "-");
                 ImGui.TableNextColumn();

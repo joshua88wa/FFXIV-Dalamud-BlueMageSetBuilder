@@ -18,6 +18,9 @@ Magic Spellbook.
   **tank** and **healer**.
 - A suggested set built from the spells you actually know, with the reason each one
   made the cut and which are already active.
+- Hover any spell for a tooltip like the game's: cast, recast, MP cost, range and
+  radius, the spell's description in the game's own colours, then its spellbook page
+  with type, aspect, rank, lore and where to learn it.
 - A **Worth learning** list: spells the profile wants that you do not have yet, and
   where to learn each one.
 - When a profile's first choice is not learned, a weaker stand-in takes the slot and
@@ -138,6 +141,12 @@ spell in an active slot has to be learned, so a disagreement means the check is 
 the same call the game uses to load a saved active set, then reads the slots back to
 confirm the change took. It does not touch your five saved active sets or your
 hotbars.
+
+**Tooltips** are drawn by the plugin from the same game data the game's tooltip uses
+(`ActionTransient` for the description, `AozActionTransient` for the spellbook page),
+with cast, recast and MP cost read live from the game while you are on Blue Mage, so
+they include your spell speed. On other jobs they show base values. They are not the
+game's tooltip window itself, which can only attach to the game's own interface.
 
 **Aetheric Mimicry** is removed with `StatusManager.ExecuteStatusOff`, which is what
 right-clicking a buff does. If the game declines that, the plugin falls back to the

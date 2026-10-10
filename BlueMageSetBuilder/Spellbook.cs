@@ -4,6 +4,7 @@ using System.Linq;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using Lumina.Excel.Sheets;
+using Lumina.Text.ReadOnly;
 
 namespace BlueMageSetBuilder;
 
@@ -18,7 +19,24 @@ public sealed record BlueSpell(
     uint Icon,
     byte Rank,
     uint UnlockLink,
-    string Source);
+    string Source)
+{
+    // Tooltip material, kept as game strings so they draw with the game's own colours.
+
+    /// <summary>The combat description: potency, additional effects. From ActionTransient.</summary>
+    public ReadOnlySeString Description { get; init; }
+
+    /// <summary>"Type / Aspect / Rank" block from the spellbook page.</summary>
+    public ReadOnlySeString Stats { get; init; }
+
+    /// <summary>The flavour text from the spellbook page.</summary>
+    public ReadOnlySeString Lore { get; init; }
+
+    public ushort Cast100Ms { get; init; }
+    public ushort Recast100Ms { get; init; }
+    public sbyte Range { get; init; }
+    public byte Radius { get; init; }
+}
 
 /// <summary>
 /// The only class that reads game state. Everything else works on <see cref="BlueSpell"/>
@@ -38,6 +56,7 @@ public sealed unsafe class Spellbook
     {
         var aozSheet = Service.Data.GetExcelSheet<AozAction>();
         var transientSheet = Service.Data.GetExcelSheet<AozActionTransient>();
+        var actionTransientSheet = Service.Data.GetExcelSheet<ActionTransient>();
         var list = new List<BlueSpell>();
 
         foreach (var aoz in aozSheet)
@@ -59,7 +78,16 @@ public sealed unsafe class Spellbook
                 action.Value.Icon,
                 aoz.Rank,
                 action.Value.UnlockLink.RowId,
-                transient is { } tr ? DescribeSource(tr) : string.Empty);
+                transient is { } tr ? DescribeSource(tr) : string.Empty)
+            {
+                Description = actionTransientSheet.GetRowOrDefault(aoz.Action.RowId)?.Description ?? default,
+                Stats = transient?.Stats ?? default,
+                Lore = transient?.Description ?? default,
+                Cast100Ms = action.Value.Cast100ms,
+                Recast100Ms = action.Value.Recast100ms,
+                Range = action.Value.Range,
+                Radius = action.Value.EffectRange,
+            };
 
             list.Add(spell);
             this.byNumber[spell.Number] = spell;
