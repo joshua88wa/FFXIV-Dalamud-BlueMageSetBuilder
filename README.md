@@ -24,12 +24,16 @@ Magic Spellbook.
   with type, aspect, rank, lore and where to learn it.
 - A **Worth learning** list: spells the profile wants that you do not have yet, and
   where to learn each one.
+- Where to learn each spell names the creature, not just the place, and which boss it
+  is when that is known: "The Wanderer's Palace: Tonberry King, last boss". The
+  tooltip lists every known source, since many spells can be learned in several places.
 - When a profile's first choice is not learned, a weaker stand-in takes the slot and
   says what it is standing in for, so a low-level Blue Mage still gets a usable set.
 - Any slots left once a profile runs out of picks are topped up with generally useful
   spells you know, marked as extras, so the set is never left with gaps.
 - The whole spellbook in one table: number, rank, learned or not, and where to get it,
-  with a search box that matches the name, the spellbook number, or where to learn it.
+  with a search box that matches the name, the spellbook number, the place, or the
+  creature that teaches it.
   Any spell can be excluded from every suggestion, for example one you find awkward.
 - Applying keeps spells that are already active in the slots they are in, so as little
   moves as possible.
@@ -151,6 +155,15 @@ the same call the game uses to load a saved active set, then reads the slots bac
 confirm the change took. It does not touch your five saved active sets or your
 hotbars.
 
+**Creature names** are not in the game's data, which only records the zone or duty
+where a spell is learned. They come from the
+[FFXIV Online Wiki's Blue Magic Spellbook page](https://ffxiv.consolegameswiki.com/wiki/Blue_Magic_Spellbook),
+reduced to plain facts (creature, boss position, place, level, coordinates) by
+`tools/make-sources.ps1` and shipped as `Sources.json`. Boss position is shown only
+where the wiki gives one, which is about a quarter of dungeon sources; the rest show
+the creature and the duty. Corrections belong on the wiki, after which re-running the
+script picks them up. Thanks to the wiki's editors for keeping that list.
+
 **Tooltips** are drawn by the plugin from the same game data the game's tooltip uses
 (`ActionTransient` for the description, `AozActionTransient` for the spellbook page),
 with cast, recast and MP cost read live from the game while you are on Blue Mage, so
@@ -172,6 +185,9 @@ Open an issue:
 
 Game structures come from
 [FFXIVClientStructs](https://github.com/aers/FFXIVClientStructs).
+
+Which creature teaches each spell comes from the
+[FFXIV Online Wiki](https://ffxiv.consolegameswiki.com/wiki/Blue_Magic_Spellbook).
 
 Written with the help of an LLM, in case that matters to you.
 

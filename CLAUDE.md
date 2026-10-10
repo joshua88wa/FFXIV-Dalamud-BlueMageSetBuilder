@@ -87,6 +87,26 @@ To replace the screenshot: copy a new one to the clipboard, run
 `IconUrl` and `ImageUrls` point at `main` on GitHub, so nothing shows in the installer
 until those files are pushed. They are fetched live; replacing one needs no release.
 
+## Creature sources (Sources.json)
+
+The game only records where a spell is learned (`AozActionTransient.Location`: a zone
+or a duty), never which creature. `Sources.json` fills that in from the FFXIV Online
+Wiki's Blue Magic Spellbook page. It is generated, never hand-edited:
+`tools/make-sources.ps1` downloads the page source and keeps only plain facts per
+source (Creature, Note for boss position, Place, Level, Coords). Re-run it after a
+patch adds spells, then rebuild; it is an embedded resource.
+
+Joshua chose to embed facts with credit rather than fetch at runtime (2026-10-10).
+The wiki declares no licence, so keep it to facts, keep the credit in the README and
+the tooltip, and do not copy prose.
+
+`SpellSources.MatchGameSource` picks the source at the game's own location for the
+table column: normalised containment first, then ignoring brackets per listed place
+(primals are "(Extreme)" in game, "(Hard)" on the wiki), then totems. 120 of 123
+located spells match; 59, 74 and 75 show the game location only because the wiki
+does not list it. Boss position exists for only about a quarter of duty sources;
+Joshua chose to show it where known rather than research the rest.
+
 ## Spell numbers
 
 Profiles use the Blue Magic Spellbook number (`AozActionTransient.Number`), not the

@@ -86,7 +86,19 @@ internal static unsafe class SpellTooltip
         ImGui.Separator();
         ImGui.TextDisabled("Where to learn:");
         ImGui.SameLine();
-        ImGui.TextUnformatted(spell.Source.Length > 0 ? spell.Source : "-");
+        ImGui.TextUnformatted(spell.Where.Length > 0 ? spell.Where : "-");
+
+        // Every known source, since the game only names one place and many spells can
+        // be learned in several. Boss position only appears where the wiki gives it.
+        if (spell.Sources.Count > 0)
+        {
+            ImGui.TextDisabled("Learned from:");
+            ImGui.PushTextWrapPos(ImGui.GetCursorPosX() + wrap);
+            foreach (var source in spell.Sources)
+                ImGui.TextWrapped($"  {source.Describe()}");
+            ImGui.PopTextWrapPos();
+            ImGui.TextDisabled(SpellSources.Credit);
+        }
 
         if (learned)
             ImGui.TextColored(ImGuiColors.HealerGreen, "Learned");

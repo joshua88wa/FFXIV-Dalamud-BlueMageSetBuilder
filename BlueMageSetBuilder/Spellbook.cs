@@ -32,6 +32,29 @@ public sealed record BlueSpell(
     /// <summary>The flavour text from the spellbook page.</summary>
     public ReadOnlySeString Lore { get; init; }
 
+    /// <summary>Every known creature that teaches it. Empty when there is no data.</summary>
+    public IReadOnlyList<SpellSource> Sources { get; init; } = Array.Empty<SpellSource>();
+
+    /// <summary>
+    /// What the "Where to learn it" column shows: the game's own location, plus the
+    /// creature there when known, as in "The Wanderer's Palace: Tonberry King, last boss".
+    /// </summary>
+    public string Where
+    {
+        get
+        {
+            var match = SpellSources.MatchGameSource(this.Sources, this.Source);
+            if (match is null)
+                return this.Source.Length > 0 ? this.Source : (this.Sources.Count > 0 ? this.Sources[0].Describe() : string.Empty);
+
+            if (match.Creature.Contains("Totem", StringComparison.OrdinalIgnoreCase))
+                return match.Place.Length > 0 ? $"{this.Source}: {match.Place}" : this.Source;
+
+            var text = $"{this.Source}: {match.Creature}";
+            return match.Note.Length > 0 ? $"{text}, {match.Note.ToLowerInvariant()}" : text;
+        }
+    }
+
     public ushort Cast100Ms { get; init; }
     public ushort Recast100Ms { get; init; }
     public sbyte Range { get; init; }
@@ -57,6 +80,7 @@ public sealed unsafe class Spellbook
         var aozSheet = Service.Data.GetExcelSheet<AozAction>();
         var transientSheet = Service.Data.GetExcelSheet<AozActionTransient>();
         var actionTransientSheet = Service.Data.GetExcelSheet<ActionTransient>();
+        var sources = SpellSources.Load();
         var list = new List<BlueSpell>();
 
         foreach (var aoz in aozSheet)
@@ -87,6 +111,7 @@ public sealed unsafe class Spellbook
                 Recast100Ms = action.Value.Recast100ms,
                 Range = action.Value.Range,
                 Radius = action.Value.EffectRange,
+                Sources = sources.TryGetValue(number, out var known) ? known : Array.Empty<SpellSource>(),
             };
 
             list.Add(spell);

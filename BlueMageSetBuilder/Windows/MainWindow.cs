@@ -266,7 +266,7 @@ public sealed class MainWindow : Window
                         ImGui.TextUnformatted($"{m.Spell.Number}. {m.Spell.Name}");
                         SpellTooltip.ShowIfHovered(m.Spell, false);
                         ImGui.TableNextColumn();
-                        ImGui.TextUnformatted(m.Spell.Source.Length > 0 ? m.Spell.Source : "-");
+                        ImGui.TextUnformatted(m.Spell.Where.Length > 0 ? m.Spell.Where : "-");
                         ImGui.TableNextColumn();
                         ImGui.TextWrapped(m.Why);
                     }
@@ -282,7 +282,7 @@ public sealed class MainWindow : Window
     private void DrawSpellbook()
     {
         ImGui.SetNextItemWidth(260 * ImGuiHelpers.GlobalScale);
-        ImGui.InputTextWithHint("##bms_search", "Search by name, number or where to learn", ref this.search, 64);
+        ImGui.InputTextWithHint("##bms_search", "Search by name, number, place or creature", ref this.search, 64);
         if (this.search.Length > 0)
         {
             ImGui.SameLine();
@@ -341,7 +341,7 @@ public sealed class MainWindow : Window
                 else
                     ImGui.TextDisabled("No");
                 ImGui.TableNextColumn();
-                ImGui.TextUnformatted(spell.Source.Length > 0 ? spell.Source : "-");
+                ImGui.TextUnformatted(spell.Where.Length > 0 ? spell.Where : "-");
                 ImGui.TableNextColumn();
                 var excluded = this.config.Excluded.Contains(spell.Number);
                 if (ImGui.Checkbox($"##ex{spell.Number}", ref excluded))
@@ -370,8 +370,8 @@ public sealed class MainWindow : Window
     }
 
     // A number matches the spellbook number exactly, so "1" finds Water Cannon rather
-    // than every spell with a 1 in it. Anything else matches anywhere in the name or
-    // where the spell is learned, ignoring case.
+    // than every spell with a 1 in it. Anything else matches anywhere in the name,
+    // where the spell is learned, or any creature or place that teaches it.
     private static bool MatchesSearch(BlueSpell spell, string search)
     {
         var term = search.Trim();
@@ -382,7 +382,9 @@ public sealed class MainWindow : Window
             return spell.Number == number;
 
         return spell.Name.Contains(term, StringComparison.OrdinalIgnoreCase)
-               || spell.Source.Contains(term, StringComparison.OrdinalIgnoreCase);
+               || spell.Source.Contains(term, StringComparison.OrdinalIgnoreCase)
+               || spell.Sources.Any(s => s.Creature.Contains(term, StringComparison.OrdinalIgnoreCase)
+                                      || s.Place.Contains(term, StringComparison.OrdinalIgnoreCase));
     }
 
     private void DrawSettings()
