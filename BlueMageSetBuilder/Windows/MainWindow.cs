@@ -162,13 +162,14 @@ public sealed class MainWindow : Window
         if (reason is null && built.Chosen.Count == 0)
             reason = "None of your learned spells are in this profile.";
 
-        // Known buffs that stop spells changing. The button names the buff it will click
-        // off, so pressing it is an explicit choice to lose it.
-        var blocking = reason is null ? Blockers.ActiveStatuses() : new();
+        // Buffs from spells that would move. The button names the buffs it will end, so
+        // pressing it is an explicit choice to lose them.
+        var blocking = reason is null ? this.applier.BlockingStatusesFor(profile) : new();
         var names = Blockers.Describe(blocking);
-        var removable = blocking.Count > 0 && blocking.All(s => s.CanRemove);
-        if (reason is null && blocking.Count > 0 && !removable)
-            reason = $"{names} stops spells being changed. Wait for it to end.";
+        var waits = blocking.Where(s => s.Method == EndMethod.Wait).ToList();
+        var removable = blocking.Count > 0 && waits.Count == 0;
+        if (reason is null && waits.Count > 0)
+            reason = $"Wait for {Blockers.DescribeWaits(waits)} to wear off.";
 
         // With no buff to remove, cooldowns block the button outright and count down
         // live. With a buff to remove, the remove-and-apply flow waits for them itself.
@@ -183,13 +184,17 @@ public sealed class MainWindow : Window
 
         ImGui.BeginDisabled(reason is not null || this.applier.IsPending);
         if (ImGui.Button(label))
-            this.applier.Request(profile, removeBlockers: true, this.ShowResult);
+            this.applier.Request(profile, endBlockers: true, this.ShowResult);
         ImGui.EndDisabled();
 
         if (removable && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
-            ImGui.SetTooltip($"Spells cannot be changed while {names} is active.\n" +
-                             "This recasts Aetheric Mimicry, which ends it. Stand still: it has a 1 second cast.\n" +
-                             "Then it waits for the global cooldown, applies the set, and you mimic again afterwards.");
+        {
+            var how = string.Join("\n", blocking.Select(s => s.Method == EndMethod.Recast
+                ? $"  {s.Name}: recasts {s.Spell.Name}, which ends it. Stand still during the cast."
+                : $"  {s.Name}: clicks it off."));
+            ImGui.SetTooltip($"The game will not move a spell while its effect is on you.\n{how}\n" +
+                             "Then it waits for the global cooldown and applies the set.");
+        }
 
         ImGui.SameLine();
         if (reason is not null)
@@ -394,9 +399,9 @@ public sealed class MainWindow : Window
         ImGui.TextDisabled("A spell that is already active and also in the new set stays where it is.");
 
         ImGui.Spacing();
-        if (ImGui.Checkbox("Let /blusets apply end Aetheric Mimicry", ref this.config.AutoRemoveBlockers))
+        if (ImGui.Checkbox("Let /blusets apply end blocking buffs", ref this.config.AutoRemoveBlockers))
             this.config.Save();
-        ImGui.TextDisabled("Spells cannot be changed while Mimicry is active. Ending it means recasting Aetheric\nMimicry, so with this off the command stops and says so. The button in the window\nalways names the buff before ending it.");
+        ImGui.TextDisabled("A spell cannot move while its buff is on you (Mighty Guard, Aetheric Mimicry).\nEnding those means recasting them, so with this off the command stops and says so.\nThe button in the window always names the buffs before ending them.");
 
         ImGui.Spacing();
         ImGui.Separator();

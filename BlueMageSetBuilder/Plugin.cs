@@ -119,8 +119,14 @@ public sealed class Plugin : IDalamudPlugin
         Line($"Spells in game data: {this.book.Spells.Count}, learned: {this.book.LearnedCount()}");
         Line($"Profiles: {this.store.Profiles.Count} from {this.store.LoadedFrom}");
         Line($"Blocked by state: {Blockers.HardBlockReason() ?? "no"}");
-        var blocking = Blockers.ActiveStatuses();
-        Line($"Blocking buffs: {(blocking.Count == 0 ? "none" : string.Join(", ", blocking.Select(b => $"{b.Name} ({b.Id}, removable: {b.CanRemove})")))}");
+        var activeSpells = this.book.GetActiveActionIds().Where(id => id != 0).Select(this.book.ByAction).OfType<BlueSpell>();
+        var spellBuffs = Blockers.ActiveStatuses(activeSpells);
+        Line($"Buffs from active spells: {(spellBuffs.Count == 0 ? "none" : string.Join(", ", spellBuffs.Select(b => $"{b.Name} ({b.Id}, from {b.Spell.Name}, ends by {b.Method})")))}");
+        if (this.store.Find(this.config.SelectedProfile) is { } selected)
+        {
+            var blocking = this.applier.BlockingStatusesFor(selected);
+            Line($"Blocking {selected.Name}: {(blocking.Count == 0 ? "nothing" : Blockers.Describe(blocking))}");
+        }
         Line($"All buffs: {string.Join(", ", Blockers.AllStatusNames())}");
 
         var active = this.book.GetActiveActionIds();

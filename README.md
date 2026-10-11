@@ -93,14 +93,26 @@ while Aetheric Mimicry is active, and once a Masked Carnivale stage has started.
 plugin checks for all of these before trying except the Carnivale lock, which it
 reports when the game refuses.
 
-Aetheric Mimicry cannot be clicked off; it ends when you cast Aetheric Mimicry again.
-So when it is the only thing in the way, the button changes to **End Aetheric
-Mimicry and apply**. It recasts Aetheric Mimicry for you (stand still, it has a one
-second cast), waits for the global cooldown, applies the set, and reminds you to
-mimic again. Aetheric Mimicry has to be one of your active spells for this to work,
-and if the game will not cast it right then, the plugin shows the game's own reason.
-`/blusets apply` stops and tells you instead, unless you turn on **Let /blusets apply
-end Aetheric Mimicry** in Settings.
+More generally, the game will not move or remove a spell while it is on cooldown or
+while the buff it gave you is still up. Mighty Guard and Aetheric Mimicry are the
+usual culprits. The plugin works out from the game's data which buff belongs to which
+spell, so it does not rely on a hand-made list. When a spell that would move still
+has its buff on you, the button changes to name it, for example **End Mighty Guard
+and apply**, and ends it the way you would:
+
+- Mighty Guard and Aetheric Mimicry end when cast again, so it recasts them (stand
+  still during the cast).
+- Buffs the game lets you click off are clicked off.
+- Buffs that can do neither are waited out.
+
+Several are ended one after another, since each recast starts the global cooldown.
+Then it waits for cooldowns and applies the set. With **Keep spells in the same slot**
+on, a spell that stays put does not need its buff ended at all.
+
+If the game still refuses while one of your spells' buffs is up, the plugin remembers
+that for the session and offers to end it on the next press. `/blusets apply` stops
+and tells you instead, unless you turn on **Let /blusets apply end blocking buffs**
+in Settings.
 
 If the game refuses a change for a reason the plugin does not know about, the message
 lists your current buffs. Please report it with that list so the cause can be added.
@@ -108,9 +120,9 @@ lists your current buffs. Please report it with that list so the cause can be ad
 ## Settings
 
 - **Keep spells in the same slot when applying.** On by default.
-- **Let /blusets apply end Aetheric Mimicry.** Off by default, because it casts a spell
-  and means mimicking again afterwards. The button in the window always names the buff
-  before ending it.
+- **Let /blusets apply end blocking buffs.** Off by default, because it may cast Mighty
+  Guard or Aetheric Mimicry and you would recast them afterwards. The button in the
+  window always names the buffs before ending them.
 - **Show spells I have not learned** on the Spellbook tab.
 - **Exclude** any spell from every suggested set, on the Spellbook tab.
 - **Profiles:** export, reload, open the config folder, or go back to the built-in set.

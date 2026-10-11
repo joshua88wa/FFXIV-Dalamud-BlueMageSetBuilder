@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.ClientState.Conditions;
@@ -8,38 +9,36 @@ using StatusSheet = Lumina.Excel.Sheets.Status;
 
 namespace BlueMageSetBuilder;
 
-/// <summary>A buff on the player that stops spells being changed.</summary>
-/// <param name="CanRemove">The plugin has a way to end it: a spell that ends it on reuse, or the game allows clicking it off.</param>
-/// <param name="SourceId">Entity id of whoever applied the buff, for clicking it off.</param>
-/// <param name="EndedByActionId">A spell that ends this buff when cast again, or 0.</param>
-public sealed record BlockingStatus(uint Id, string Name, bool CanRemove, uint SourceId, uint EndedByActionId);
+/// <summary>How the plugin can get rid of a blocking buff.</summary>
+public enum EndMethod
+{
+    /// <summary>Cast the spell again ("Effect ends upon reuse"): Mighty Guard, Aetheric Mimicry.</summary>
+    Recast,
+
+    /// <summary>The game allows clicking it off.</summary>
+    ClickOff,
+
+    /// <summary>Neither: it has to wear off.</summary>
+    Wait,
+}
+
+/// <summary>A buff from one of your active spells that stops that spell being moved.</summary>
+public sealed record BlockingStatus(uint Id, string Name, BlueSpell Spell, EndMethod Method, uint SourceId, float Remaining);
 
 /// <summary>
 /// Everything that stops the active set from changing, in one place.
 ///
+/// The rule, as far as testing shows: the game will not move or remove a spell while
+/// the buff it gave you is still up (Aetheric Mimicry, Mighty Guard), or while the
+/// spell is on cooldown. Which buff belongs to which spell is worked out from the
+/// game's data in <see cref="Spellbook"/>, so new cases are caught without a list.
+///
 /// The game has no message or data table for this: the spellbook simply greys out. Its
 /// own check (ActionManager.CanAssignBlueMageAction) is known only by address, with no
-/// signature or parameters, so it is not called. Instead there are two layers: a list
-/// of known blockers checked up front, and a read-back after every apply that catches
-/// anything the list misses and logs buffs and cooldowns so it can be added here.
+/// signature or parameters, so it is not called.
 /// </summary>
 public static class Blockers
 {
-    public const uint AethericMimicryAction = 18322;
-
-    // Status id -> the spell that ends it when cast again (0 if none). Status ids are
-    // from the Status sheet. Add to this when a refused apply turns up a new blocker.
-    //
-    // Aetheric Mimicry cannot be clicked off: the game refuses ExecuteStatusOff and
-    // /statusoff for it (tested 2026-10-10). Its tooltip says "Effect ends upon reuse",
-    // and recasting it is how players remove it, so that is what the plugin does.
-    private static readonly Dictionary<uint, uint> KnownBlockingStatuses = new()
-    {
-        [2124] = AethericMimicryAction, // Aetheric Mimicry: Tank
-        [2125] = AethericMimicryAction, // Aetheric Mimicry: DPS
-        [2126] = AethericMimicryAction, // Aetheric Mimicry: Healer
-    };
-
     /// <summary>States that block changes, or where changing spells makes no sense.</summary>
     private static readonly (ConditionFlag Flag, string Reason)[] BlockingConditions =
     {
@@ -50,7 +49,7 @@ public static class Blockers
         (ConditionFlag.WatchingCutscene, "Wait for the cutscene to end."),
     };
 
-    /// <summary>A blocker that removing a buff cannot fix, or null.</summary>
+    /// <summary>A blocker that ending a buff cannot fix, or null.</summary>
     public static string? HardBlockReason()
     {
         if (!Spellbook.IsLoggedIn)
@@ -67,26 +66,47 @@ public static class Blockers
         return null;
     }
 
-    /// <summary>Known blocking buffs the player has right now.</summary>
-    public static List<BlockingStatus> ActiveStatuses()
+    /// <summary>Buffs on the player that came from any of these spells.</summary>
+    public static List<BlockingStatus> ActiveStatuses(IEnumerable<BlueSpell> spells)
     {
         var result = new List<BlockingStatus>();
         var player = Service.Objects.LocalPlayer;
         if (player is null)
             return result;
 
+        var byStatus = new Dictionary<uint, BlueSpell>();
+        foreach (var spell in spells)
+        {
+            foreach (var id in spell.GrantedStatuses)
+                byStatus.TryAdd(id, spell);
+        }
+
+        if (byStatus.Count == 0)
+            return result;
+
+        var sheet = Service.Data.GetExcelSheet<StatusSheet>();
         foreach (var status in player.StatusList)
         {
-            if (status.StatusId == 0 || !KnownBlockingStatuses.TryGetValue(status.StatusId, out var endedBy))
+            if (status.StatusId == 0 || !byStatus.TryGetValue(status.StatusId, out var spell))
                 continue;
 
-            var row = Service.Data.GetExcelSheet<StatusSheet>().GetRowOrDefault(status.StatusId);
+            // Only buffs you gave yourself. A boss's "Doom" or "Ice Spikes" shares a name
+            // with your spell but did not come from it.
+            if (status.SourceId is not 0 and not 0xE0000000 && status.SourceId != player.EntityId)
+                continue;
+
+            var row = sheet.GetRowOrDefault(status.StatusId);
+            var method = spell.EndsOnReuse ? EndMethod.Recast
+                : (row?.CanStatusOff ?? false) ? EndMethod.ClickOff
+                : EndMethod.Wait;
+
             result.Add(new BlockingStatus(
                 status.StatusId,
                 row?.Name.ExtractText() ?? $"Status {status.StatusId}",
-                endedBy != 0 || (row?.CanStatusOff ?? false),
+                spell,
+                method,
                 status.SourceId,
-                endedBy));
+                Math.Max(0, status.RemainingTime)));
         }
 
         return result;
@@ -106,51 +126,39 @@ public static class Blockers
             .ToList();
     }
 
+    public static string Describe(IEnumerable<BlockingStatus> statuses) =>
+        string.Join(", ", statuses.Select(s => s.Name).Distinct());
+
+    /// <summary>"Diamondback (8s)" style, for buffs that can only be waited out.</summary>
+    public static string DescribeWaits(IEnumerable<BlockingStatus> statuses) =>
+        string.Join(", ", statuses.Select(s => s.Remaining > 0 ? $"{s.Name} ({Math.Ceiling(s.Remaining):0}s)" : s.Name).Distinct());
+
     /// <summary>
-    /// Starts ending the buffs. Returns null once every request is on its way, or a
-    /// reason it could not be done. Either way the buff only disappears a moment later
-    /// (after a cast, or when the server answers), so the caller waits for it.
+    /// Starts ending one buff. Returns null once the request is on its way, or a reason
+    /// it could not be done. The buff only disappears a moment later (after the cast,
+    /// or when the server answers), so the caller waits and checks again.
     /// </summary>
-    public static unsafe string? RequestRemoval(IReadOnlyList<BlockingStatus> statuses, uint[] activeActionIds)
+    public static string? RequestEnd(BlockingStatus s, uint[] activeActionIds) => s.Method switch
     {
-        var castAlready = new HashSet<uint>();
-
-        foreach (var s in statuses.Where(s => s.CanRemove))
-        {
-            if (s.EndedByActionId != 0)
-            {
-                if (!castAlready.Add(s.EndedByActionId))
-                    continue;
-
-                var error = CastToEnd(s, activeActionIds);
-                if (error is not null)
-                    return error;
-                continue;
-            }
-
-            if (!ClickOff(s))
-                SendTextCommand($"/statusoff \"{s.Name}\"");
-        }
-
-        return null;
-    }
+        EndMethod.Recast => CastToEnd(s, activeActionIds),
+        EndMethod.ClickOff => ClickOffOrCommand(s),
+        _ => $"{s.Name} cannot be ended early. Wait for it to wear off ({Math.Ceiling(s.Remaining):0}s).",
+    };
 
     // Recasts the spell that ends the buff, the way a player would. It has to be one of
     // the 24 active spells, and the game has to be willing to cast it right now, which
     // it reports through GetActionStatus as a LogMessage id (0 means it can).
     private static unsafe string? CastToEnd(BlockingStatus s, uint[] activeActionIds)
     {
-        var spellName = Service.Data.GetExcelSheet<Lumina.Excel.Sheets.Action>()
-            .GetRowOrDefault(s.EndedByActionId)?.Name.ExtractText() ?? "the spell";
-
-        if (!activeActionIds.Contains(s.EndedByActionId))
+        var spellName = s.Spell.Name;
+        if (!activeActionIds.Contains(s.Spell.ActionId))
             return $"{s.Name} ends when you recast {spellName}, but {spellName} is not in your active spells. End it by hand.";
 
         var am = ActionManager.Instance();
         if (am == null)
             return "The game is not ready to cast.";
 
-        var status = am->GetActionStatus(ActionType.Action, s.EndedByActionId);
+        var status = am->GetActionStatus(ActionType.Action, s.Spell.ActionId);
         if (status != 0)
         {
             var why = DescribeLogMessage(status);
@@ -158,25 +166,29 @@ public static class Blockers
             return $"Could not recast {spellName} to end {s.Name}: {why}";
         }
 
-        var used = am->UseAction(ActionType.Action, s.EndedByActionId);
-        Service.Log.Info($"Recast {spellName} ({s.EndedByActionId}) to end {s.Name} ({s.Id}): {used}");
+        var used = am->UseAction(ActionType.Action, s.Spell.ActionId);
+        Service.Log.Info($"Recast {spellName} ({s.Spell.ActionId}) to end {s.Name} ({s.Id}): {used}");
         return used ? null : $"The game would not cast {spellName}. End {s.Name} by hand.";
     }
 
-    // Right-click equivalent: with the real source first, then any source.
-    private static bool ClickOff(BlockingStatus s)
+    // Right-click equivalent (real source, then any source), then the /statusoff command.
+    private static string? ClickOffOrCommand(BlockingStatus s)
     {
         if (s.SourceId is not 0 and not 0xE0000000)
         {
             var withSource = StatusManager.ExecuteStatusOff(s.Id, s.SourceId);
             Service.Log.Info($"Status off {s.Name} ({s.Id}) with source {s.SourceId:X}: {withSource}");
             if (withSource)
-                return true;
+                return null;
         }
 
         var anySource = StatusManager.ExecuteStatusOff(s.Id);
         Service.Log.Info($"Status off {s.Name} ({s.Id}) with any source: {anySource}");
-        return anySource;
+        if (anySource)
+            return null;
+
+        SendTextCommand($"/statusoff \"{s.Name}\"");
+        return null;
     }
 
     // Runs a game text command as if typed in the chat box. Only ever called with a
@@ -215,7 +227,4 @@ public static class Blockers
 
         return $"game message {id}";
     }
-
-    public static string Describe(IReadOnlyList<BlockingStatus> statuses) =>
-        string.Join(", ", statuses.Select(s => s.Name).Distinct());
 }

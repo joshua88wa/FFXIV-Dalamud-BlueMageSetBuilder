@@ -32,6 +32,15 @@ public sealed record BlueSpell(
     /// <summary>The flavour text from the spellbook page.</summary>
     public ReadOnlySeString Lore { get; init; }
 
+    /// <summary>
+    /// Buffs this spell puts on the caster. The game will not move or remove a spell
+    /// while its buff is up, so these are what <see cref="Blockers"/> looks for.
+    /// </summary>
+    public IReadOnlyList<uint> GrantedStatuses { get; init; } = Array.Empty<uint>();
+
+    /// <summary>True when casting the spell again ends its buff ("Effect ends upon reuse").</summary>
+    public bool EndsOnReuse { get; init; }
+
     /// <summary>Every known creature that teaches it. Empty when there is no data.</summary>
     public IReadOnlyList<SpellSource> Sources { get; init; } = Array.Empty<SpellSource>();
 
@@ -81,6 +90,10 @@ public sealed unsafe class Spellbook
         var transientSheet = Service.Data.GetExcelSheet<AozActionTransient>();
         var actionTransientSheet = Service.Data.GetExcelSheet<ActionTransient>();
         var sources = SpellSources.Load();
+        var statusNames = Service.Data.GetExcelSheet<Lumina.Excel.Sheets.Status>()
+            .Select(s => (s.RowId, Name: s.Name.ExtractText()))
+            .Where(s => s.Name.Length > 0)
+            .ToList();
         var list = new List<BlueSpell>();
 
         foreach (var aoz in aozSheet)
@@ -112,6 +125,10 @@ public sealed unsafe class Spellbook
                 Range = action.Value.Range,
                 Radius = action.Value.EffectRange,
                 Sources = sources.TryGetValue(number, out var known) ? known : Array.Empty<SpellSource>(),
+                GrantedStatuses = GrantedStatusesOf(aoz.Action.RowId, action.Value, statusNames),
+                EndsOnReuse = KnownEndsOnReuse.Contains(aoz.Action.RowId) ||
+                              (actionTransientSheet.GetRowOrDefault(aoz.Action.RowId)?.Description.ExtractText()
+                                  .Contains("ends upon reuse", StringComparison.OrdinalIgnoreCase) ?? false),
             };
 
             list.Add(spell);
@@ -200,6 +217,43 @@ public sealed unsafe class Spellbook
 
         fixed (uint* ptr = actionIds)
             return am->SetBlueMageActions(ptr);
+    }
+
+    // Verified by hand, and kept as a floor under the automatic matching below: in
+    // other client languages a status name might not start with the spell's name, and
+    // the "ends upon reuse" text check is English only.
+    private static readonly Dictionary<uint, uint[]> KnownGrants = new()
+    {
+        [11417] = new uint[] { 1719 },             // Mighty Guard
+        [18322] = new uint[] { 2124, 2125, 2126 }, // Aetheric Mimicry: Tank, DPS, Healer
+    };
+
+    private static readonly HashSet<uint> KnownEndsOnReuse = new() { 11417, 18322 };
+
+    // Which buffs a spell gives the caster, worked out from the game's data rather than
+    // listed by hand: the Action row's own StatusGainSelf link, plus any status named
+    // after the spell ("Diamondback", or "Aetheric Mimicry: Tank" for Aetheric Mimicry).
+    private static uint[] GrantedStatusesOf(uint actionId, Lumina.Excel.Sheets.Action action, List<(uint RowId, string Name)> statusNames)
+    {
+        var ids = new HashSet<uint>();
+        if (KnownGrants.TryGetValue(actionId, out var known))
+            ids.UnionWith(known);
+
+        if (action.StatusGainSelf.RowId != 0)
+            ids.Add(action.StatusGainSelf.RowId);
+
+        var name = action.Name.ExtractText();
+        if (name.Length > 0)
+        {
+            foreach (var (id, statusName) in statusNames)
+            {
+                if (statusName.Equals(name, StringComparison.OrdinalIgnoreCase) ||
+                    statusName.StartsWith(name + ":", StringComparison.OrdinalIgnoreCase))
+                    ids.Add(id);
+            }
+        }
+
+        return ids.ToArray();
     }
 
     // LocationKey says what Location points at: 1 a zone, 4 a duty. 2 is a Whalaqee

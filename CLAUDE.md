@@ -50,15 +50,23 @@ Dalamud Settings -> Experimental -> Dev Plugin Locations.
   and "worth learning" list out. `Layout` places them in slots, keeping already-active
   spells where they are.
 - `Blockers` is every reason a change cannot happen: conditions (combat, casting,
-  zoning, cutscenes) and known blocking buffs (`KnownBlockingStatuses`, currently the
-  three Aetheric Mimicry statuses 2124-2126). The game has no data table or message for
-  this; the spellbook just greys out. Its own `CanAssignBlueMageAction` is known only
-  by address, so it is not called. When an apply is refused for an unknown reason the
-  player's buffs are listed in the message and the log; add the culprit to the list.
-- `SetApplier` is shared by the window and `/blusets apply`. If a removable blocking
-  buff is up it calls `StatusManager.ExecuteStatusOff` (the same as right-clicking the
-  buff), then applies on the first framework tick the buff is gone, with a 5 second
-  timeout. The callback gets a Pending result first, then the final one. It reads the
+  zoning, cutscenes) and buffs from spells. Working rule from testing: a spell cannot
+  move or leave while it is recasting or while its buff is on you (confirmed for
+  Aetheric Mimicry and Mighty Guard). No hand-made list: `Spellbook` gives each spell
+  `GrantedStatuses` (Action.StatusGainSelf, plus statuses named after the spell, plus a
+  verified floor for 11417 and 18322) and `EndsOnReuse` ("ends upon reuse" in the
+  description, plus the same floor, since the text check is English only). Only
+  self-applied statuses count, so a boss's "Doom" is ignored.
+- `SetApplier.BlockingStatusesFor` checks buffs of spells whose slot changes. Up front
+  it only blocks on buffs it can end (Recast or ClickOff); wait-only ones (Basic
+  Instinct is permanent while solo) count only after a refusal. A refusal while any
+  active spell's buff is up adds that spell to `strictSpells` for the session, so the
+  next press offers to end it even if the spell is not moving. The game has no data
+  for any of this; `CanAssignBlueMageAction` is known only by address, so not called.
+- `SetApplier` is shared by the window and `/blusets apply`. Ending buffs runs as a
+  per-frame sequence: wait for casts, end one buff (recast via `UseAction` after
+  `GetActionStatus`, or `ExecuteStatusOff` then `/statusoff`), wait out the GCD, next
+  buff, then cooldowns, then apply. Each step has a 6 second timeout. It reads the
   slots back after writing, because the return value alone does not prove the change
   took.
 - `ProfileStore` loads `Profiles.json`: the embedded copy by default, or a user copy in
