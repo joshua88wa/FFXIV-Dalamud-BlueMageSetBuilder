@@ -19,14 +19,20 @@ public class Configuration : IPluginConfiguration
     public HashSet<uint> Excluded = new();
 
     // A spell that is already active and also in the new set stays in its slot, so
-    // applying a set moves as little as possible.
-    public bool KeepSlots = true;
+    // applying a set moves as little as possible. Off by default at Joshua's choice:
+    // with it off the set is laid out in the profile's priority order.
+    public bool KeepSlots = false;
 
     public bool ShowUnlearned = true;
 
-    // Click off buffs that stop spells being changed (Aetheric Mimicry) before applying.
-    // Off by default because it means recasting Mimicry afterwards.
-    public bool AutoRemoveBlockers = false;
+    // Let /blusets apply turn off Mighty Guard, Aetheric Mimicry and similar spell
+    // effects that stop spells moving, the same as the window's button does. The window
+    // button always names them first, so this only affects the command.
+    public bool AutoRemoveBlockers = true;
+
+    // Open the Blue Magic Spellbook after a set is applied, so the new spells can be
+    // dragged straight onto a hotbar.
+    public bool OpenSpellbookAfterApply = true;
 
     [NonSerialized] private IDalamudPluginInterface? pluginInterface;
 

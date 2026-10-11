@@ -296,7 +296,11 @@ public sealed class SetApplier : IDisposable
                          $"wanted=[{string.Join(",", layout)}] got=[{string.Join(",", after)}]");
 
         if (matches)
+        {
+            if (this.config.OpenSpellbookAfterApply)
+                GameUi.OpenSpellbook();
             return new ApplyResult(ApplyOutcome.Applied, $"Applied {profile.Name}: {built.Chosen.Count} spells.");
+        }
 
         // Refused anyway. If any active spell's buff is up, the game may block changes
         // while it lasts even when that spell is not moving. Remember those spells so

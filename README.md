@@ -110,19 +110,28 @@ Then it waits for cooldowns and applies the set. With **Keep spells in the same 
 on, a spell that stays put does not need its buff ended at all.
 
 If the game still refuses while one of your spells' buffs is up, the plugin remembers
-that for the session and offers to end it on the next press. `/blusets apply` stops
-and tells you instead, unless you turn on **Let /blusets apply end blocking buffs**
-in Settings.
+that for the session and offers to end it on the next press. `/blusets apply` does
+the same, unless you turn off **Let /blusets apply turn off Mighty Guard, Mimicry and
+similar effects** in Settings, in which case it stops and tells you instead.
+
+After a set is applied, the Blue Magic Spellbook opens (unless you turn that off) so
+you can drag the new spells to your hotbars. The plugin uses the game's own
+`/bluespellbook` command, and only when the spellbook is not already open.
 
 If the game refuses a change for a reason the plugin does not know about, the message
 lists your current buffs. Please report it with that list so the cause can be added.
 
 ## Settings
 
-- **Keep spells in the same slot when applying.** On by default.
-- **Let /blusets apply end blocking buffs.** Off by default, because it may cast Mighty
-  Guard or Aetheric Mimicry and you would recast them afterwards. The button in the
-  window always names the buffs before ending them.
+- **Open the Blue Magic Spellbook after applying a set.** On by default, so you can
+  drag the new spells straight onto your hotbars.
+- **Keep spells in the same slot when applying.** Off by default, so spells follow the
+  profile's order. Turning it on moves fewer spells, which means fewer effects like
+  Mighty Guard need turning off.
+- **Let /blusets apply turn off Mighty Guard, Mimicry and similar effects.** On by
+  default. The button in the window always names them before turning them off; this
+  lets the command do the same. With it off, the command stops and says what is in the
+  way.
 - **Show spells I have not learned** on the Spellbook tab.
 - **Exclude** any spell from every suggested set, on the Spellbook tab.
 - **Profiles:** export, reload, open the config folder, or go back to the built-in set.

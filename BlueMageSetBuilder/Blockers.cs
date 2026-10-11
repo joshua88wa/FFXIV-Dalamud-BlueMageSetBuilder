@@ -187,28 +187,9 @@ public static class Blockers
         if (anySource)
             return null;
 
-        SendTextCommand($"/statusoff \"{s.Name}\"");
+        // The status name comes from the game's own sheet.
+        GameUi.SendTextCommand($"/statusoff \"{s.Name}\"");
         return null;
-    }
-
-    // Runs a game text command as if typed in the chat box. Only ever called with a
-    // command built here from a status name out of the game's own sheet.
-    private static unsafe void SendTextCommand(string command)
-    {
-        var ui = UIModule.Instance();
-        if (ui == null)
-            return;
-
-        Service.Log.Info($"Falling back to: {command}");
-        var str = Utf8String.FromString(command);
-        try
-        {
-            ui->ProcessChatBoxEntry(str);
-        }
-        finally
-        {
-            str->Dtor(true);
-        }
     }
 
     /// <summary>The game's own wording for a LogMessage id, such as "Target not in range."</summary>

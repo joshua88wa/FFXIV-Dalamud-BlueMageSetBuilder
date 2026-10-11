@@ -394,14 +394,19 @@ public sealed class MainWindow : Window
 
     private void DrawSettings()
     {
-        if (ImGui.Checkbox("Keep spells in the same slot when applying", ref this.config.KeepSlots))
+        if (ImGui.Checkbox("Open the Blue Magic Spellbook after applying a set", ref this.config.OpenSpellbookAfterApply))
             this.config.Save();
-        ImGui.TextDisabled("A spell that is already active and also in the new set stays where it is.");
+        ImGui.TextDisabled("So you can drag the new spells straight onto your hotbars.");
 
         ImGui.Spacing();
-        if (ImGui.Checkbox("Let /blusets apply end blocking buffs", ref this.config.AutoRemoveBlockers))
+        if (ImGui.Checkbox("Keep spells in the same slot when applying", ref this.config.KeepSlots))
             this.config.Save();
-        ImGui.TextDisabled("A spell cannot move while its buff is on you (Mighty Guard, Aetheric Mimicry).\nEnding those means recasting them, so with this off the command stops and says so.\nThe button in the window always names the buffs before ending them.");
+        ImGui.TextDisabled("A spell that is already active and also in the new set stays where it is. Fewer spells\nmove, so fewer effects like Mighty Guard need turning off. Off: spells follow the\nprofile's order.");
+
+        ImGui.Spacing();
+        if (ImGui.Checkbox("Let /blusets apply turn off Mighty Guard, Mimicry and similar effects", ref this.config.AutoRemoveBlockers))
+            this.config.Save();
+        ImGui.TextDisabled("The game will not move a spell while its effect is on you. The button in the window\nalways names these and asks; this lets the command do the same without asking.\nOff: the command stops and tells you what is in the way.");
 
         ImGui.Spacing();
         ImGui.Separator();
