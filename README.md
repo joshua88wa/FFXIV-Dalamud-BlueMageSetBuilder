@@ -14,9 +14,10 @@ Magic Spellbook.
 
 ## Features
 
-- Profiles for **open world and FATEs**, **solo duties** (built around Basic Instinct,
-  which only works there), **dungeon DPS**, **trial and raid DPS**, **tank** and
-  **healer**.
+- Eight profiles: **open world and FATEs**; **solo duties** (built around Basic
+  Instinct, which only works there); and **DPS**, **tank** and **healer** sets for
+  both **dungeons** (area damage and sustain for trash pulls) and **trials and raids**
+  (single-target damage, tankbuster mitigation, raid-wide healing).
 - A suggested set built from the spells you actually know, with the reason each one
   made the cut and which are already active.
 - Hover any spell for a tooltip like the game's: cast, recast, MP cost, range and
@@ -78,9 +79,10 @@ be on Blue Mage.
 ## Commands
 
 - `/blusets` opens or closes the window
-- `/blusets apply <profile>` applies a profile. Takes a profile id (`solo`, `soloduty`,
-  `dungeon`, `boss`, `tank`, `healer`) or the start of its name, so
-  `/blusets apply trial` works.
+- `/blusets apply <profile>` applies a profile. Takes a profile id or the start of its
+  name, so `/blusets apply trial` works. The ids are `solo`, `soloduty`, `dungeon`,
+  `dungeontank`, `dungeonhealer`, `boss`, `tank` and `healer` (the last three are
+  the trial and raid sets).
   With no name it applies the profile selected in the window.
 - `/blusets config` opens the settings tab
 - `/blusets debug` prints what the plugin can see to chat, which is the first thing to
