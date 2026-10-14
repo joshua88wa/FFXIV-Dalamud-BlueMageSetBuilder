@@ -8,8 +8,11 @@ best 24-spell active set for the content they pick, then applies it.
 **Never `git push` or create a release without being asked to.** Commits are fine to
 make locally; changes get reviewed before they reach GitHub.
 
-**Not yet published.** There is no GitHub repo and no `repo.json` entry yet. It is
-being tested locally as a dev plugin first.
+**Published** 2026-10-14 as `joshua88wa/FFXIV-Dalamud-BlueMageSetBuilder`, v0.1.0.0,
+with `main` (stable) and `testing` (development) branches, and listed in the hub
+repo's `Dalamud/repo.json`. Releases follow the same steps as Plugin Menu: test builds
+are pre-releases tagged `v<version>-test<N>` from `testing`, stable releases are
+tagged `v<version>` from `main`.
 
 ## The two-repo setup
 
