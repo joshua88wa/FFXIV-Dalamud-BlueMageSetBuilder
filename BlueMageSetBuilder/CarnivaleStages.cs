@@ -39,9 +39,7 @@ public static class CarnivaleStages
                     continue;
 
                 var number = (int)(cfc.Content.RowId - FirstInstanceContent + 1);
-                var name = cfc.Name.ExtractText();
-                if (name.Length > 0)
-                    name = char.ToUpperInvariant(name[0]) + name[1..];
+                var name = Spellbook.AsTitle(cfc.Name.ExtractText());
 
                 var acts = briefings.TryGetValue(number, out var content)
                     ? ReadActs(content)

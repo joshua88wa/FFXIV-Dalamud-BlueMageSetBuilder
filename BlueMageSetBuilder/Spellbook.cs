@@ -266,9 +266,9 @@ public sealed unsafe class Spellbook
             switch (t.LocationKey)
             {
                 case 1 when t.Location.TryGetValue<PlaceName>(out var place):
-                    return place.Name.ExtractText();
+                    return AsTitle(place.Name.ExtractText());
                 case 4 when t.Location.TryGetValue<ContentFinderCondition>(out var duty):
-                    return duty.Name.ExtractText();
+                    return AsTitle(duty.Name.ExtractText());
                 case 2:
                     return "Whalaqee Totem reward (Wayward Gaheel Ja, Ul'dah)";
                 case 3:
@@ -282,4 +282,14 @@ public sealed unsafe class Spellbook
 
         return string.Empty;
     }
+
+    /// <summary>
+    /// The game stores English place and duty names with a lowercase leading article
+    /// ("the Dragon's Neck") so they read right mid-sentence. Shown on their own, as in
+    /// a table cell or heading, they need a capital: "The Dragon's Neck".
+    /// </summary>
+    public static string AsTitle(string name) =>
+        name.Length > 0 && char.IsLower(name[0])
+            ? char.ToUpperInvariant(name[0]) + name[1..]
+            : name;
 }
