@@ -30,6 +30,7 @@ public sealed class MainWindow : Window
     private Vector4 statusColor = ImGuiColors.DalamudWhite;
     private bool jumpToSettings;
     private bool jumpToMissing;
+    private bool jumpToSuggested;
 
     // Spellbook tab search. Deliberately not saved: a filter left on from last time
     // makes the list look like spells are missing.
@@ -98,9 +99,17 @@ public sealed class MainWindow : Window
         if (!ImGui.BeginTabBar("##bms_tabs"))
             return;
 
-        if (profile is not null && ImGui.BeginTabItem("Suggested set"))
+        // Always submitted, even with nothing to show: a tab that vanishes for a frame
+        // makes ImGui select another one, which used to drop you on Settings when
+        // switching between the Carnivale and the other profiles.
+        var suggestedFlags = this.jumpToSuggested ? ImGuiTabItemFlags.SetSelected : ImGuiTabItemFlags.None;
+        this.jumpToSuggested = false;
+        if (ImGui.BeginTabItem("Suggested set", suggestedFlags))
         {
-            this.DrawSuggested(profile);
+            if (profile is not null)
+                this.DrawSuggested(profile);
+            else
+                ImGui.TextDisabled("Choose what you are about to do from Content above.");
             ImGui.EndTabItem();
         }
 
@@ -169,6 +178,9 @@ public sealed class MainWindow : Window
         if (this.config.SelectedProfile == CarnivaleId && this.stages.Count > 0)
             return this.DrawStagePicker();
 
+        // Re-read in case the combo just changed it, so the new profile shows this frame.
+        profile = general.FirstOrDefault(p => p.Id == this.config.SelectedProfile) ?? general.FirstOrDefault();
+
         if (profile is not null && !string.IsNullOrWhiteSpace(profile.Description))
         {
             ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.DalamudGrey);
@@ -199,6 +211,7 @@ public sealed class MainWindow : Window
                     this.config.SelectedStage = s.Number;
                     this.config.Save();
                     this.status = string.Empty;
+                    this.jumpToSuggested = true;
                 }
 
                 if (!hasSet)
@@ -250,6 +263,7 @@ public sealed class MainWindow : Window
         this.config.SelectedProfile = id;
         this.config.Save();
         this.status = string.Empty;
+        this.jumpToSuggested = true;
     }
 
     private void DrawSuggested(Profile profile)
