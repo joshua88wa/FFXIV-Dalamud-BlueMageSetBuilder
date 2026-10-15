@@ -18,6 +18,10 @@ Magic Spellbook.
   Instinct, which only works there); and **DPS**, **tank** and **healer** sets for
   both **dungeons** (area damage and sustain for trash pulls) and **trials and raids**
   (single-target damage, tankbuster mitigation, raid-wide healing).
+- A set for every **Masked Carnivale** stage, built around the spells
+  [Blue Academy](https://mage.blue/masked-carnivale/) lists as required or
+  recommended for it, with each act's enemies and their vulnerabilities from the game's
+  briefing data, and a button that opens Blue Academy's full guide for the stage.
 - A suggested set built from the spells you actually know, with the reason each one
   made the cut and which are already active.
 - Hover any spell for a tooltip like the game's: cast, recast, MP cost, range and
@@ -72,8 +76,11 @@ Other plugins in the same repository are listed at
 2. Pick what you are about to do from **Content**. Profiles are grouped under General,
    Dungeons, and Trials and raids. Choosing **The Masked Carnivale** adds a **Stage**
    picker listing all 32 stages, with each act's enemies and what they are vulnerable
-   to, straight from the game's briefing data. Stage spell sets are being added; stages
-   without one yet are greyed out.
+   to, straight from the game's briefing data. Each stage's set starts with the spells
+   Blue Academy lists for it and is topped up with generally useful Carnivale spells.
+   Stages where Blue Academy lists no particular spells get the general Carnivale set.
+   **Open the stage guide** takes you to Blue Academy's page for that stage, which has
+   the actual strategy.
 3. Read down the suggested set. Each spell shows why it was picked.
 4. Press **Apply this set**.
 
@@ -87,7 +94,7 @@ be on Blue Mage.
   name, so `/blusets apply trial` works. The ids are `solo`, `soloduty`, `dungeon`,
   `dungeontank`, `dungeonhealer`, `boss`, `tank` and `healer` (the last three are
   the trial and raid sets). `/blusets apply stage 12` applies a Masked Carnivale stage
-  set, once that stage has one.
+  set, and `/blusets apply carnivale` applies the stage selected in the window.
   With no name it applies the profile selected in the window.
 - `/blusets config` opens the settings tab
 - `/blusets debug` prints what the plugin can see to chat, which is the first thing to
@@ -161,6 +168,11 @@ If a profile's picks run out before 24 slots are full, the shared `Fill` list at
 bottom of the file tops up the rest. Those spells are marked **Extra** in the window.
 A profile can have its own `Fill` list to replace the shared one.
 
+Masked Carnivale stage sets are not in this file; they are built from Blue Academy's
+stage lists, then topped up from the `CarnivaleFill` list, which you can edit here. To
+replace one stage's set with your own, add a profile with `"Stage": 12` (or whichever
+stage) and it takes that stage's place.
+
 Your copy replaces the built-in profiles completely, so new profiles added in a later
 version will not appear until you delete your copy from the Settings tab or merge them
 in by hand.
@@ -192,6 +204,19 @@ where the wiki gives one, which is about a quarter of dungeon sources; the rest 
 the creature and the duty. Corrections belong on the wiki, after which re-running the
 script picks them up. Thanks to the wiki's editors for keeping that list.
 
+**Masked Carnivale stage spells** come from
+[Blue Academy](https://mage.blue/masked-carnivale/) ([source on GitHub](https://github.com/RoarkGit/Blue-Academy)),
+the community Blue Mage guide site. `tools/make-carnivale.ps1` reads the "Required
+Spells" and "Recommended Spells" lists from each stage's guide and keeps only which
+spells they name, whether each is required or recommended, and which are
+alternatives to each other. That ships as `Carnivale.json`. None of Blue Academy's
+strategy text is copied; each stage in the plugin links to its page instead, and every
+spell picked this way says in its reason that it comes from Blue Academy. The stage
+names, enemies and vulnerabilities come from the game itself (`ContentFinderCondition`,
+`AOZContent`, `AOZArrangement`, `AOZBoss` and `AOZContentBriefingBNpc`). If a stage set
+looks wrong, check Blue Academy's page first; if the page has changed, re-running the
+script picks it up. Thanks to Blue Academy for the guides.
+
 **Tooltips** are drawn by the plugin from the same game data the game's tooltip uses
 (`ActionTransient` for the description, `AozActionTransient` for the spellbook page),
 with cast, recast and MP cost read live from the game while you are on Blue Mage, so
@@ -216,6 +241,11 @@ Game structures come from
 
 Which creature teaches each spell comes from the
 [FFXIV Online Wiki](https://ffxiv.consolegameswiki.com/wiki/Blue_Magic_Spellbook).
+
+Which spells each Masked Carnivale stage needs comes from
+[Blue Academy](https://mage.blue/masked-carnivale/)
+([source](https://github.com/RoarkGit/Blue-Academy)). Their stage guides are the place
+to go for how to actually clear each stage.
 
 Written with the help of an LLM, in case that matters to you.
 

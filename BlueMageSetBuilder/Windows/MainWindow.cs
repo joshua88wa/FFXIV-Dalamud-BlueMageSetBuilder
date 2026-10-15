@@ -227,7 +227,18 @@ public sealed class MainWindow : Window
         {
             ImGui.Spacing();
             ImGui.TextColored(ImGuiColors.DalamudYellow, "No spell list for this stage yet.");
-            ImGui.TextDisabled("Stage sets are being added. Until then, the enemy list above shows what the stage needs.");
+            return null;
+        }
+
+        // Credit and link for stage spells that came from Blue Academy's guides.
+        if (profile.SourceUrl.Length > 0)
+        {
+            ImGui.TextDisabled($"Stage spells: {CarnivaleSets.CreditName} ({CarnivaleSets.CreditSite}).");
+            ImGui.SameLine();
+            if (ImGui.SmallButton($"Open the stage guide##bms_guide{stage.Number}"))
+                Dalamud.Utility.Util.OpenLink(profile.SourceUrl);
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip($"{profile.SourceUrl}\nThe full strategy for this stage is in {CarnivaleSets.CreditName}'s guide.");
         }
 
         return profile;

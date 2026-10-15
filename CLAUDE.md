@@ -118,7 +118,7 @@ located spells match; 59, 74 and 75 show the game location only because the wiki
 does not list it. Boss position exists for only about a quarter of duty sources;
 Joshua chose to show it where known rather than research the rest.
 
-## The Masked Carnivale (issue #1, in progress)
+## The Masked Carnivale (issue #1, stage sets built, not yet tested in game)
 
 Menu: profiles have a `Group` (heading in the Content menu) and an optional `Stage`.
 Stage profiles are not listed in the Content menu; choosing "The Masked Carnivale"
@@ -141,10 +141,30 @@ Spell lists per stage, researched 2026-10-14:
   7.5, pushed Oct 2026): `content/masked-carnivale/stages/NN.md` has "Required Spells"
   and "Recommended Spells" sections using `{{< spell snake_case_name >}}`, so it parses
   reliably. 24 of 32 stages list spells; 1, 8, 10, 13, 15, 17, 18, 21 list none (easy
-  stages). **No licence file.** Not yet imported; waiting on Joshua's decision.
+  stages). **No licence file.** Imported 2026-10-14 at Joshua's choice (facts only,
+  credited and linked; he did not want to ask the author first, citing their
+  open-source stance). If the author ever objects, remove `Carnivale.json` and the
+  stage sets fall back to nothing but the menu and enemy data.
 - Icy Veins Carnivale guide: same shape, last updated 6.45 (2023), commercial copyright.
 - FFXIV Online Wiki stage pages: strategy prose; spell mentions mix in the enemy's own
   moves, so not usable for automatic extraction.
+
+Stage sets (`CarnivaleSets`, `Carnivale.json`, `tools/make-carnivale.ps1`):
+- Run the script on the PC (the container proxy cannot reach raw.githubusercontent for
+  this). It maps each `{{< spell key >}}` to a spellbook number through the English
+  names in `Sources.json`, and prints any key it cannot map and every bullet with more
+  than one spell, so check that output after each run.
+- One bullet = one pick. If the words between two spells contain "or" or "like", they
+  are alternatives (`Any`), and "like" also marks the pick `Example`. Otherwise the
+  first spell takes the bullet's kind and the rest become separate Recommended picks.
+  Checked by hand: 5, 12, 24, 28, 29, 32.
+- Only spell numbers, Required/Recommended and the stage URL are kept. The `Why` text
+  is written in `CarnivaleSets.Why`, never copied from the guide.
+- Every stage 1-32 gets a profile (`stageN`); picks come first, then `CarnivaleFill`
+  from Profiles.json (general Carnivale spells, no Basic Instinct). A profile in
+  Profiles.json with `"Stage": N` replaces the generated one for that stage.
+- Credit lives in three places: the README (Features, Using it, Notes, Credits), the
+  stage page (credit line plus "Open the stage guide" button), and each pick's reason.
 
 ## Spell numbers
 

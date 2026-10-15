@@ -16,6 +16,12 @@ public sealed class ProfileFile
     /// have its own Fill list. Never reported as worth learning.
     /// </summary>
     public List<Pick> Fill { get; set; } = new();
+
+    /// <summary>
+    /// Tops up Masked Carnivale stage sets after the stage's own spells. Our own list;
+    /// the stage spells come from Carnivale.json.
+    /// </summary>
+    public List<Pick> CarnivaleFill { get; set; } = new();
 }
 
 public sealed class Profile
@@ -32,6 +38,9 @@ public sealed class Profile
     /// the Content menu themselves; they appear under the Stage picker instead.
     /// </summary>
     public int? Stage { get; set; }
+
+    /// <summary>Where this set's spells came from, for crediting and linking, if not written here.</summary>
+    public string SourceUrl { get; set; } = string.Empty;
 
     /// <summary>In priority order. Each pick fills at most one slot.</summary>
     public List<Pick> Picks { get; set; } = new();
@@ -121,14 +130,18 @@ public sealed class ProfileStore
         ?? this.Profiles.FirstOrDefault();
 
     // Profiles without their own Fill list get the shared one, so SetBuilder only ever
-    // has to look at the profile.
+    // has to look at the profile. Masked Carnivale stage sets are generated here too,
+    // for every stage the file does not define itself.
     private static List<Profile> Parse(string json)
     {
         var file = JsonSerializer.Deserialize<ProfileFile>(json, Options) ?? new ProfileFile();
         var profiles = file.Profiles.Where(p => !string.IsNullOrWhiteSpace(p.Id)).ToList();
 
         foreach (var p in profiles.Where(p => p.Fill.Count == 0))
-            p.Fill = file.Fill;
+            p.Fill = p.Stage is null || file.CarnivaleFill.Count == 0 ? file.Fill : file.CarnivaleFill;
+
+        var carnivaleFill = file.CarnivaleFill.Count > 0 ? file.CarnivaleFill : file.Fill;
+        profiles.AddRange(CarnivaleSets.Build(profiles, carnivaleFill));
 
         return profiles;
     }

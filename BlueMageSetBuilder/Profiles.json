@@ -348,5 +348,41 @@
     { "Any": [ 5 ], "Why": "Line area damage." },
     { "Any": [ 19 ], "Why": "Ground-targeted area damage." },
     { "Any": [ 2 ], "Why": "Frontal area damage." }
+  ],
+  // Tops up every Masked Carnivale stage set after the spells that stage calls for.
+  // The stage spells themselves come from Blue Academy's guides (Carnivale.json); this
+  // list is ours. No Basic Instinct: the Carnivale is a one-player duty, and Basic
+  // Instinct only works in duties meant for two or more.
+  "CarnivaleFill": [
+    { "Any": [ 63, 1 ], "Why": "General: wind or water filler." },
+    { "Any": [ 13 ], "Why": "General: heal that scales with your HP." },
+    { "Any": [ 58 ], "Why": "General: single-target heal." },
+    { "Any": [ 24 ], "Why": "General: interrupts enemy casts, which many stages need." },
+    { "Any": [ 7 ], "Why": "General: dash, for getting out of big attacks." },
+    { "Any": [ 29 ], "Why": "General: emergency mitigation. You cannot act while it lasts." },
+    { "Any": [ 12 ], "Why": "General: boosts the next spell's damage." },
+    { "Any": [ 64 ], "Why": "General: boosts the next physical spell's damage." },
+    { "Any": [ 20 ], "Why": "General: raises the damage the target takes." },
+    { "Any": [ 39 ], "Why": "General: burst window for finishing a target fast. Leaves you unable to act afterwards." },
+    { "Any": [ 53 ], "Why": "General: lightning filler, for elemental weaknesses." },
+    { "Any": [ 19, 2 ], "Why": "General: fire damage, for elemental weaknesses." },
+    { "Any": [ 52 ], "Why": "General: ice damage, for elemental weaknesses." },
+    { "Any": [ 11 ], "Why": "General: earth area damage around you." },
+    { "Any": [ 33 ], "Why": "General: freezes enemies, setting up Ultravibration." },
+    { "Any": [ 92 ], "Why": "General: kills frozen or petrified non-boss enemies outright." },
+    { "Any": [ 48 ], "Why": "General: frontal area damage." },
+    { "Any": [ 44 ], "Why": "General: ground-targeted area damage." },
+    { "Any": [ 47 ], "Why": "General: area damage on a cooldown." },
+    { "Any": [ 9 ], "Why": "General: damage over time." },
+    { "Any": [ 104 ], "Why": "General: damage over time on a cooldown." },
+    { "Any": [ 100 ], "Why": "General: multi-hit single-target damage." },
+    { "Any": [ 90 ], "Why": "General: strong single-target cooldown." },
+    { "Any": [ 81 ], "Why": "General: heavy physical damage." },
+    { "Any": [ 80 ], "Why": "General: gap closer with heavy damage." },
+    { "Any": [ 78 ], "Why": "General: charges that stack damage when used back to back." },
+    { "Any": [ 73 ], "Why": "General: cleanses debuffs." },
+    { "Any": [ 108 ], "Why": "General: self heal." },
+    { "Any": [ 23 ], "Why": "General: stuns an enemy." },
+    { "Any": [ 30 ], "Why": "General: reduces damage taken, at a cost to damage dealt." }
   ]
 }
