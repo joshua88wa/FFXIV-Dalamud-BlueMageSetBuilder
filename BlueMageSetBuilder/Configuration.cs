@@ -14,6 +14,9 @@ public class Configuration : IPluginConfiguration
     // does not lose the selection.
     public string SelectedProfile = "solo";
 
+    // Masked Carnivale stage number, used when SelectedProfile is "carnivale".
+    public int SelectedStage = 1;
+
     // Spellbook numbers (the number shown in the Blue Magic Spellbook), because they
     // are the same in every client language and are what Profiles.json uses.
     public HashSet<uint> Excluded = new();

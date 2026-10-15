@@ -24,6 +24,15 @@ public sealed class Profile
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
 
+    /// <summary>Heading the profile is listed under in the Content menu, such as "Dungeons".</summary>
+    public string Group { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Masked Carnivale stage number (1-32) for a stage set. Stage sets are not listed in
+    /// the Content menu themselves; they appear under the Stage picker instead.
+    /// </summary>
+    public int? Stage { get; set; }
+
     /// <summary>In priority order. Each pick fills at most one slot.</summary>
     public List<Pick> Picks { get; set; } = new();
 

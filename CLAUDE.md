@@ -118,6 +118,34 @@ located spells match; 59, 74 and 75 show the game location only because the wiki
 does not list it. Boss position exists for only about a quarter of duty sources;
 Joshua chose to show it where known rather than research the rest.
 
+## The Masked Carnivale (issue #1, in progress)
+
+Menu: profiles have a `Group` (heading in the Content menu) and an optional `Stage`.
+Stage profiles are not listed in the Content menu; choosing "The Masked Carnivale"
+shows a Stage picker instead (`MainWindow.DrawStagePicker`, `Configuration.SelectedStage`,
+`SelectedProfile == "carnivale"`). `/blusets apply stage N` applies one.
+
+Game data (`CarnivaleStages`), all language-independent:
+- Stages: ContentFinderCondition rows with ContentType 27; stage number is
+  `Content.RowId - 35000` (35001 = stage 1 ... 35032 = stage 32).
+- Enemies: AOZContent row N (Order == row id == stage) has Act1-3 and Act1-3FightType.
+  **FightType 1 = AOZArrangement subrows (enemy group); 2 and 3 = AOZBoss row, whose
+  Boss is the enemy.** Reading every act as a group gives the wrong enemies for boss
+  stages. Checked: 3 Zipacna, 25 Azulmagia, 30 Siegfried, 32 Goldor.
+- AOZContentBriefingBNpc has vulnerability flags (slow, petrify, paralysis, interrupt,
+  blind, stun, sleep, bind, heavy, instant death), shown under the picker. Its
+  element/damage-type columns are small numbers whose meaning is not worked out yet.
+
+Spell lists per stage, researched 2026-10-14:
+- **Blue Academy** (mage.blue, source github.com/RoarkGit/Blue-Academy, updated for
+  7.5, pushed Oct 2026): `content/masked-carnivale/stages/NN.md` has "Required Spells"
+  and "Recommended Spells" sections using `{{< spell snake_case_name >}}`, so it parses
+  reliably. 24 of 32 stages list spells; 1, 8, 10, 13, 15, 17, 18, 21 list none (easy
+  stages). **No licence file.** Not yet imported; waiting on Joshua's decision.
+- Icy Veins Carnivale guide: same shape, last updated 6.45 (2023), commercial copyright.
+- FFXIV Online Wiki stage pages: strategy prose; spell mentions mix in the enemy's own
+  moves, so not usable for automatic extraction.
+
 ## Spell numbers
 
 Profiles use the Blue Magic Spellbook number (`AozActionTransient.Number`), not the

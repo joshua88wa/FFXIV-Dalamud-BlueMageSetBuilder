@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -15,10 +16,15 @@ public sealed class MainWindow : Window
 {
     private const float IconSize = 24f;
 
+    /// <summary>SelectedProfile value meaning "a Masked Carnivale stage, see SelectedStage".</summary>
+    public const string CarnivaleId = "carnivale";
+    private const string CarnivaleTitle = "The Masked Carnivale";
+
     private readonly Configuration config;
     private readonly Spellbook book;
     private readonly ProfileStore store;
     private readonly SetApplier applier;
+    private readonly IReadOnlyList<CarnivaleStage> stages;
 
     private string status = string.Empty;
     private Vector4 statusColor = ImGuiColors.DalamudWhite;
@@ -28,13 +34,14 @@ public sealed class MainWindow : Window
     // makes the list look like spells are missing.
     private string search = string.Empty;
 
-    public MainWindow(Configuration config, Spellbook book, ProfileStore store, SetApplier applier)
+    public MainWindow(Configuration config, Spellbook book, ProfileStore store, SetApplier applier, IReadOnlyList<CarnivaleStage> stages)
         : base("Blue Mage Set Builder##BlueMageSetBuilder")
     {
         this.config = config;
         this.book = book;
         this.store = store;
         this.applier = applier;
+        this.stages = stages;
 
         this.Size = new Vector2(680, 640);
         this.SizeCondition = ImGuiCond.FirstUseEver;
@@ -113,37 +120,55 @@ public sealed class MainWindow : Window
         ImGui.EndTabBar();
     }
 
+    /// <summary>
+    /// The Content menu. Ordinary profiles are listed under their Group heading; the
+    /// Masked Carnivale is one entry that opens a second Stage picker, since 32 stage
+    /// sets would swamp the list. Returns the profile to build, or null when there is
+    /// nothing to build yet (a stage without a set).
+    /// </summary>
     private Profile? DrawProfilePicker()
     {
-        var profile = this.store.Find(this.config.SelectedProfile);
-        if (profile is null)
+        var general = this.store.Profiles.Where(p => p.Stage is null).ToList();
+        if (general.Count == 0 && this.stages.Count == 0)
         {
             ImGui.TextColored(ImGuiColors.DalamudRed, "No profiles are loaded. See the Settings tab.");
             return null;
         }
 
-        ImGui.SetNextItemWidth(300 * ImGuiHelpers.GlobalScale);
-        if (ImGui.BeginCombo("Content", profile.Name))
-        {
-            foreach (var p in this.store.Profiles)
-            {
-                var selected = p.Id == profile.Id;
-                if (ImGui.Selectable($"{p.Name}##{p.Id}", selected))
-                {
-                    this.config.SelectedProfile = p.Id;
-                    this.config.Save();
-                    this.status = string.Empty;
-                    profile = p;
-                }
+        var inCarnivale = this.config.SelectedProfile == CarnivaleId && this.stages.Count > 0;
+        var profile = inCarnivale ? null : general.FirstOrDefault(p => p.Id == this.config.SelectedProfile) ?? general.FirstOrDefault();
 
-                if (selected)
-                    ImGui.SetItemDefaultFocus();
+        ImGui.SetNextItemWidth(300 * ImGuiHelpers.GlobalScale);
+        if (ImGui.BeginCombo("Content", inCarnivale ? CarnivaleTitle : profile?.Name ?? "Choose content"))
+        {
+            // Headings keep the order profiles first appear in, so Profiles.json decides it.
+            foreach (var group in general.GroupBy(p => p.Group.Length > 0 ? p.Group : "Other"))
+            {
+                ImGui.TextDisabled(group.Key);
+                foreach (var p in group)
+                {
+                    var selected = !inCarnivale && p.Id == profile?.Id;
+                    if (ImGui.Selectable($"   {p.Name}##{p.Id}", selected))
+                        this.Select(p.Id);
+                    if (selected)
+                        ImGui.SetItemDefaultFocus();
+                }
+            }
+
+            if (this.stages.Count > 0)
+            {
+                ImGui.TextDisabled(CarnivaleTitle);
+                if (ImGui.Selectable($"   Choose a stage##{CarnivaleId}", inCarnivale))
+                    this.Select(CarnivaleId);
             }
 
             ImGui.EndCombo();
         }
 
-        if (!string.IsNullOrWhiteSpace(profile.Description))
+        if (this.config.SelectedProfile == CarnivaleId && this.stages.Count > 0)
+            return this.DrawStagePicker();
+
+        if (profile is not null && !string.IsNullOrWhiteSpace(profile.Description))
         {
             ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.DalamudGrey);
             ImGui.TextWrapped(profile.Description);
@@ -151,6 +176,68 @@ public sealed class MainWindow : Window
         }
 
         return profile;
+    }
+
+    private Profile? DrawStagePicker()
+    {
+        var stage = this.stages.FirstOrDefault(s => s.Number == this.config.SelectedStage) ?? this.stages[0];
+        var profile = this.store.Profiles.FirstOrDefault(p => p.Stage == stage.Number);
+
+        ImGui.SetNextItemWidth(300 * ImGuiHelpers.GlobalScale);
+        if (ImGui.BeginCombo("Stage", stage.Label, ImGuiComboFlags.HeightLarge))
+        {
+            foreach (var s in this.stages)
+            {
+                var hasSet = this.store.Profiles.Any(p => p.Stage == s.Number);
+                if (!hasSet)
+                    ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.DalamudGrey);
+
+                var selected = s.Number == stage.Number;
+                if (ImGui.Selectable($"{s.Label}##stage{s.Number}", selected))
+                {
+                    this.config.SelectedStage = s.Number;
+                    this.config.Save();
+                    this.status = string.Empty;
+                }
+
+                if (!hasSet)
+                    ImGui.PopStyleColor();
+                if (selected)
+                    ImGui.SetItemDefaultFocus();
+            }
+
+            ImGui.EndCombo();
+        }
+
+        // What the briefing screen would tell you: who is in each act and what they are
+        // vulnerable to. Straight from game data, so it is there for every stage.
+        ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.DalamudGrey);
+        for (var i = 0; i < stage.Acts.Count; i++)
+        {
+            var enemies = string.Join(", ", stage.Acts[i].Select(e =>
+                e.Vulnerabilities.Count > 0 ? $"{e.Name} (vulnerable to {string.Join(", ", e.Vulnerabilities)})" : e.Name));
+            ImGui.TextWrapped($"Act {i + 1}: {enemies}");
+        }
+
+        if (profile is not null && !string.IsNullOrWhiteSpace(profile.Description))
+            ImGui.TextWrapped(profile.Description);
+        ImGui.PopStyleColor();
+
+        if (profile is null)
+        {
+            ImGui.Spacing();
+            ImGui.TextColored(ImGuiColors.DalamudYellow, "No spell list for this stage yet.");
+            ImGui.TextDisabled("Stage sets are being added. Until then, the enemy list above shows what the stage needs.");
+        }
+
+        return profile;
+    }
+
+    private void Select(string id)
+    {
+        this.config.SelectedProfile = id;
+        this.config.Save();
+        this.status = string.Empty;
     }
 
     private void DrawSuggested(Profile profile)

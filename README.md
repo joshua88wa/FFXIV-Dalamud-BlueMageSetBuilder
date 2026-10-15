@@ -69,7 +69,11 @@ Other plugins in the same repository are listed at
 ## Using it
 
 1. Type `/blusets`.
-2. Pick what you are about to do from **Content**.
+2. Pick what you are about to do from **Content**. Profiles are grouped under General,
+   Dungeons, and Trials and raids. Choosing **The Masked Carnivale** adds a **Stage**
+   picker listing all 32 stages, with each act's enemies and what they are vulnerable
+   to, straight from the game's briefing data. Stage spell sets are being added; stages
+   without one yet are greyed out.
 3. Read down the suggested set. Each spell shows why it was picked.
 4. Press **Apply this set**.
 
@@ -82,7 +86,8 @@ be on Blue Mage.
 - `/blusets apply <profile>` applies a profile. Takes a profile id or the start of its
   name, so `/blusets apply trial` works. The ids are `solo`, `soloduty`, `dungeon`,
   `dungeontank`, `dungeonhealer`, `boss`, `tank` and `healer` (the last three are
-  the trial and raid sets).
+  the trial and raid sets). `/blusets apply stage 12` applies a Masked Carnivale stage
+  set, once that stage has one.
   With no name it applies the profile selected in the window.
 - `/blusets config` opens the settings tab
 - `/blusets debug` prints what the plugin can see to chat, which is the first thing to

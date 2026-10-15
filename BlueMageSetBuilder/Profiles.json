@@ -13,6 +13,7 @@
   "Profiles": [
     {
       "Id": "solo",
+      "Group": "General",
       "Name": "Open world and FATEs",
       "Description": "Open-world play on your own: FATEs, hunts, leveling. Leans on Mighty Guard and self-healing for survival, with plenty of area damage for packs. No Basic Instinct: it only works inside duties.",
       "Picks": [
@@ -50,6 +51,7 @@
     },
     {
       "Id": "soloduty",
+      "Group": "General",
       "Name": "Solo duties",
       "Description": "Taking a duty meant for two or more players on your own, such as an older dungeon or trial unsynced, or synced to learn its spells. Built around Basic Instinct, which only works in exactly this situation.",
       "Picks": [
@@ -88,6 +90,7 @@
     },
     {
       "Id": "dungeon",
+      "Group": "Dungeons",
       "Name": "Dungeon DPS",
       "Description": "Party DPS for dungeons, weighted toward area damage for trash pulls, with a raise and a cleanse for emergencies.",
       "Picks": [
@@ -126,6 +129,7 @@
     },
     {
       "Id": "dungeontank",
+      "Group": "Dungeons",
       "Name": "Dungeon tank",
       "Description": "Main tank for dungeons. Mighty Guard plus Tank mimicry, area damage to grab and hold big pulls, and the defensive kit to survive them.",
       "Picks": [
@@ -163,6 +167,7 @@
     },
     {
       "Id": "dungeonhealer",
+      "Group": "Dungeons",
       "Name": "Dungeon healer",
       "Description": "Party healer for dungeons. Healer mimicry and steady healing through trash pulls, plus area damage to help kill packs faster.",
       "Picks": [
@@ -197,6 +202,7 @@
     },
     {
       "Id": "boss",
+      "Group": "Trials and raids",
       "Name": "Trial and raid DPS",
       "Description": "Party DPS for single-target boss fights: debuffs, damage over time and the big cooldowns for a Moon Flute burst window.",
       "Picks": [
@@ -233,6 +239,7 @@
     },
     {
       "Id": "tank",
+      "Group": "Trials and raids",
       "Name": "Trial and raid tank",
       "Description": "Main tank for trials and raids. Mighty Guard plus Tank mimicry, a deep defensive kit for tankbusters, and single-target damage for the boss.",
       "Picks": [
@@ -269,6 +276,7 @@
     },
     {
       "Id": "healer",
+      "Group": "Trials and raids",
       "Name": "Trial and raid healer",
       "Description": "Party healer for trials and raids. Healer mimicry, party heals and barriers for raid-wide hits, a raise and a cleanse, then single-target damage for downtime.",
       "Picks": [

@@ -30,14 +30,15 @@ public sealed class Plugin : IDalamudPlugin
         this.store.Load();
         this.applier = new SetApplier(this.config, this.book);
 
-        this.mainWindow = new MainWindow(this.config, this.book, this.store, this.applier);
+        this.mainWindow = new MainWindow(this.config, this.book, this.store, this.applier, CarnivaleStages.Load());
         this.windowSystem.AddWindow(this.mainWindow);
 
         Service.Commands.AddHandler(CommandName, new CommandInfo(this.OnCommand)
         {
             HelpMessage = "Open the set builder. " +
                           "/blusets apply <profile> applies a profile (ids: " +
-                          string.Join(", ", this.store.Profiles.Select(p => p.Id)) + "). " +
+                          string.Join(", ", this.store.Profiles.Where(p => p.Stage is null).Select(p => p.Id)) +
+                          ", or \"stage <number>\" for the Masked Carnivale). " +
                           "/blusets config opens settings. /blusets debug prints what the plugin can see.",
         });
 
@@ -82,17 +83,29 @@ public sealed class Plugin : IDalamudPlugin
         }
     }
 
-    // Matches on Id first, then on the start of the display name, so "/blusets apply tank"
-    // and "/blusets apply Trial" both work from a macro.
+    // Matches "stage N" (or "carnivale", meaning the stage picked in the window) for the
+    // Masked Carnivale, then an Id, then the start of a display name, so
+    // "/blusets apply tank", "/blusets apply Trial" and "/blusets apply stage 12" all
+    // work from a macro.
     private void ApplyFromCommand(string name)
     {
-        var profile = this.store.Profiles.FirstOrDefault(p => p.Id.Equals(name, StringComparison.OrdinalIgnoreCase))
-                      ?? this.store.Profiles.FirstOrDefault(p => p.Name.StartsWith(name, StringComparison.OrdinalIgnoreCase));
+        var stageMatch = System.Text.RegularExpressions.Regex.Match(name, @"^(?i:stage)\s*(\d+)$");
+        int? stage = stageMatch.Success ? int.Parse(stageMatch.Groups[1].Value)
+            : name.Equals(MainWindow.CarnivaleId, StringComparison.OrdinalIgnoreCase) ? this.config.SelectedStage
+            : null;
+
+        var general = this.store.Profiles.Where(p => p.Stage is null).ToList();
+        var profile = stage is { } n
+            ? this.store.Profiles.FirstOrDefault(p => p.Stage == n)
+            : general.FirstOrDefault(p => p.Id.Equals(name, StringComparison.OrdinalIgnoreCase))
+              ?? general.FirstOrDefault(p => p.Name.StartsWith(name, StringComparison.OrdinalIgnoreCase));
 
         if (profile is null)
         {
-            Service.Chat.PrintError($"[Blue Mage Set Builder] No profile called \"{name}\". Profiles: " +
-                                    string.Join(", ", this.store.Profiles.Select(p => p.Id)));
+            Service.Chat.PrintError(stage is { } s
+                ? $"[Blue Mage Set Builder] There is no spell list for Masked Carnivale stage {s} yet."
+                : $"[Blue Mage Set Builder] No profile called \"{name}\". Profiles: " +
+                  string.Join(", ", general.Select(p => p.Id)) + ", or \"stage <number>\" for the Masked Carnivale.");
             return;
         }
 
