@@ -29,6 +29,7 @@ public sealed class MainWindow : Window
     private string status = string.Empty;
     private Vector4 statusColor = ImGuiColors.DalamudWhite;
     private bool jumpToSettings;
+    private bool jumpToMissing;
 
     // Spellbook tab search. Deliberately not saved: a filter left on from last time
     // makes the list look like spells are missing.
@@ -303,6 +304,8 @@ public sealed class MainWindow : Window
             ImGui.TextUnformatted($"{built.Chosen.Count} of {Spellbook.SlotCount} slots filled");
 
         ImGui.Spacing();
+        this.DrawLearningSummary(profile, built);
+        ImGui.Spacing();
 
         if (!ImGui.BeginChild("##bms_suggested", Vector2.Zero))
         {
@@ -348,7 +351,16 @@ public sealed class MainWindow : Window
         if (built.Missing.Count > 0)
         {
             ImGui.Spacing();
-            if (ImGui.CollapsingHeader($"Worth learning ({built.Missing.Count})###bms_missing", ImGuiTreeNodeFlags.DefaultOpen))
+            if (this.jumpToMissing)
+                ImGui.SetNextItemOpen(true);
+            var open = ImGui.CollapsingHeader($"Worth learning ({built.Missing.Count})###bms_missing", ImGuiTreeNodeFlags.DefaultOpen);
+            if (this.jumpToMissing)
+            {
+                ImGui.SetScrollHereY(0f);
+                this.jumpToMissing = false;
+            }
+
+            if (open)
             {
                 ImGui.TextDisabled("Spells this profile wants that you have not learned yet.");
                 if (ImGui.BeginTable("##bms_missing_t", 4, ImGuiTableFlags.RowBg | ImGuiTableFlags.BordersInnerH | ImGuiTableFlags.SizingFixedFit))
@@ -372,6 +384,10 @@ public sealed class MainWindow : Window
                         ImGui.TextUnformatted(m.Spell.Where.Length > 0 ? m.Spell.Where : "-");
                         ImGui.TableNextColumn();
                         ImGui.TextWrapped(m.Why);
+                        if (m.CoveredBy is { } covered)
+                            ImGui.TextDisabled($"{covered.Name} is in the set in its place.");
+                        else if (profile.Stage is not null && m.Options.Count > 1)
+                            ImGui.TextDisabled($"Any one of these will do: {string.Join(", ", m.Options.Select(o => o.Name))}.");
                     }
 
                     ImGui.EndTable();
@@ -380,6 +396,62 @@ public sealed class MainWindow : Window
         }
 
         ImGui.EndChild();
+    }
+
+    /// <summary>
+    /// A line or two above the set saying whether anything it wants is not learned, so
+    /// nobody has to scroll to the Worth learning list to find out. Required spells
+    /// (Masked Carnivale) get named outright, since the stage may not be clearable
+    /// without them.
+    /// </summary>
+    private void DrawLearningSummary(Profile profile, BuiltSet built)
+    {
+        if (profile.Picks.Count == 0)
+            return;
+
+        var what = profile.Stage is not null ? "stage" : "set";
+        var unmet = built.UnmetRequired.ToList();
+
+        if (unmet.Count > 0)
+        {
+            var names = string.Join("; ", unmet.Select(m => string.Join(" or ", m.Options.Select(o => o.Name))));
+            var source = profile.SourceUrl.Length > 0 ? $" ({CarnivaleSets.CreditName} lists {(unmet.Count == 1 ? "it" : "them")} as required)" : string.Empty;
+            ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.DalamudOrange);
+            ImGui.TextWrapped($"You have not learned {(unmet.Count == 1 ? "a spell" : $"{unmet.Count} spells")} this {what} needs{source}: {names}.");
+            ImGui.PopStyleColor();
+        }
+
+        if (built.RequiredExcluded.Count > 0)
+        {
+            var names = string.Join(", ", built.RequiredExcluded.Select(s => s.Name));
+            ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.DalamudYellow);
+            ImGui.TextWrapped($"Left out because you excluded {(built.RequiredExcluded.Count == 1 ? "it" : "them")} on the Spellbook tab, but this {what} needs {(built.RequiredExcluded.Count == 1 ? "it" : "them")}: {names}.");
+            ImGui.PopStyleColor();
+        }
+
+        if (built.Missing.Count > 0)
+        {
+            var others = built.Missing.Count - unmet.Count;
+            var text = unmet.Count == 0
+                ? $"{built.Missing.Count} spell{(built.Missing.Count == 1 ? "" : "s")} this {what} would use {(built.Missing.Count == 1 ? "is" : "are")} not learned yet."
+                : others > 0
+                    ? $"{others} more {(others == 1 ? "spell it recommends is" : "spells it recommends are")} not learned yet."
+                    : string.Empty;
+            if (text.Length > 0)
+            {
+                ImGui.TextColored(unmet.Count == 0 ? ImGuiColors.DalamudYellow : ImGuiColors.DalamudGrey, text);
+                ImGui.SameLine();
+            }
+
+            if (ImGui.SmallButton("Where to learn them##bms_jump"))
+                this.jumpToMissing = true;
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Jumps to the Worth learning list at the bottom.");
+        }
+        else if (built.RequiredExcluded.Count == 0)
+        {
+            ImGui.TextColored(ImGuiColors.HealerGreen, $"You have learned every spell this {what} calls for.");
+        }
     }
 
     private void DrawSpellbook()

@@ -58,6 +58,13 @@ public sealed class Pick
     public List<uint> Any { get; set; } = new();
 
     public string Why { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The content cannot reasonably be done without one of these spells. Set for
+    /// Masked Carnivale picks a guide lists as required; the window warns at the top
+    /// when none of the spells is learned.
+    /// </summary>
+    public bool Required { get; set; }
 }
 
 /// <summary>

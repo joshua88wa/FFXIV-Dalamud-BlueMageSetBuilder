@@ -81,7 +81,10 @@ Other plugins in the same repository are listed at
    Stages where Blue Academy lists no particular spells get the general Carnivale set.
    **Open the stage guide** takes you to Blue Academy's page for that stage, which has
    the actual strategy.
-3. Read down the suggested set. Each spell shows why it was picked.
+3. Read down the suggested set. Each spell shows why it was picked. Above the list, a
+   line says whether the set wants any spells you have not learned, with a button that
+   jumps to where to learn them. For a Carnivale stage, spells Blue Academy lists as
+   required are named right there, in orange, if you do not have them.
 4. Press **Apply this set**.
 
 The window works on any job, so you can plan from anywhere, but applying needs you to

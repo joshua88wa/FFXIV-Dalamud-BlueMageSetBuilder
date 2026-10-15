@@ -8,7 +8,10 @@ namespace BlueMageSetBuilder;
 /// <param name="IsFill">True when the spell came from the Fill list rather than the profile's own picks.</param>
 public sealed record ChosenSpell(BlueSpell Spell, string Why, BlueSpell? StandInFor, bool IsFill);
 
-public sealed record MissingSpell(BlueSpell Spell, string Why);
+/// <param name="Required">The pick is marked required (a Carnivale stage's must-have).</param>
+/// <param name="Options">Every spell the pick accepts, preferred first.</param>
+/// <param name="CoveredBy">Another spell from the same pick that is in the set instead, if any.</param>
+public sealed record MissingSpell(BlueSpell Spell, string Why, bool Required, IReadOnlyList<BlueSpell> Options, BlueSpell? CoveredBy);
 
 public sealed class BuiltSet
 {
@@ -19,6 +22,15 @@ public sealed class BuiltSet
     /// first spell of a pick is listed, since that is the one the profile prefers.
     /// </summary>
     public List<MissingSpell> Missing { get; } = new();
+
+    /// <summary>
+    /// Required picks left out only because the player excluded the learned spell
+    /// that would have filled them.
+    /// </summary>
+    public List<BlueSpell> RequiredExcluded { get; } = new();
+
+    /// <summary>Required picks with no spell from them in the set.</summary>
+    public IEnumerable<MissingSpell> UnmetRequired => this.Missing.Where(m => m.Required && m.CoveredBy is null);
 }
 
 /// <summary>Pure logic: no game state, so it is easy to reason about and test.</summary>
@@ -40,27 +52,44 @@ public static class SetBuilder
         foreach (var pick in profile.Picks)
         {
             var candidates = Candidates(pick);
-            if (candidates.Count == 0)
-                continue;
-
             var hadRoom = result.Chosen.Count < Spellbook.SlotCount;
-            var preferred = candidates[0];
 
-            if (hadRoom)
+            if (hadRoom && candidates.Count > 0)
             {
+                var preferredSpell = candidates[0];
                 var winner = candidates.FirstOrDefault(s => !used.Contains(s.Number) && isLearned(s));
                 if (winner is not null)
                 {
                     used.Add(winner.Number);
-                    var standInFor = winner == preferred || isLearned(preferred) ? null : preferred;
+                    var standInFor = winner == preferredSpell || isLearned(preferredSpell) ? null : preferredSpell;
                     result.Chosen.Add(new ChosenSpell(winner, pick.Why, standInFor, false));
                 }
             }
 
+            // Includes the winner, or a spell an earlier pick already put in the set.
+            var covered = candidates.FirstOrDefault(s => used.Contains(s.Number));
+
+            // A required pick that only failed because the player excluded what they know.
+            if (pick.Required && covered is null)
+            {
+                var excludedLearned = pick.Any.Select(book.ByNumber)
+                    .FirstOrDefault(s => s is not null && excluded.Contains(s.Number) && isLearned(s));
+                if (excludedLearned is not null)
+                {
+                    if (!result.RequiredExcluded.Contains(excludedLearned))
+                        result.RequiredExcluded.Add(excludedLearned);
+                    continue;
+                }
+            }
+
+            if (candidates.Count == 0)
+                continue;
+
+            var preferred = candidates[0];
             if (hadRoom && !isLearned(preferred) && !used.Contains(preferred.Number)
                 && result.Missing.All(m => m.Spell.Number != preferred.Number))
             {
-                result.Missing.Add(new MissingSpell(preferred, pick.Why));
+                result.Missing.Add(new MissingSpell(preferred, pick.Why, pick.Required, candidates, covered));
             }
         }
 
