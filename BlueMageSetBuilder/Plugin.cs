@@ -42,14 +42,14 @@ public sealed class Plugin : IDalamudPlugin
                           "/blusets config opens settings. /blusets debug prints what the plugin can see.",
         });
 
-        pluginInterface.UiBuilder.Draw += this.windowSystem.Draw;
+        pluginInterface.UiBuilder.Draw += this.OnDraw;
         pluginInterface.UiBuilder.OpenMainUi += this.OpenMain;
         pluginInterface.UiBuilder.OpenConfigUi += this.mainWindow.OpenSettings;
     }
 
     public void Dispose()
     {
-        Service.Interface.UiBuilder.Draw -= this.windowSystem.Draw;
+        Service.Interface.UiBuilder.Draw -= this.OnDraw;
         Service.Interface.UiBuilder.OpenMainUi -= this.OpenMain;
         Service.Interface.UiBuilder.OpenConfigUi -= this.mainWindow.OpenSettings;
 
@@ -60,6 +60,12 @@ public sealed class Plugin : IDalamudPlugin
     }
 
     private void OpenMain() => this.mainWindow.IsOpen = true;
+
+    private void OnDraw()
+    {
+        this.mainWindow.TrackSpellbook();
+        this.windowSystem.Draw();
+    }
 
     private void OnCommand(string command, string args)
     {

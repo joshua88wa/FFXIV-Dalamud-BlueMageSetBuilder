@@ -1,3 +1,4 @@
+using System.Numerics;
 using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -14,6 +15,28 @@ public static unsafe class GameUi
     {
         var addon = (AtkUnitBase*)RaptureAtkUnitManager.Instance()->GetAddonByName(SpellbookAddon);
         return addon != null && addon->IsVisible;
+    }
+
+    /// <summary>
+    /// Where the Blue Magic Spellbook is on screen, in pixels, when it is showing. The
+    /// size is the window's root node scaled by the window's own scale.
+    /// </summary>
+    public static bool TryGetSpellbookRect(out Vector2 position, out Vector2 size)
+    {
+        position = Vector2.Zero;
+        size = Vector2.Zero;
+
+        var manager = RaptureAtkUnitManager.Instance();
+        if (manager == null)
+            return false;
+
+        var addon = (AtkUnitBase*)manager->GetAddonByName(SpellbookAddon);
+        if (addon == null || !addon->IsVisible || addon->RootNode == null)
+            return false;
+
+        position = new Vector2(addon->X, addon->Y);
+        size = new Vector2(addon->RootNode->Width, addon->RootNode->Height) * addon->Scale;
+        return size.X > 0 && size.Y > 0;
     }
 
     /// <summary>

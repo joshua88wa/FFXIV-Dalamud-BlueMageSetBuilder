@@ -52,6 +52,15 @@ public sealed partial class MainWindow : IDisposable
 
     public override void Draw()
     {
+        if (this.IsShrunk)
+        {
+            this.DrawDockBar();
+            return;
+        }
+
+        this.lastWindowPos = ImGui.GetWindowPos();
+        this.lastWindowSize = ImGui.GetWindowSize();
+
         if (!Spellbook.IsLoggedIn)
         {
             ImGui.TextWrapped("Log in to a character to read your Blue Magic Spellbook.");

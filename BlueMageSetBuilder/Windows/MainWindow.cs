@@ -42,6 +42,7 @@ public sealed partial class MainWindow : Window
         this.store = store;
         this.applier = applier;
         this.stages = stages;
+        this.collapseButton = this.CreateCollapseButton();
 
         this.Size = new Vector2(820, 640);
         this.SizeCondition = ImGuiCond.FirstUseEver;
@@ -590,6 +591,8 @@ public sealed partial class MainWindow : Window
         if (ImGui.Checkbox("Let /blusets apply turn off Mighty Guard, Mimicry and similar effects", ref this.config.AutoRemoveBlockers))
             this.config.Save();
         ImGui.TextDisabled("The game will not move a spell while its effect is on you. The button in the window\nalways names these and asks; this lets the command do the same without asking.\nOff: the command stops and tells you what is in the way.");
+
+        this.DrawDockSettings();
 
         ImGui.Spacing();
         ImGui.Separator();

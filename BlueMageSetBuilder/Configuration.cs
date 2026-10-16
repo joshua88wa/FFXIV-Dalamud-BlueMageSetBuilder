@@ -5,6 +5,12 @@ using Dalamud.Plugin;
 
 namespace BlueMageSetBuilder;
 
+public enum DockSide
+{
+    Right,
+    Left,
+}
+
 [Serializable]
 public class Configuration : IPluginConfiguration
 {
@@ -40,6 +46,14 @@ public class Configuration : IPluginConfiguration
     // Open the Blue Magic Spellbook after a set is applied, so the new spells can be
     // dragged straight onto a hotbar.
     public bool OpenSpellbookAfterApply = true;
+
+    // Open this window with the Blue Magic Spellbook and keep it against one side of it.
+    public bool AttachToSpellbook = true;
+
+    public DockSide AttachSide = DockSide.Right;
+
+    // While docked, show only a thin bar beside the spellbook.
+    public bool AttachCollapsed = false;
 
     [NonSerialized] private IDalamudPluginInterface? pluginInterface;
 
