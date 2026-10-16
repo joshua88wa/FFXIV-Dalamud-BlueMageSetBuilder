@@ -378,8 +378,10 @@ public sealed partial class MainWindow : Window
                 {
                     ImGui.TableSetupColumn("##icon", ImGuiTableColumnFlags.WidthFixed, IconSize * ImGuiHelpers.GlobalScale);
                     ImGui.TableSetupColumn("Spell");
-                    ImGui.TableSetupColumn("Where to learn it");
-                    ImGui.TableSetupColumn("Why", ImGuiTableColumnFlags.WidthStretch);
+                    // Both text columns stretch and wrap. With "Where to learn it" sized to its
+                    // longest entry, a long place name left "Why" a few pixels wide.
+                    ImGui.TableSetupColumn("Where to learn it", ImGuiTableColumnFlags.WidthStretch, 1f);
+                    ImGui.TableSetupColumn("Why", ImGuiTableColumnFlags.WidthStretch, 1.4f);
                     ImGui.TableHeadersRow();
 
                     foreach (var m in built.Missing)
@@ -392,7 +394,7 @@ public sealed partial class MainWindow : Window
                         ImGui.TextUnformatted($"{m.Spell.Number}. {m.Spell.Name}");
                         SpellTooltip.ShowIfHovered(m.Spell, false);
                         ImGui.TableNextColumn();
-                        ImGui.TextUnformatted(m.Spell.Where.Length > 0 ? m.Spell.Where : "-");
+                        ImGui.TextWrapped(m.Spell.Where.Length > 0 ? m.Spell.Where : "-");
                         ImGui.TableNextColumn();
                         ImGui.TextWrapped(m.Why);
                         if (m.CoveredBy is { } covered)
