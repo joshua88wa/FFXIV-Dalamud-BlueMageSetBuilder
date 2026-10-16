@@ -56,6 +56,7 @@ public sealed class Plugin : IDalamudPlugin
         Service.Commands.RemoveHandler(CommandName);
         this.windowSystem.RemoveAllWindows();
         this.applier.Dispose();
+        this.mainWindow.Dispose();
     }
 
     private void OpenMain() => this.mainWindow.IsOpen = true;

@@ -12,7 +12,7 @@ using Dalamud.Interface.Windowing;
 
 namespace BlueMageSetBuilder.Windows;
 
-public sealed class MainWindow : Window
+public sealed partial class MainWindow : Window
 {
     private const float IconSize = 24f;
 
@@ -28,11 +28,9 @@ public sealed class MainWindow : Window
 
     private string status = string.Empty;
     private Vector4 statusColor = ImGuiColors.DalamudWhite;
-    private bool jumpToSettings;
     private bool jumpToMissing;
-    private bool jumpToSuggested;
 
-    // Spellbook tab search. Deliberately not saved: a filter left on from last time
+    // Spellbook page search. Deliberately not saved: a filter left on from last time
     // makes the list look like spells are missing.
     private string search = string.Empty;
 
@@ -45,19 +43,13 @@ public sealed class MainWindow : Window
         this.applier = applier;
         this.stages = stages;
 
-        this.Size = new Vector2(680, 640);
+        this.Size = new Vector2(820, 640);
         this.SizeCondition = ImGuiCond.FirstUseEver;
         this.SizeConstraints = new WindowSizeConstraints
         {
-            MinimumSize = new Vector2(520, 400),
+            MinimumSize = new Vector2(580, 400),
             MaximumSize = new Vector2(float.MaxValue, float.MaxValue),
         };
-    }
-
-    public void OpenSettings()
-    {
-        this.IsOpen = true;
-        this.jumpToSettings = true;
     }
 
     public void ShowResult(ApplyResult result)
@@ -73,63 +65,6 @@ public sealed class MainWindow : Window
         };
     }
 
-    public override void Draw()
-    {
-        if (!Spellbook.IsLoggedIn)
-        {
-            ImGui.TextWrapped("Log in to a character to read your Blue Magic Spellbook.");
-            return;
-        }
-
-        var profile = this.DrawProfilePicker();
-
-        if (this.store.LoadError is { } err)
-            ImGui.TextColored(ImGuiColors.DalamudRed, err);
-
-        var learned = this.book.LearnedCount();
-        ImGui.TextUnformatted($"Spells learned: {learned} of {this.book.Spells.Count}");
-        if (!Spellbook.IsBlueMage)
-        {
-            ImGui.SameLine();
-            ImGui.TextColored(ImGuiColors.DalamudYellow, "  (not on Blue Mage: you can browse, but not apply)");
-        }
-
-        ImGui.Spacing();
-
-        if (!ImGui.BeginTabBar("##bms_tabs"))
-            return;
-
-        // Always submitted, even with nothing to show: a tab that vanishes for a frame
-        // makes ImGui select another one, which used to drop you on Settings when
-        // switching between the Carnivale and the other profiles.
-        var suggestedFlags = this.jumpToSuggested ? ImGuiTabItemFlags.SetSelected : ImGuiTabItemFlags.None;
-        this.jumpToSuggested = false;
-        if (ImGui.BeginTabItem("Suggested set", suggestedFlags))
-        {
-            if (profile is not null)
-                this.DrawSuggested(profile);
-            else
-                ImGui.TextDisabled("Choose what you are about to do from Content above.");
-            ImGui.EndTabItem();
-        }
-
-        if (ImGui.BeginTabItem("Spellbook"))
-        {
-            this.DrawSpellbook();
-            ImGui.EndTabItem();
-        }
-
-        var settingsFlags = this.jumpToSettings ? ImGuiTabItemFlags.SetSelected : ImGuiTabItemFlags.None;
-        this.jumpToSettings = false;
-        if (ImGui.BeginTabItem("Settings", settingsFlags))
-        {
-            this.DrawSettings();
-            ImGui.EndTabItem();
-        }
-
-        ImGui.EndTabBar();
-    }
-
     /// <summary>
     /// The Content menu. Ordinary profiles are listed under their Group heading; the
     /// Masked Carnivale is one entry that opens a second Stage picker, since 32 stage
@@ -141,7 +76,7 @@ public sealed class MainWindow : Window
         var general = this.store.Profiles.Where(p => p.Stage is null).ToList();
         if (general.Count == 0 && this.stages.Count == 0)
         {
-            ImGui.TextColored(ImGuiColors.DalamudRed, "No profiles are loaded. See the Settings tab.");
+            ImGui.TextColored(ImGuiColors.DalamudRed, "No profiles are loaded. See Settings.");
             return null;
         }
 
@@ -211,7 +146,6 @@ public sealed class MainWindow : Window
                     this.config.SelectedStage = s.Number;
                     this.config.Save();
                     this.status = string.Empty;
-                    this.jumpToSuggested = true;
                 }
 
                 if (!hasSet)
@@ -263,7 +197,6 @@ public sealed class MainWindow : Window
         this.config.SelectedProfile = id;
         this.config.Save();
         this.status = string.Empty;
-        this.jumpToSuggested = true;
     }
 
     private void DrawSuggested(Profile profile)
@@ -439,7 +372,7 @@ public sealed class MainWindow : Window
         {
             var names = string.Join(", ", built.RequiredExcluded.Select(s => s.Name));
             ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.DalamudYellow);
-            ImGui.TextWrapped($"Left out because you excluded {(built.RequiredExcluded.Count == 1 ? "it" : "them")} on the Spellbook tab, but this {what} needs {(built.RequiredExcluded.Count == 1 ? "it" : "them")}: {names}.");
+            ImGui.TextWrapped($"Left out because you excluded {(built.RequiredExcluded.Count == 1 ? "it" : "them")} on the Spellbook page, but this {what} needs {(built.RequiredExcluded.Count == 1 ? "it" : "them")}: {names}.");
             ImGui.PopStyleColor();
         }
 

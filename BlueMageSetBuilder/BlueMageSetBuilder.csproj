@@ -23,5 +23,6 @@
          tools/make-carnivale.ps1. -->
     <None Remove="Carnivale.json" />
     <EmbeddedResource Include="Carnivale.json" LogicalName="BlueMageSetBuilder.Carnivale.json" />
+    <EmbeddedResource Include="..\images\icon.png" LogicalName="BlueMageSetBuilder.icon.png" />
   </ItemGroup>
 </Project>
