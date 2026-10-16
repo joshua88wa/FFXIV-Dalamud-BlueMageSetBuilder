@@ -66,10 +66,11 @@ public sealed partial class MainWindow : Window
     }
 
     /// <summary>
-    /// The Content menu. Ordinary profiles are listed under their Group heading; the
-    /// Masked Carnivale is one entry that opens a second Stage picker, since 32 stage
-    /// sets would swamp the list. Returns the profile to build, or null when there is
-    /// nothing to build yet (a stage without a set).
+    /// The category tabs, one per profile Group in the order Profiles.json first uses
+    /// them, then The Masked Carnivale. Under them is a short picker for that category:
+    /// the role (Tank, Healer, DPS) where every profile in it names one, otherwise the
+    /// profile, and the stage for the Carnivale. Returns the profile to build, or null
+    /// when there is nothing to build.
     /// </summary>
     private Profile? DrawProfilePicker()
     {
@@ -80,43 +81,71 @@ public sealed partial class MainWindow : Window
             return null;
         }
 
-        var inCarnivale = this.config.SelectedProfile == CarnivaleId && this.stages.Count > 0;
-        var profile = inCarnivale ? null : general.FirstOrDefault(p => p.Id == this.config.SelectedProfile) ?? general.FirstOrDefault();
+        var groups = general.GroupBy(GroupOf).ToList();
+        var keys = groups.Select(g => g.Key).ToList();
+        if (this.stages.Count > 0)
+            keys.Add(CarnivaleId);
 
-        ImGui.SetNextItemWidth(300 * ImGuiHelpers.GlobalScale);
-        if (ImGui.BeginCombo("Content", inCarnivale ? CarnivaleTitle : profile?.Name ?? "Choose content"))
+        var current = (this.config.SelectedProfile == CarnivaleId && this.stages.Count > 0) || general.Count == 0
+            ? CarnivaleId
+            : GroupOf(general.FirstOrDefault(p => p.Id == this.config.SelectedProfile) ?? general[0]);
+
+        if (ImGui.BeginTabBar("##bms_groups"))
         {
-            // Headings keep the order profiles first appear in, so Profiles.json decides it.
-            foreach (var group in general.GroupBy(p => p.Group.Length > 0 ? p.Group : "Other"))
+            foreach (var key in keys)
             {
-                ImGui.TextDisabled(group.Key);
-                foreach (var p in group)
+                var label = key == CarnivaleId ? CarnivaleTitle : key;
+
+                // The saved choice decides the open tab every frame, so the tabs can never
+                // disagree with what is shown below them. A click changes the saved choice.
+                var flags = key == current ? ImGuiTabItemFlags.SetSelected : ImGuiTabItemFlags.None;
+                var open = ImGui.BeginTabItem($"{label}###bms_group_{key}", flags);
+                if (ImGui.IsItemClicked(ImGuiMouseButton.Left) && key != current)
                 {
-                    var selected = !inCarnivale && p.Id == profile?.Id;
-                    if (ImGui.Selectable($"   {p.Name}##{p.Id}", selected))
+                    this.SelectGroup(key, groups);
+                    current = key;
+                }
+
+                if (open)
+                    ImGui.EndTabItem();
+            }
+
+            ImGui.EndTabBar();
+        }
+
+        if (current == CarnivaleId)
+            return this.DrawStagePicker();
+
+        var members = groups.First(g => g.Key == current).ToList();
+        var byRole = members.All(p => p.Role.Length > 0);
+        if (byRole)
+            members = members.OrderBy(RoleOrder).ToList();
+
+        var profile = members.FirstOrDefault(p => p.Id == this.config.SelectedProfile) ?? DefaultIn(members);
+
+        if (members.Count > 1)
+        {
+            ImGui.SetNextItemWidth(220 * ImGuiHelpers.GlobalScale);
+            if (ImGui.BeginCombo(byRole ? "Role" : "Content", ShortName(profile)))
+            {
+                foreach (var p in members)
+                {
+                    var selected = p.Id == profile.Id;
+                    if (ImGui.Selectable($"{ShortName(p)}##{p.Id}", selected))
+                    {
                         this.Select(p.Id);
+                        profile = p;
+                    }
+
                     if (selected)
                         ImGui.SetItemDefaultFocus();
                 }
-            }
 
-            if (this.stages.Count > 0)
-            {
-                ImGui.TextDisabled(CarnivaleTitle);
-                if (ImGui.Selectable($"   Choose a stage##{CarnivaleId}", inCarnivale))
-                    this.Select(CarnivaleId);
+                ImGui.EndCombo();
             }
-
-            ImGui.EndCombo();
         }
 
-        if (this.config.SelectedProfile == CarnivaleId && this.stages.Count > 0)
-            return this.DrawStagePicker();
-
-        // Re-read in case the combo just changed it, so the new profile shows this frame.
-        profile = general.FirstOrDefault(p => p.Id == this.config.SelectedProfile) ?? general.FirstOrDefault();
-
-        if (profile is not null && !string.IsNullOrWhiteSpace(profile.Description))
+        if (!string.IsNullOrWhiteSpace(profile.Description))
         {
             ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.DalamudGrey);
             ImGui.TextWrapped(profile.Description);
@@ -124,6 +153,39 @@ public sealed partial class MainWindow : Window
         }
 
         return profile;
+    }
+
+    private static string GroupOf(Profile p) => p.Group.Length > 0 ? p.Group : "Other";
+
+    private static string ShortName(Profile p) => p.Role.Length > 0 ? p.Role : p.Name;
+
+    // The order the game's party list uses.
+    private static int RoleOrder(Profile p) => p.Role.ToLowerInvariant() switch
+    {
+        "tank" => 0,
+        "healer" => 1,
+        "dps" => 2,
+        _ => 3,
+    };
+
+    // Blue Mage is a DPS job first, so a category opened for the first time starts there.
+    private static Profile DefaultIn(List<Profile> members) =>
+        members.FirstOrDefault(p => p.Role.Equals("DPS", StringComparison.OrdinalIgnoreCase)) ?? members[0];
+
+    /// <summary>Opens a category on whatever was last chosen in it.</summary>
+    private void SelectGroup(string key, List<IGrouping<string, Profile>> groups)
+    {
+        if (key == CarnivaleId)
+        {
+            this.Select(CarnivaleId);
+            return;
+        }
+
+        var members = groups.First(g => g.Key == key).ToList();
+        var remembered = this.config.GroupSelection.TryGetValue(key, out var id)
+            ? members.FirstOrDefault(p => p.Id == id)
+            : null;
+        this.Select((remembered ?? DefaultIn(members)).Id);
     }
 
     private Profile? DrawStagePicker()
@@ -195,6 +257,8 @@ public sealed partial class MainWindow : Window
     private void Select(string id)
     {
         this.config.SelectedProfile = id;
+        if (this.store.Profiles.FirstOrDefault(p => p.Id == id && p.Stage is null) is { } chosen)
+            this.config.GroupSelection[GroupOf(chosen)] = id;
         this.config.Save();
         this.status = string.Empty;
     }

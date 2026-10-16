@@ -17,6 +17,10 @@ public class Configuration : IPluginConfiguration
     // Masked Carnivale stage number, used when SelectedProfile is "carnivale".
     public int SelectedStage = 1;
 
+    // Last profile Id chosen in each category tab (profile Group), so switching tabs
+    // comes back to the same role.
+    public Dictionary<string, string> GroupSelection = new();
+
     // Spellbook numbers (the number shown in the Blue Magic Spellbook), because they
     // are the same in every client language and are what Profiles.json uses.
     public HashSet<uint> Excluded = new();

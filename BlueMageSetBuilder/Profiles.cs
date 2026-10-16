@@ -34,6 +34,12 @@ public sealed class Profile
     public string Group { get; set; } = string.Empty;
 
     /// <summary>
+    /// Tank, Healer or DPS. When every profile in a Group has one, the window offers a
+    /// Role picker for that Group instead of listing the profiles by name.
+    /// </summary>
+    public string Role { get; set; } = string.Empty;
+
+    /// <summary>
     /// Masked Carnivale stage number (1-32) for a stage set. Stage sets are not listed in
     /// the Content menu themselves; they appear under the Stage picker instead.
     /// </summary>
