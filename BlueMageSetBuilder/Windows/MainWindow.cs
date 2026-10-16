@@ -329,7 +329,7 @@ public sealed partial class MainWindow : Window
             ImGui.TableSetupColumn("##icon", ImGuiTableColumnFlags.WidthFixed, IconSize * ImGuiHelpers.GlobalScale);
             ImGui.TableSetupColumn("Spell");
             ImGui.TableSetupColumn("Why", ImGuiTableColumnFlags.WidthStretch);
-            ImGui.TableSetupColumn("Now");
+            ImGui.TableSetupColumn("Status");
             ImGui.TableHeadersRow();
 
             foreach (var c in built.Chosen)
@@ -353,7 +353,7 @@ public sealed partial class MainWindow : Window
                     ImGui.TextDisabled($"Standing in for {preferred.Name}, which you have not learned.");
                 ImGui.TableNextColumn();
                 if (active.Contains(c.Spell.ActionId))
-                    ImGui.TextColored(ImGuiColors.HealerGreen, "active");
+                    ImGui.TextColored(ImGuiColors.HealerGreen, "Active");
             }
 
             ImGui.EndTable();

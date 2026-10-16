@@ -40,7 +40,8 @@ Magic Spellbook.
   with a search box that matches the name, the spellbook number, the place, or the
   creature that teaches it.
   Any spell can be excluded from every suggestion, for example one you find awkward.
-- Applying keeps spells that are already active in the slots they are in, so as little
+- Spells are laid out in the profile's order by default. Turn on **Keep spells in the
+  same slot** to leave spells that are already active where they are, so as little
   moves as possible.
 - Aetheric Mimicry and cooldowns handled for you: spells cannot be changed while
   Mimicry is up or while a spell that would move is recasting. The button offers to
