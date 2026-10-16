@@ -26,6 +26,10 @@ public sealed partial class MainWindow
     private static readonly Vector2 DefaultSize = new(820, 640);
 
     private bool spellbookWasOpen;
+
+    // Shrunk to the bar right now. Reset from the setting each time the spellbook
+    // opens this window.
+    private bool shrunk;
     private bool openedBySpellbook;
     private bool docked;
     private Vector2 bookPos;
@@ -42,7 +46,7 @@ public sealed partial class MainWindow
 
     private readonly TitleBarButton collapseButton;
 
-    private bool IsShrunk => this.docked && this.config.AttachCollapsed;
+    private bool IsShrunk => this.docked && this.shrunk;
 
     /// <summary>Called every frame before the window system draws, open or not.</summary>
     public void TrackSpellbook()
@@ -53,6 +57,7 @@ public sealed partial class MainWindow
         {
             this.IsOpen = true;
             this.openedBySpellbook = true;
+            this.shrunk = this.config.AttachStartShrunk;
         }
         else if (!open && this.spellbookWasOpen)
         {
@@ -90,7 +95,7 @@ public sealed partial class MainWindow
 
         if (this.docked)
         {
-            var collapsed = this.config.AttachCollapsed;
+            var collapsed = this.shrunk;
             var height = this.bookSize.Y;
             var width = collapsed
                 ? DockBarWidth * scale
@@ -181,11 +186,7 @@ public sealed partial class MainWindow
         Priority = 1,
     };
 
-    private void SetCollapsed(bool collapsed)
-    {
-        this.config.AttachCollapsed = collapsed;
-        this.config.Save();
-    }
+    private void SetCollapsed(bool collapsed) => this.shrunk = collapsed;
 
     /// <summary>
     /// The shrunk window: a thin bar the spellbook's height, with a button to expand
@@ -273,9 +274,9 @@ public sealed partial class MainWindow
             this.config.Save();
         }
 
-        if (ImGui.Checkbox("Shrink to a bar", ref this.config.AttachCollapsed))
+        if (ImGui.Checkbox("Start as a bar when the spellbook opens", ref this.config.AttachStartShrunk))
             this.config.Save();
-        ImGui.TextDisabled("Also done with the arrow in the title bar while docked. The bar has buttons to\nexpand it again or go straight to a page.");
+        ImGui.TextDisabled("A slim bar against the spellbook, with buttons to expand it or go straight to a\npage. The arrow in the title bar shrinks it again. Does not apply if this window\nwas already open.");
         ImGui.EndDisabled();
     }
 }

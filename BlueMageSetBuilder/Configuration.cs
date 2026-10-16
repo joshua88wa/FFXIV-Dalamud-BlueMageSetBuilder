@@ -52,8 +52,9 @@ public class Configuration : IPluginConfiguration
 
     public DockSide AttachSide = DockSide.Right;
 
-    // While docked, show only a thin bar beside the spellbook.
-    public bool AttachCollapsed = false;
+    // When the spellbook opens this window, start as a thin bar beside it. The title-bar
+    // arrow and the bar's expand button change it only until the spellbook next opens.
+    public bool AttachStartShrunk = true;
 
     [NonSerialized] private IDalamudPluginInterface? pluginInterface;
 
