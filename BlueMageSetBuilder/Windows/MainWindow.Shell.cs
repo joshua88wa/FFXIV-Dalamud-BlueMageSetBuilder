@@ -127,12 +127,9 @@ public sealed partial class MainWindow : IDisposable
 
     private void DrawLearnedLine()
     {
+        // Not being on Blue Mage only matters for applying, and the Layouts page already
+        // says so beside the Apply button, so it is not repeated here.
         ImGui.TextUnformatted($"Spells learned: {this.book.LearnedCount()} of {this.book.Spells.Count}");
-        if (!Spellbook.IsBlueMage)
-        {
-            ImGui.SameLine();
-            ImGui.TextColored(ImGuiColors.DalamudYellow, "  (not on Blue Mage: you can browse, but not apply)");
-        }
     }
 
     private void DrawSidebar(bool compact)
