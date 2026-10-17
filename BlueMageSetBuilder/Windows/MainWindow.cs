@@ -205,11 +205,7 @@ public sealed partial class MainWindow : Window
 
                 var selected = s.Number == stage.Number;
                 if (ImGui.Selectable($"{s.Label}##stage{s.Number}", selected))
-                {
-                    this.config.SelectedStage = s.Number;
-                    this.config.Save();
-                    this.status = string.Empty;
-                }
+                    this.SelectStage(s.Number);
 
                 if (!hasSet)
                     ImGui.PopStyleColor();
@@ -219,6 +215,35 @@ public sealed partial class MainWindow : Window
 
             ImGui.EndCombo();
         }
+
+        // Step through the stages in order without opening the list, for working through
+        // the Carnivale one stage after another.
+        var index = -1;
+        for (var i = 0; i < this.stages.Count; i++)
+        {
+            if (this.stages[i].Number == stage.Number)
+                index = i;
+        }
+
+        ImGui.SameLine();
+        ImGui.BeginDisabled(index <= 0);
+        if (ImGui.Button("Previous##bms_stage_prev"))
+            this.SelectStage(this.stages[index - 1].Number);
+        ImGui.EndDisabled();
+        if (index > 0 && ImGui.IsItemHovered())
+            ImGui.SetTooltip(this.stages[index - 1].Label);
+
+        ImGui.SameLine();
+        ImGui.BeginDisabled(index < 0 || index >= this.stages.Count - 1);
+        if (ImGui.Button("Next##bms_stage_next"))
+            this.SelectStage(this.stages[index + 1].Number);
+        ImGui.EndDisabled();
+        if (index >= 0 && index < this.stages.Count - 1 && ImGui.IsItemHovered())
+            ImGui.SetTooltip(this.stages[index + 1].Label);
+
+        // Re-read, so a stage chosen just now shows this frame.
+        stage = this.stages.FirstOrDefault(s => s.Number == this.config.SelectedStage) ?? this.stages[0];
+        profile = this.store.Profiles.FirstOrDefault(p => p.Stage == stage.Number);
 
         // What the briefing screen would tell you: who is in each act and what they are
         // vulnerable to. Straight from game data, so it is there for every stage.
@@ -253,6 +278,13 @@ public sealed partial class MainWindow : Window
         }
 
         return profile;
+    }
+
+    private void SelectStage(int number)
+    {
+        this.config.SelectedStage = number;
+        this.config.Save();
+        this.status = string.Empty;
     }
 
     private void Select(string id)
