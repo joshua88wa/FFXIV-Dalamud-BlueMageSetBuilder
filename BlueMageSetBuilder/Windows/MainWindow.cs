@@ -194,8 +194,23 @@ public sealed partial class MainWindow : Window
         var stage = this.stages.FirstOrDefault(s => s.Number == this.config.SelectedStage) ?? this.stages[0];
         var profile = this.store.Profiles.FirstOrDefault(p => p.Stage == stage.Number);
 
+        // Previous | stage list | Next, for working through the Carnivale one stage after
+        // another without opening the list. The tab already says what the list is, so it
+        // has no label of its own.
+        var index = this.StageIndex(stage.Number);
+        ImGui.BeginDisabled(index <= 0);
+        if (ImGui.Button("Previous##bms_stage_prev"))
+            this.SelectStage(this.stages[index - 1].Number);
+        ImGui.EndDisabled();
+        if (index > 0 && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+            ImGui.SetTooltip(this.stages[index - 1].Label);
+
+        stage = this.stages.FirstOrDefault(s => s.Number == this.config.SelectedStage) ?? this.stages[0];
+        index = this.StageIndex(stage.Number);
+
+        ImGui.SameLine();
         ImGui.SetNextItemWidth(300 * ImGuiHelpers.GlobalScale);
-        if (ImGui.BeginCombo("Stage", stage.Label, ImGuiComboFlags.HeightLarge))
+        if (ImGui.BeginCombo("##bms_stage", stage.Label, ImGuiComboFlags.HeightLarge))
         {
             foreach (var s in this.stages)
             {
@@ -216,29 +231,12 @@ public sealed partial class MainWindow : Window
             ImGui.EndCombo();
         }
 
-        // Step through the stages in order without opening the list, for working through
-        // the Carnivale one stage after another.
-        var index = -1;
-        for (var i = 0; i < this.stages.Count; i++)
-        {
-            if (this.stages[i].Number == stage.Number)
-                index = i;
-        }
-
-        ImGui.SameLine();
-        ImGui.BeginDisabled(index <= 0);
-        if (ImGui.Button("Previous##bms_stage_prev"))
-            this.SelectStage(this.stages[index - 1].Number);
-        ImGui.EndDisabled();
-        if (index > 0 && ImGui.IsItemHovered())
-            ImGui.SetTooltip(this.stages[index - 1].Label);
-
         ImGui.SameLine();
         ImGui.BeginDisabled(index < 0 || index >= this.stages.Count - 1);
         if (ImGui.Button("Next##bms_stage_next"))
             this.SelectStage(this.stages[index + 1].Number);
         ImGui.EndDisabled();
-        if (index >= 0 && index < this.stages.Count - 1 && ImGui.IsItemHovered())
+        if (index >= 0 && index < this.stages.Count - 1 && ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
             ImGui.SetTooltip(this.stages[index + 1].Label);
 
         // Re-read, so a stage chosen just now shows this frame.
@@ -278,6 +276,17 @@ public sealed partial class MainWindow : Window
         }
 
         return profile;
+    }
+
+    private int StageIndex(int number)
+    {
+        for (var i = 0; i < this.stages.Count; i++)
+        {
+            if (this.stages[i].Number == number)
+                return i;
+        }
+
+        return -1;
     }
 
     private void SelectStage(int number)

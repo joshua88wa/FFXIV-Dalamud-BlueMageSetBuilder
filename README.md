@@ -84,7 +84,7 @@ Other plugins in the same repository are listed at
    raids** or **The Masked Carnivale**. Under General, choose open world and FATEs or
    solo duties. Under Dungeons and Trials and raids, choose your **Role**: Tank, Healer
    or DPS. Each tab remembers what you last picked in it. The Masked Carnivale tab has a
-   **Stage** picker listing all 32 stages, with **Previous** and **Next** buttons for
+   stage list covering all 32 stages, between **Previous** and **Next** buttons for
    working through them in order. Each stage shows its acts' enemies and what they are vulnerable
    to, straight from the game's briefing data. Each stage's set starts with the spells
    Blue Academy lists for it and is topped up with generally useful Carnivale spells.
