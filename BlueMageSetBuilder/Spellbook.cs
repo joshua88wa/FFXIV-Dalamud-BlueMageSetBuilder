@@ -45,7 +45,7 @@ public sealed record BlueSpell(
     public IReadOnlyList<SpellSource> Sources { get; init; } = Array.Empty<SpellSource>();
 
     /// <summary>
-    /// What the "Where to learn it" column shows: the game's own location, plus the
+    /// What the "Where to learn" column shows: the game's own location, plus the
     /// creature there when known, as in "The Wanderer's Palace: Tonberry King, last boss".
     /// </summary>
     public string Where

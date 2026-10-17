@@ -420,9 +420,9 @@ public sealed partial class MainWindow : Window
                 {
                     ImGui.TableSetupColumn("##icon", ImGuiTableColumnFlags.WidthFixed, IconSize * ImGuiHelpers.GlobalScale);
                     ImGui.TableSetupColumn("Spell");
-                    // Both text columns stretch and wrap. With "Where to learn it" sized to its
+                    // Both text columns stretch and wrap. With "Where to learn" sized to its
                     // longest entry, a long place name left "Why" a few pixels wide.
-                    ImGui.TableSetupColumn("Where to learn it", ImGuiTableColumnFlags.WidthStretch, 1f);
+                    ImGui.TableSetupColumn("Where to learn", ImGuiTableColumnFlags.WidthStretch, 1f);
                     ImGui.TableSetupColumn("Why", ImGuiTableColumnFlags.WidthStretch, 1.4f);
                     ImGui.TableHeadersRow();
 
@@ -541,7 +541,7 @@ public sealed partial class MainWindow : Window
             ImGui.TableSetupColumn("Spell");
             ImGui.TableSetupColumn("Rank");
             ImGui.TableSetupColumn("Learned");
-            ImGui.TableSetupColumn("Where to learn it", ImGuiTableColumnFlags.WidthStretch);
+            ImGui.TableSetupColumn("Where to learn", ImGuiTableColumnFlags.WidthStretch);
             ImGui.TableSetupColumn("Exclude");
             ImGui.TableHeadersRow();
 
@@ -571,8 +571,10 @@ public sealed partial class MainWindow : Window
                 else
                     ImGui.TextDisabled("No");
                 ImGui.TableNextColumn();
-                ImGui.TextUnformatted(spell.Where.Length > 0 ? spell.Where : "-");
+                ImGui.TextWrapped(spell.Where.Length > 0 ? spell.Where : "-");
                 ImGui.TableNextColumn();
+                var box = ImGui.GetFrameHeight();
+                ImGui.SetCursorPosX(ImGui.GetCursorPosX() + MathF.Max(0f, (ImGui.GetContentRegionAvail().X - box) * 0.5f));
                 var excluded = this.config.Excluded.Contains(spell.Number);
                 if (ImGui.Checkbox($"##ex{spell.Number}", ref excluded))
                 {
