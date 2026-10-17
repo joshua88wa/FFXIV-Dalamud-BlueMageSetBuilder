@@ -48,6 +48,11 @@ Magic Spellbook.
   end Mimicry by recasting it, waits out the cooldowns, applies the set, and reminds
   you to mimic again.
 - `/blusets apply <profile>` for macros.
+- Opens beside the game's Blue Magic Spellbook and moves with it, on whichever side
+  you choose, starting as a slim bar against it that expands with a click. Can be
+  turned off.
+- An **About** page with the commands, a button that prints debug information for bug
+  reports, and links to everyone whose work the plugin builds on.
 - Profiles are a plain JSON file you can export, edit in any text editor, and reload
   without touching the plugin.
 
@@ -73,10 +78,14 @@ Other plugins in the same repository are listed at
 
 ## Using it
 
-1. Type `/blusets`.
-2. Pick what you are about to do from **Content**. Profiles are grouped under General,
-   Dungeons, and Trials and raids. Choosing **The Masked Carnivale** adds a **Stage**
-   picker listing all 32 stages, with each act's enemies and what they are vulnerable
+1. Type `/blusets`. The window has four pages down the left side: **Layouts**,
+   **Spellbook**, **Settings** and **About**. It opens on Layouts.
+2. Pick a category from the tabs across the top: **General**, **Dungeons**, **Trials and
+   raids** or **The Masked Carnivale**. Under General, choose open world and FATEs or
+   solo duties. Under Dungeons and Trials and raids, choose your **Role**: Tank, Healer
+   or DPS. Each tab remembers what you last picked in it. The Masked Carnivale tab has a
+   **Stage** picker listing all 32 stages, with **Previous** and **Next** buttons for
+   working through them in order. Each stage shows its acts' enemies and what they are vulnerable
    to, straight from the game's briefing data. Each stage's set starts with the spells
    Blue Academy lists for it and is topped up with generally useful Carnivale spells.
    Stages where Blue Academy lists no particular spells get the general Carnivale set.
@@ -100,7 +109,7 @@ be on Blue Mage.
   the trial and raid sets). `/blusets apply stage 12` applies a Masked Carnivale stage
   set, and `/blusets apply carnivale` applies the stage selected in the window.
   With no name it applies the profile selected in the window.
-- `/blusets config` opens the settings tab
+- `/blusets config` opens Settings
 - `/blusets debug` prints what the plugin can see to chat, which is the first thing to
   include in a bug report
 
@@ -143,6 +152,15 @@ lists your current buffs. Please report it with that list so the cause can be ad
 
 - **Open the Blue Magic Spellbook after applying a set.** On by default, so you can
   drag the new spells straight onto your hotbars.
+- **Open beside the Blue Magic Spellbook.** On by default. Opening the spellbook opens
+  this window against its **Right** or **Left** side, at the same height, and it follows
+  the spellbook when you move it. If the spellbook opened it, it closes with the
+  spellbook; if you already had it open, it goes back to where it was.
+- **Start as a bar when the spellbook opens.** On by default. When the spellbook opens
+  this window, it starts as a slim bar against the spellbook, with buttons to expand it
+  or jump straight to a page. The arrow in the title bar shrinks it again. It starts as
+  a bar every time the spellbook opens it, but not when the window was already open,
+  such as right after pressing Apply.
 - **Keep spells in the same slot when applying.** Off by default, so spells follow the
   profile's order. Turning it on moves fewer spells, which means fewer effects like
   Mighty Guard need turning off.
@@ -150,13 +168,13 @@ lists your current buffs. Please report it with that list so the cause can be ad
   default. The button in the window always names them before turning them off; this
   lets the command do the same. With it off, the command stops and says what is in the
   way.
-- **Show spells I have not learned** on the Spellbook tab.
-- **Exclude** any spell from every suggested set, on the Spellbook tab.
+- **Show spells I have not learned** on the Spellbook page.
+- **Exclude** any spell from every suggested set, on the Spellbook page.
 - **Profiles:** export, reload, open the config folder, or go back to the built-in set.
 
 ## Editing the profiles
 
-Settings tab, **Export the built-in profiles for editing**, then **Open config folder**
+On the Settings page, **Export the built-in profiles for editing**, then **Open config folder**
 and edit `Profiles.json`. Each profile is a list of picks in priority order:
 
 ```json
@@ -172,13 +190,18 @@ If a profile's picks run out before 24 slots are full, the shared `Fill` list at
 bottom of the file tops up the rest. Those spells are marked **Extra** in the window.
 A profile can have its own `Fill` list to replace the shared one.
 
+`Group` decides which tab a profile appears under, in the order the file first uses
+each group. `Role` is optional: when every profile in a group has one (`Tank`,
+`Healer` or `DPS`), that tab shows a Role picker; otherwise it lists the profiles by
+name.
+
 Masked Carnivale stage sets are not in this file; they are built from Blue Academy's
 stage lists, then topped up from the `CarnivaleFill` list, which you can edit here. To
 replace one stage's set with your own, add a profile with `"Stage": 12` (or whichever
 stage) and it takes that stage's place.
 
 Your copy replaces the built-in profiles completely, so new profiles added in a later
-version will not appear until you delete your copy from the Settings tab or merge them
+version will not appear until you delete your copy from Settings or merge them
 in by hand.
 
 The built-in profiles are a reasonable starting point, not a tuned meta. Suggestions

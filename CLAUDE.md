@@ -166,6 +166,43 @@ Stage sets (`CarnivaleSets`, `Carnivale.json`, `tools/make-carnivale.ps1`):
 - Credit lives in three places: the README (Features, Using it, Notes, Credits), the
   stage page (credit line plus "Open the stage guide" button), and each pick's reason.
 
+## Window layout
+
+Sidebar plus page, plain ImGui so it follows the Dalamud theme (Joshua asked for an
+Auto-suite-style sidebar on 2026-10-15 without the custom-drawn styling).
+`MainWindow` is partial: `MainWindow.Shell.cs` has the sidebar, page switch, page
+titles (game Axis18 font handle, disposed by `Plugin.Dispose`) and `OpenSettings`;
+`MainWindow.About.cs` the About page; `MainWindow.Dock.cs` the spellbook docking;
+`MainWindow.cs` the Layouts, Spellbook and Settings page bodies. Pages: Layouts,
+Spellbook, Settings, About (pinned to the bottom). Below 640 px of width the sidebar
+shows icons only. The plugin icon is embedded from `images/icon.png` as
+`BlueMageSetBuilder.icon.png`.
+
+Layouts has category tabs (one per profile `Group`, then The Masked Carnivale) and a
+short picker under them: Role (Tank, Healer, DPS, party-list order) when every profile
+in the group has `Role`, else the profiles by name, else the Stage picker with
+Previous and Next buttons. The saved selection drives the open tab every frame
+(`SetSelected`) and only `IsItemClicked` changes it, so the tabs cannot drift from
+the content. `Configuration.GroupSelection` remembers the last profile per tab; a tab
+opened for the first time starts on DPS.
+
+Docking (Joshua's request 2026-10-15): `Plugin.OnDraw` calls `TrackSpellbook` every
+frame before the window system draws. It reads AOZNotebook's position and root node
+size times its scale (`GameUi.TryGetSpellbookRect`), opens the window when the
+spellbook opens if it was closed (and closes it again with the spellbook only in that
+case), and `PreDraw` pins Position (Always), locks the height with SizeConstraints and
+sets NoMove. Shrunk (runtime `shrunk`, reset from `AttachStartShrunk` each time the
+spellbook opens the window; not when the window was already open): fixed 38-unit bar, no
+title bar, drawn by `DrawDockBar`. Window.Size and SizeConstraints are unscaled
+(Dalamud applies the global scale); Position is in pixels. Undocking puts back the size
+and place from before. Not yet checked in game: whether AOZNotebook's root node matches
+the visible frame, so `DockGap` may need tuning.
+
+Editing files on the PC with scripts: README.md and other files have mixed line
+endings, so match on LF-normalised text. An exact CRLF match fails, and the earlier doc
+edits for the sidebar, tabs and docking were silently lost that way (restored
+2026-10-17).
+
 ## Spell numbers
 
 Profiles use the Blue Magic Spellbook number (`AozActionTransient.Number`), not the

@@ -8,7 +8,7 @@
   // so knowing plenty of spells never leaves gaps. A profile can have its own "Fill"
   // list to replace the shared one.
   //
-  // These are starting points, not gospel. Export them from the Settings tab, edit the
+  // These are starting points, not gospel. Export them from Settings, edit the
   // copy in your config folder, and press Reload.
   "Profiles": [
     {
