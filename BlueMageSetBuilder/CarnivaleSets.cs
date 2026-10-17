@@ -89,7 +89,7 @@ public static class CarnivaleSets
             var required = item.TryGetProperty("Kind", out var k) && k.GetString() == "Required";
             var example = item.TryGetProperty("Example", out var e) && e.ValueKind == JsonValueKind.True;
 
-            picks.Add(new Pick { Any = any, Why = Why(required, example, any.Count > 1), Required = required });
+            picks.Add(new Pick { Spells = any, Why = Why(required, example, any.Count > 1), Required = required });
         }
 
         return picks;

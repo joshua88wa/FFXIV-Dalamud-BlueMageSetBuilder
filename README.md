@@ -177,11 +177,15 @@ On the Settings page, **Export the built-in profiles for editing**, then **Open 
 and edit `Profiles.json`. Each profile is a list of picks in priority order:
 
 ```json
-{ "Any": [ 105, 63, 1 ], "Why": "Single-target filler." }
+{ "Spell": 30, "Why": "Tank stance." },  // Mighty Guard
+{ "Spell": [ 11, 2 ], "Why": "Area damage around you for packs." },  // Plaincracker or Flame Thrower
 ```
 
-A pick fills one slot with the first spell in `Any` that you have learned, have not
-excluded, and is not already in the set. The numbers are the ones in the Blue Magic
+A pick fills one slot. `Spell` is one spell, or a list in order of preference: the
+first one that you have learned, have not excluded, and is not already in the set takes
+the slot, so a later spell stands in for an earlier one you do not have yet. The
+comment after each pick names its spells. Files written with the old name `Any`
+instead of `Spell` still load. The numbers are the ones in the Blue Magic
 Spellbook, which are the same in every client language. Picks stop once 24 slots are
 full. Press **Reload profiles** after saving.
 

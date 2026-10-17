@@ -41,7 +41,7 @@ public static class SetBuilder
         var result = new BuiltSet();
         var used = new HashSet<uint>();
 
-        List<BlueSpell> Candidates(Pick pick) => pick.Any
+        List<BlueSpell> Candidates(Pick pick) => pick.Spells
             .Select(book.ByNumber)
             .Where(s => s is not null && !excluded.Contains(s.Number))
             .Cast<BlueSpell>()
@@ -72,7 +72,7 @@ public static class SetBuilder
             // A required pick that only failed because the player excluded what they know.
             if (pick.Required && covered is null)
             {
-                var excludedLearned = pick.Any.Select(book.ByNumber)
+                var excludedLearned = pick.Spells.Select(book.ByNumber)
                     .FirstOrDefault(s => s is not null && excluded.Contains(s.Number) && isLearned(s));
                 if (excludedLearned is not null)
                 {

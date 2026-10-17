@@ -203,6 +203,15 @@ endings, so match on LF-normalised text. An exact CRLF match fails, and the earl
 edits for the sidebar, tabs and docking were silently lost that way (restored
 2026-10-17).
 
+## Profiles.json format
+
+A pick is `{ "Spell": 30, "Why": "..." }` or `"Spell": [ 11, 2 ]` for stand-ins in order of
+preference (Joshua chose the name 2026-10-17; `SpellNumbersConverter` reads both forms,
+and the old key `Any` is still accepted). In code the list is `Pick.Spells`. Each pick
+line ends with a comment naming its spells (English names from Sources.json); keep those
+when adding picks. Carnivale.json is generated and still uses `Any`, read by
+`CarnivaleSets.ReadPicks`.
+
 ## Spell numbers
 
 Profiles use the Blue Magic Spellbook number (`AozActionTransient.Number`), not the

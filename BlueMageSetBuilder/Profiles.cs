@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace BlueMageSetBuilder;
 
@@ -58,10 +59,31 @@ public sealed class Profile
 public sealed class Pick
 {
     /// <summary>
-    /// Spellbook numbers. The first one that is learned, not excluded and not already in
-    /// the set wins, so a pick can name a weaker spell as a stand-in for a stronger one.
+    /// Spellbook numbers in order of preference. The first one that is learned, not
+    /// excluded and not already in the set wins, so a later spell can stand in for an
+    /// earlier, stronger one.
     /// </summary>
-    public List<uint> Any { get; set; } = new();
+    [JsonIgnore]
+    public List<uint> Spells { get; set; } = new();
+
+    /// <summary>"Spell" in Profiles.json: one spellbook number, or a list of them.</summary>
+    [JsonConverter(typeof(SpellNumbersConverter))]
+    public List<uint> Spell
+    {
+        get => this.Spells;
+        set => this.Spells = value ?? new();
+    }
+
+    /// <summary>
+    /// The original name for "Spell". Still read, so a Profiles.json edited before
+    /// the rename keeps working.
+    /// </summary>
+    [JsonConverter(typeof(SpellNumbersConverter))]
+    public List<uint> Any
+    {
+        get => this.Spells;
+        set => this.Spells = value ?? new();
+    }
 
     public string Why { get; set; } = string.Empty;
 
@@ -165,5 +187,42 @@ public sealed class ProfileStore
             ?? throw new InvalidOperationException($"Embedded resource {ResourceName} is missing.");
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
+    }
+}
+
+/// <summary>Reads "Spell": 30 as well as "Spell": [ 11, 2 ].</summary>
+internal sealed class SpellNumbersConverter : JsonConverter<List<uint>>
+{
+    public override List<uint> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        if (reader.TokenType == JsonTokenType.Number)
+            return new List<uint> { reader.GetUInt32() };
+
+        if (reader.TokenType != JsonTokenType.StartArray)
+            throw new JsonException("\"Spell\" must be a spellbook number, or a list of them in square brackets.");
+
+        var list = new List<uint>();
+        while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+        {
+            if (reader.TokenType != JsonTokenType.Number)
+                throw new JsonException("\"Spell\" lists can only hold spellbook numbers.");
+            list.Add(reader.GetUInt32());
+        }
+
+        return list;
+    }
+
+    public override void Write(Utf8JsonWriter writer, List<uint> value, JsonSerializerOptions options)
+    {
+        if (value.Count == 1)
+        {
+            writer.WriteNumberValue(value[0]);
+            return;
+        }
+
+        writer.WriteStartArray();
+        foreach (var number in value)
+            writer.WriteNumberValue(number);
+        writer.WriteEndArray();
     }
 }

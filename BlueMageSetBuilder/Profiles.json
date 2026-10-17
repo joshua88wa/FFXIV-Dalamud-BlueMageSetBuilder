@@ -1,15 +1,18 @@
 {
-  // Each profile lists picks in priority order. A pick fills one slot with the first
-  // spell in "Any" that you have learned, have not excluded, and is not already in the
-  // set. Numbers are the Blue Magic Spellbook numbers, the same in every language.
-  // Picks run until 24 slots are full; anything after that is ignored.
+  // Blue Mage Set Builder profiles.
   //
-  // "Fill" at the bottom tops up any slots still empty once a profile's picks run out,
-  // so knowing plenty of spells never leaves gaps. A profile can have its own "Fill"
-  // list to replace the shared one.
+  // Each profile lists picks in priority order, and each pick fills one slot. "Spell"
+  // is a Blue Magic Spellbook number (the same in every language), or a list of them
+  // in order of preference, where a later spell stands in when you have not learned
+  // the earlier one. The comment after each pick names its spells. A spell you have
+  // excluded, or that is already in the set, is skipped. Picks run until all 24
+  // slots are full; anything after that is ignored.
   //
-  // These are starting points, not gospel. Export them from Settings, edit the
-  // copy in your config folder, and press Reload.
+  // "Group" is the tab a profile appears under. "Role" (Tank, Healer or DPS) is
+  // optional; when every profile in a group has one, that tab shows a Role picker.
+  //
+  // These are starting points, not gospel. Export them from Settings, edit the copy
+  // in your config folder, and press Reload.
   "Profiles": [
     {
       "Id": "solo",
@@ -17,36 +20,36 @@
       "Name": "Open world and FATEs",
       "Description": "Open-world play on your own: FATEs, hunts, leveling. Leans on Mighty Guard and self-healing for survival, with plenty of area damage for packs. No Basic Instinct: it only works inside duties.",
       "Picks": [
-        { "Any": [ 30 ], "Why": "Tank stance. Cuts damage taken, which matters more than damage when nobody heals you." },
-        { "Any": [ 105 ], "Why": "Melee filler. Strongest single-target filler while Mighty Guard is up." },
-        { "Any": [ 63, 1 ], "Why": "Ranged single-target filler." },
-        { "Any": [ 13 ], "Why": "Heal that scales with your HP." },
-        { "Any": [ 58 ], "Why": "Single-target heal." },
-        { "Any": [ 108 ], "Why": "Self heal." },
-        { "Any": [ 11, 2 ], "Why": "Area damage around you for packs." },
-        { "Any": [ 48 ], "Why": "Frontal area damage." },
-        { "Any": [ 44, 19 ], "Why": "Ground-targeted area damage." },
-        { "Any": [ 33 ], "Why": "Area damage that freezes, setting up Ultravibration." },
-        { "Any": [ 92 ], "Why": "Kills frozen or petrified non-boss enemies outright." },
-        { "Any": [ 34 ], "Why": "Area damage that paralyzes." },
-        { "Any": [ 101 ], "Why": "Line area damage. Sets up Mustard Bomb." },
-        { "Any": [ 94 ], "Why": "Area damage, stronger after Peripheral Synthesis." },
-        { "Any": [ 103 ], "Why": "Channeled frontal area damage." },
-        { "Any": [ 124 ], "Why": "Big area damage on a long cooldown." },
-        { "Any": [ 47 ], "Why": "Area damage on a cooldown." },
-        { "Any": [ 12 ], "Why": "Boosts the next spell's damage." },
-        { "Any": [ 64 ], "Why": "Boosts the next physical spell's damage." },
-        { "Any": [ 78 ], "Why": "Charges that stack damage when used back to back." },
-        { "Any": [ 100 ], "Why": "Multi-hit single-target damage." },
-        { "Any": [ 90 ], "Why": "Strong single-target cooldown." },
-        { "Any": [ 80 ], "Why": "Gap closer with heavy damage." },
-        { "Any": [ 81 ], "Why": "Heavy physical damage." },
-        { "Any": [ 29 ], "Why": "Emergency mitigation. You cannot act while it lasts." },
-        { "Any": [ 7 ], "Why": "Dash for getting out of bad spots." },
-        { "Any": [ 24 ], "Why": "Interrupts enemy casts." },
-        { "Any": [ 5 ], "Why": "Early-level line area damage." },
-        { "Any": [ 121 ], "Why": "Long damage over time." },
-        { "Any": [ 109 ], "Why": "Damage over time." }
+        { "Spell": 30, "Why": "Tank stance. Cuts damage taken, which matters more than damage when nobody heals you." },  // Mighty Guard
+        { "Spell": 105, "Why": "Melee filler. Strongest single-target filler while Mighty Guard is up." },  // Goblin Punch
+        { "Spell": [ 63, 1 ], "Why": "Ranged single-target filler." },  // Sonic Boom or Water Cannon
+        { "Spell": 13, "Why": "Heal that scales with your HP." },  // White Wind
+        { "Spell": 58, "Why": "Single-target heal." },  // Pom Cure
+        { "Spell": 108, "Why": "Self heal." },  // Rehydration
+        { "Spell": [ 11, 2 ], "Why": "Area damage around you for packs." },  // Plaincracker or Flame Thrower
+        { "Spell": 48, "Why": "Frontal area damage." },  // Glass Dance
+        { "Spell": [ 44, 19 ], "Why": "Ground-targeted area damage." },  // Feather Rain or Bomb Toss
+        { "Spell": 33, "Why": "Area damage that freezes, setting up Ultravibration." },  // The Ram's Voice
+        { "Spell": 92, "Why": "Kills frozen or petrified non-boss enemies outright." },  // Ultravibration
+        { "Spell": 34, "Why": "Area damage that paralyzes." },  // The Dragon's Voice
+        { "Spell": 101, "Why": "Line area damage. Sets up Mustard Bomb." },  // Peripheral Synthesis
+        { "Spell": 94, "Why": "Area damage, stronger after Peripheral Synthesis." },  // Mustard Bomb
+        { "Spell": 103, "Why": "Channeled frontal area damage." },  // Phantom Flurry
+        { "Spell": 124, "Why": "Big area damage on a long cooldown." },  // Being Mortal
+        { "Spell": 47, "Why": "Area damage on a cooldown." },  // Shock Strike
+        { "Spell": 12, "Why": "Boosts the next spell's damage." },  // Bristle
+        { "Spell": 64, "Why": "Boosts the next physical spell's damage." },  // Whistle
+        { "Spell": 78, "Why": "Charges that stack damage when used back to back." },  // Surpanakha
+        { "Spell": 100, "Why": "Multi-hit single-target damage." },  // Matra Magic
+        { "Spell": 90, "Why": "Strong single-target cooldown." },  // The Rose of Destruction
+        { "Spell": 80, "Why": "Gap closer with heavy damage." },  // J Kick
+        { "Spell": 81, "Why": "Heavy physical damage." },  // Triple Trident
+        { "Spell": 29, "Why": "Emergency mitigation. You cannot act while it lasts." },  // Diamondback
+        { "Spell": 7, "Why": "Dash for getting out of bad spots." },  // Loom
+        { "Spell": 24, "Why": "Interrupts enemy casts." },  // Flying Sardine
+        { "Spell": 5, "Why": "Early-level line area damage." },  // Drill Cannons
+        { "Spell": 121, "Why": "Long damage over time." },  // Mortal Flame
+        { "Spell": 109, "Why": "Damage over time." }  // Breath of Magic
       ]
     },
     {
@@ -55,37 +58,37 @@
       "Name": "Solo duties",
       "Description": "Taking a duty meant for two or more players on your own, such as an older dungeon or trial unsynced, or synced to learn its spells. Built around Basic Instinct, which only works in exactly this situation.",
       "Picks": [
-        { "Any": [ 91 ], "Why": "Doubles damage and healing and speeds you up when you are alone in a duty meant for two or more. Ends if anyone joins." },
-        { "Any": [ 30 ], "Why": "Tank stance. With Basic Instinct up it no longer lowers your damage." },
-        { "Any": [ 105 ], "Why": "Melee filler. Strongest single-target filler while Mighty Guard is up." },
-        { "Any": [ 63, 1 ], "Why": "Ranged single-target filler." },
-        { "Any": [ 13 ], "Why": "Heal that scales with your HP." },
-        { "Any": [ 58 ], "Why": "Single-target heal." },
-        { "Any": [ 108 ], "Why": "Self heal." },
-        { "Any": [ 29 ], "Why": "Emergency mitigation for boss mechanics. You cannot act while it lasts." },
-        { "Any": [ 11, 2 ], "Why": "Area damage around you for trash packs." },
-        { "Any": [ 48 ], "Why": "Frontal area damage." },
-        { "Any": [ 44, 19 ], "Why": "Ground-targeted area damage." },
-        { "Any": [ 33 ], "Why": "Area damage that freezes, setting up Ultravibration." },
-        { "Any": [ 92 ], "Why": "Kills frozen or petrified non-boss enemies outright." },
-        { "Any": [ 101 ], "Why": "Line area damage. Sets up Mustard Bomb." },
-        { "Any": [ 94 ], "Why": "Area damage, stronger after Peripheral Synthesis." },
-        { "Any": [ 47 ], "Why": "Area damage on a cooldown." },
-        { "Any": [ 12 ], "Why": "Boosts the next spell's damage." },
-        { "Any": [ 64 ], "Why": "Boosts the next physical spell's damage." },
-        { "Any": [ 104 ], "Why": "Damage over time on a cooldown, for bosses." },
-        { "Any": [ 9 ], "Why": "Damage over time, for bosses." },
-        { "Any": [ 78 ], "Why": "Charges that stack damage when used back to back." },
-        { "Any": [ 100 ], "Why": "Multi-hit single-target damage." },
-        { "Any": [ 90 ], "Why": "Strong single-target cooldown." },
-        { "Any": [ 80 ], "Why": "Gap closer with heavy damage." },
-        { "Any": [ 81 ], "Why": "Heavy physical damage." },
-        { "Any": [ 103 ], "Why": "Channeled frontal area damage." },
-        { "Any": [ 124 ], "Why": "Big area damage on a long cooldown." },
-        { "Any": [ 75 ], "Why": "Heals you and raises max HP." },
-        { "Any": [ 89 ], "Why": "Damage barrier that turns into a follow-up attack." },
-        { "Any": [ 7 ], "Why": "Dash for getting out of mechanics." },
-        { "Any": [ 24 ], "Why": "Interrupts enemy casts." }
+        { "Spell": 91, "Why": "Doubles damage and healing and speeds you up when you are alone in a duty meant for two or more. Ends if anyone joins." },  // Basic Instinct
+        { "Spell": 30, "Why": "Tank stance. With Basic Instinct up it no longer lowers your damage." },  // Mighty Guard
+        { "Spell": 105, "Why": "Melee filler. Strongest single-target filler while Mighty Guard is up." },  // Goblin Punch
+        { "Spell": [ 63, 1 ], "Why": "Ranged single-target filler." },  // Sonic Boom or Water Cannon
+        { "Spell": 13, "Why": "Heal that scales with your HP." },  // White Wind
+        { "Spell": 58, "Why": "Single-target heal." },  // Pom Cure
+        { "Spell": 108, "Why": "Self heal." },  // Rehydration
+        { "Spell": 29, "Why": "Emergency mitigation for boss mechanics. You cannot act while it lasts." },  // Diamondback
+        { "Spell": [ 11, 2 ], "Why": "Area damage around you for trash packs." },  // Plaincracker or Flame Thrower
+        { "Spell": 48, "Why": "Frontal area damage." },  // Glass Dance
+        { "Spell": [ 44, 19 ], "Why": "Ground-targeted area damage." },  // Feather Rain or Bomb Toss
+        { "Spell": 33, "Why": "Area damage that freezes, setting up Ultravibration." },  // The Ram's Voice
+        { "Spell": 92, "Why": "Kills frozen or petrified non-boss enemies outright." },  // Ultravibration
+        { "Spell": 101, "Why": "Line area damage. Sets up Mustard Bomb." },  // Peripheral Synthesis
+        { "Spell": 94, "Why": "Area damage, stronger after Peripheral Synthesis." },  // Mustard Bomb
+        { "Spell": 47, "Why": "Area damage on a cooldown." },  // Shock Strike
+        { "Spell": 12, "Why": "Boosts the next spell's damage." },  // Bristle
+        { "Spell": 64, "Why": "Boosts the next physical spell's damage." },  // Whistle
+        { "Spell": 104, "Why": "Damage over time on a cooldown, for bosses." },  // Nightbloom
+        { "Spell": 9, "Why": "Damage over time, for bosses." },  // Song of Torment
+        { "Spell": 78, "Why": "Charges that stack damage when used back to back." },  // Surpanakha
+        { "Spell": 100, "Why": "Multi-hit single-target damage." },  // Matra Magic
+        { "Spell": 90, "Why": "Strong single-target cooldown." },  // The Rose of Destruction
+        { "Spell": 80, "Why": "Gap closer with heavy damage." },  // J Kick
+        { "Spell": 81, "Why": "Heavy physical damage." },  // Triple Trident
+        { "Spell": 103, "Why": "Channeled frontal area damage." },  // Phantom Flurry
+        { "Spell": 124, "Why": "Big area damage on a long cooldown." },  // Being Mortal
+        { "Spell": 75, "Why": "Heals you and raises max HP." },  // Devour
+        { "Spell": 89, "Why": "Damage barrier that turns into a follow-up attack." },  // Chelonian Gate
+        { "Spell": 7, "Why": "Dash for getting out of mechanics." },  // Loom
+        { "Spell": 24, "Why": "Interrupts enemy casts." }  // Flying Sardine
       ]
     },
     {
@@ -95,37 +98,37 @@
       "Role": "DPS",
       "Description": "Party DPS for dungeons, weighted toward area damage for trash pulls, with a raise and a cleanse for emergencies.",
       "Picks": [
-        { "Any": [ 77 ], "Why": "Copy a party member's role. Use it on a DPS for the damage bonus." },
-        { "Any": [ 63, 1 ], "Why": "Single-target filler." },
-        { "Any": [ 11, 2 ], "Why": "Area damage around you for packs." },
-        { "Any": [ 48 ], "Why": "Frontal area damage." },
-        { "Any": [ 44, 19 ], "Why": "Ground-targeted area damage." },
-        { "Any": [ 33 ], "Why": "Area damage that freezes, setting up Ultravibration." },
-        { "Any": [ 92 ], "Why": "Kills frozen or petrified non-boss enemies outright." },
-        { "Any": [ 101 ], "Why": "Line area damage. Sets up Mustard Bomb." },
-        { "Any": [ 94 ], "Why": "Area damage, stronger after Peripheral Synthesis." },
-        { "Any": [ 103 ], "Why": "Channeled frontal area damage." },
-        { "Any": [ 124 ], "Why": "Big area damage on a long cooldown." },
-        { "Any": [ 47 ], "Why": "Area damage on a cooldown." },
-        { "Any": [ 123 ], "Why": "Big channeled damage on a long cooldown." },
-        { "Any": [ 122 ], "Why": "Big damage on a long cooldown." },
-        { "Any": [ 12 ], "Why": "Boosts the next spell's damage." },
-        { "Any": [ 64 ], "Why": "Boosts the next physical spell's damage." },
-        { "Any": [ 82 ], "Why": "Damage plus a boost to the next physical spell." },
-        { "Any": [ 9 ], "Why": "Damage over time for bosses." },
-        { "Any": [ 104 ], "Why": "Damage over time on a cooldown." },
-        { "Any": [ 90 ], "Why": "Strong single-target cooldown." },
-        { "Any": [ 81 ], "Why": "Heavy physical damage." },
-        { "Any": [ 80 ], "Why": "Gap closer with heavy damage." },
-        { "Any": [ 78 ], "Why": "Charges that stack damage when used back to back." },
-        { "Any": [ 72 ], "Why": "Raise." },
-        { "Any": [ 73 ], "Why": "Cleanses debuffs." },
-        { "Any": [ 100 ], "Why": "Multi-hit single-target damage." },
-        { "Any": [ 109 ], "Why": "Damage over time." },
-        { "Any": [ 13 ], "Why": "Emergency self heal." },
-        { "Any": [ 7 ], "Why": "Dash." },
-        { "Any": [ 24 ], "Why": "Interrupts enemy casts." },
-        { "Any": [ 20 ], "Why": "Raises the damage the target takes." }
+        { "Spell": 77, "Why": "Copy a party member's role. Use it on a DPS for the damage bonus." },  // Aetheric Mimicry
+        { "Spell": [ 63, 1 ], "Why": "Single-target filler." },  // Sonic Boom or Water Cannon
+        { "Spell": [ 11, 2 ], "Why": "Area damage around you for packs." },  // Plaincracker or Flame Thrower
+        { "Spell": 48, "Why": "Frontal area damage." },  // Glass Dance
+        { "Spell": [ 44, 19 ], "Why": "Ground-targeted area damage." },  // Feather Rain or Bomb Toss
+        { "Spell": 33, "Why": "Area damage that freezes, setting up Ultravibration." },  // The Ram's Voice
+        { "Spell": 92, "Why": "Kills frozen or petrified non-boss enemies outright." },  // Ultravibration
+        { "Spell": 101, "Why": "Line area damage. Sets up Mustard Bomb." },  // Peripheral Synthesis
+        { "Spell": 94, "Why": "Area damage, stronger after Peripheral Synthesis." },  // Mustard Bomb
+        { "Spell": 103, "Why": "Channeled frontal area damage." },  // Phantom Flurry
+        { "Spell": 124, "Why": "Big area damage on a long cooldown." },  // Being Mortal
+        { "Spell": 47, "Why": "Area damage on a cooldown." },  // Shock Strike
+        { "Spell": 123, "Why": "Big channeled damage on a long cooldown." },  // Apokalypsis
+        { "Spell": 122, "Why": "Big damage on a long cooldown." },  // Sea Shanty
+        { "Spell": 12, "Why": "Boosts the next spell's damage." },  // Bristle
+        { "Spell": 64, "Why": "Boosts the next physical spell's damage." },  // Whistle
+        { "Spell": 82, "Why": "Damage plus a boost to the next physical spell." },  // Tingle
+        { "Spell": 9, "Why": "Damage over time for bosses." },  // Song of Torment
+        { "Spell": 104, "Why": "Damage over time on a cooldown." },  // Nightbloom
+        { "Spell": 90, "Why": "Strong single-target cooldown." },  // The Rose of Destruction
+        { "Spell": 81, "Why": "Heavy physical damage." },  // Triple Trident
+        { "Spell": 80, "Why": "Gap closer with heavy damage." },  // J Kick
+        { "Spell": 78, "Why": "Charges that stack damage when used back to back." },  // Surpanakha
+        { "Spell": 72, "Why": "Raise." },  // Angel Whisper
+        { "Spell": 73, "Why": "Cleanses debuffs." },  // Exuviation
+        { "Spell": 100, "Why": "Multi-hit single-target damage." },  // Matra Magic
+        { "Spell": 109, "Why": "Damage over time." },  // Breath of Magic
+        { "Spell": 13, "Why": "Emergency self heal." },  // White Wind
+        { "Spell": 7, "Why": "Dash." },  // Loom
+        { "Spell": 24, "Why": "Interrupts enemy casts." },  // Flying Sardine
+        { "Spell": 20, "Why": "Raises the damage the target takes." }  // Off-guard
       ]
     },
     {
@@ -135,36 +138,36 @@
       "Role": "Tank",
       "Description": "Main tank for dungeons. Mighty Guard plus Tank mimicry, area damage to grab and hold big pulls, and the defensive kit to survive them.",
       "Picks": [
-        { "Any": [ 30 ], "Why": "Tank stance." },
-        { "Any": [ 77 ], "Why": "Copy a party member's role. Use it on a tank for the defensive bonus." },
-        { "Any": [ 105 ], "Why": "Melee filler. Strongest single-target filler while Mighty Guard is up." },
-        { "Any": [ 63, 1 ], "Why": "Ranged filler, for pulling packs from a distance." },
-        { "Any": [ 11, 2 ], "Why": "Area damage around you to grab and hold a pull." },
-        { "Any": [ 48 ], "Why": "Frontal area damage." },
-        { "Any": [ 33 ], "Why": "Area damage that freezes, setting up Ultravibration." },
-        { "Any": [ 92 ], "Why": "Kills frozen or petrified non-boss enemies outright." },
-        { "Any": [ 44, 19 ], "Why": "Ground-targeted area damage." },
-        { "Any": [ 47 ], "Why": "Area damage on a cooldown." },
-        { "Any": [ 75 ], "Why": "Heals you and raises max HP." },
-        { "Any": [ 89 ], "Why": "Damage barrier that turns into a follow-up attack." },
-        { "Any": [ 95 ], "Why": "Damage reduction." },
-        { "Any": [ 107 ], "Why": "Defensive cooldown." },
-        { "Any": [ 32 ], "Why": "Raises evasion, which adds up over a big pull." },
-        { "Any": [ 28 ], "Why": "Weakens enemies in front of you." },
-        { "Any": [ 108 ], "Why": "Self heal." },
-        { "Any": [ 13 ], "Why": "Heal that scales with your HP." },
-        { "Any": [ 24 ], "Why": "Interrupts enemy casts." },
-        { "Any": [ 31 ], "Why": "Pulls a straggler to you." },
-        { "Any": [ 101 ], "Why": "Line area damage. Sets up Mustard Bomb." },
-        { "Any": [ 94 ], "Why": "Area damage, stronger after Peripheral Synthesis." },
-        { "Any": [ 34 ], "Why": "Area damage that paralyzes." },
-        { "Any": [ 29 ], "Why": "Emergency mitigation. You cannot act while it lasts." },
-        { "Any": [ 103 ], "Why": "Channeled frontal area damage." },
-        { "Any": [ 124 ], "Why": "Big area damage on a long cooldown." },
-        { "Any": [ 9 ], "Why": "Damage over time for bosses." },
-        { "Any": [ 104 ], "Why": "Damage over time on a cooldown." },
-        { "Any": [ 58 ], "Why": "Single-target heal." },
-        { "Any": [ 7 ], "Why": "Dash." }
+        { "Spell": 30, "Why": "Tank stance." },  // Mighty Guard
+        { "Spell": 77, "Why": "Copy a party member's role. Use it on a tank for the defensive bonus." },  // Aetheric Mimicry
+        { "Spell": 105, "Why": "Melee filler. Strongest single-target filler while Mighty Guard is up." },  // Goblin Punch
+        { "Spell": [ 63, 1 ], "Why": "Ranged filler, for pulling packs from a distance." },  // Sonic Boom or Water Cannon
+        { "Spell": [ 11, 2 ], "Why": "Area damage around you to grab and hold a pull." },  // Plaincracker or Flame Thrower
+        { "Spell": 48, "Why": "Frontal area damage." },  // Glass Dance
+        { "Spell": 33, "Why": "Area damage that freezes, setting up Ultravibration." },  // The Ram's Voice
+        { "Spell": 92, "Why": "Kills frozen or petrified non-boss enemies outright." },  // Ultravibration
+        { "Spell": [ 44, 19 ], "Why": "Ground-targeted area damage." },  // Feather Rain or Bomb Toss
+        { "Spell": 47, "Why": "Area damage on a cooldown." },  // Shock Strike
+        { "Spell": 75, "Why": "Heals you and raises max HP." },  // Devour
+        { "Spell": 89, "Why": "Damage barrier that turns into a follow-up attack." },  // Chelonian Gate
+        { "Spell": 95, "Why": "Damage reduction." },  // Dragon Force
+        { "Spell": 107, "Why": "Defensive cooldown." },  // Schiltron
+        { "Spell": 32, "Why": "Raises evasion, which adds up over a big pull." },  // Toad Oil
+        { "Spell": 28, "Why": "Weakens enemies in front of you." },  // Bad Breath
+        { "Spell": 108, "Why": "Self heal." },  // Rehydration
+        { "Spell": 13, "Why": "Heal that scales with your HP." },  // White Wind
+        { "Spell": 24, "Why": "Interrupts enemy casts." },  // Flying Sardine
+        { "Spell": 31, "Why": "Pulls a straggler to you." },  // Sticky Tongue
+        { "Spell": 101, "Why": "Line area damage. Sets up Mustard Bomb." },  // Peripheral Synthesis
+        { "Spell": 94, "Why": "Area damage, stronger after Peripheral Synthesis." },  // Mustard Bomb
+        { "Spell": 34, "Why": "Area damage that paralyzes." },  // The Dragon's Voice
+        { "Spell": 29, "Why": "Emergency mitigation. You cannot act while it lasts." },  // Diamondback
+        { "Spell": 103, "Why": "Channeled frontal area damage." },  // Phantom Flurry
+        { "Spell": 124, "Why": "Big area damage on a long cooldown." },  // Being Mortal
+        { "Spell": 9, "Why": "Damage over time for bosses." },  // Song of Torment
+        { "Spell": 104, "Why": "Damage over time on a cooldown." },  // Nightbloom
+        { "Spell": 58, "Why": "Single-target heal." },  // Pom Cure
+        { "Spell": 7, "Why": "Dash." }  // Loom
       ]
     },
     {
@@ -174,33 +177,33 @@
       "Role": "Healer",
       "Description": "Party healer for dungeons. Healer mimicry and steady healing through trash pulls, plus area damage to help kill packs faster.",
       "Picks": [
-        { "Any": [ 77 ], "Why": "Copy a party member's role. Use it on a healer for stronger healing." },
-        { "Any": [ 13 ], "Why": "Heal that scales with your HP." },
-        { "Any": [ 58 ], "Why": "Single-target heal, the main tool for keeping the tank up." },
-        { "Any": [ 72 ], "Why": "Raise." },
-        { "Any": [ 73 ], "Why": "Cleanses debuffs." },
-        { "Any": [ 88 ], "Why": "Party heal over time, good during long pulls." },
-        { "Any": [ 59 ], "Why": "Party barrier." },
-        { "Any": [ 85 ], "Why": "Party heal." },
-        { "Any": [ 70 ], "Why": "Mitigation for the tank." },
-        { "Any": [ 120 ], "Why": "Area damage that weakens enemies and restores MP." },
-        { "Any": [ 63, 1 ], "Why": "Single-target filler damage." },
-        { "Any": [ 11, 2 ], "Why": "Area damage around you for packs." },
-        { "Any": [ 48 ], "Why": "Frontal area damage." },
-        { "Any": [ 44, 19 ], "Why": "Ground-targeted area damage." },
-        { "Any": [ 47 ], "Why": "Area damage on a cooldown." },
-        { "Any": [ 33 ], "Why": "Area damage that freezes, setting up Ultravibration." },
-        { "Any": [ 92 ], "Why": "Kills frozen or petrified non-boss enemies outright." },
-        { "Any": [ 101 ], "Why": "Line area damage. Sets up Mustard Bomb." },
-        { "Any": [ 94 ], "Why": "Area damage, stronger after Peripheral Synthesis." },
-        { "Any": [ 103 ], "Why": "Channeled frontal area damage." },
-        { "Any": [ 124 ], "Why": "Big area damage on a long cooldown." },
-        { "Any": [ 9 ], "Why": "Damage over time for bosses." },
-        { "Any": [ 104 ], "Why": "Damage over time on a cooldown." },
-        { "Any": [ 29 ], "Why": "Emergency mitigation. You cannot act while it lasts." },
-        { "Any": [ 108 ], "Why": "Self heal." },
-        { "Any": [ 7 ], "Why": "Dash." },
-        { "Any": [ 24 ], "Why": "Interrupts enemy casts." }
+        { "Spell": 77, "Why": "Copy a party member's role. Use it on a healer for stronger healing." },  // Aetheric Mimicry
+        { "Spell": 13, "Why": "Heal that scales with your HP." },  // White Wind
+        { "Spell": 58, "Why": "Single-target heal, the main tool for keeping the tank up." },  // Pom Cure
+        { "Spell": 72, "Why": "Raise." },  // Angel Whisper
+        { "Spell": 73, "Why": "Cleanses debuffs." },  // Exuviation
+        { "Spell": 88, "Why": "Party heal over time, good during long pulls." },  // Angel's Snack
+        { "Spell": 59, "Why": "Party barrier." },  // Gobskin
+        { "Spell": 85, "Why": "Party heal." },  // Stotram
+        { "Spell": 70, "Why": "Mitigation for the tank." },  // Cactguard
+        { "Spell": 120, "Why": "Area damage that weakens enemies and restores MP." },  // Candy Cane
+        { "Spell": [ 63, 1 ], "Why": "Single-target filler damage." },  // Sonic Boom or Water Cannon
+        { "Spell": [ 11, 2 ], "Why": "Area damage around you for packs." },  // Plaincracker or Flame Thrower
+        { "Spell": 48, "Why": "Frontal area damage." },  // Glass Dance
+        { "Spell": [ 44, 19 ], "Why": "Ground-targeted area damage." },  // Feather Rain or Bomb Toss
+        { "Spell": 47, "Why": "Area damage on a cooldown." },  // Shock Strike
+        { "Spell": 33, "Why": "Area damage that freezes, setting up Ultravibration." },  // The Ram's Voice
+        { "Spell": 92, "Why": "Kills frozen or petrified non-boss enemies outright." },  // Ultravibration
+        { "Spell": 101, "Why": "Line area damage. Sets up Mustard Bomb." },  // Peripheral Synthesis
+        { "Spell": 94, "Why": "Area damage, stronger after Peripheral Synthesis." },  // Mustard Bomb
+        { "Spell": 103, "Why": "Channeled frontal area damage." },  // Phantom Flurry
+        { "Spell": 124, "Why": "Big area damage on a long cooldown." },  // Being Mortal
+        { "Spell": 9, "Why": "Damage over time for bosses." },  // Song of Torment
+        { "Spell": 104, "Why": "Damage over time on a cooldown." },  // Nightbloom
+        { "Spell": 29, "Why": "Emergency mitigation. You cannot act while it lasts." },  // Diamondback
+        { "Spell": 108, "Why": "Self heal." },  // Rehydration
+        { "Spell": 7, "Why": "Dash." },  // Loom
+        { "Spell": 24, "Why": "Interrupts enemy casts." }  // Flying Sardine
       ]
     },
     {
@@ -210,35 +213,35 @@
       "Role": "DPS",
       "Description": "Party DPS for single-target boss fights: debuffs, damage over time and the big cooldowns for a Moon Flute burst window.",
       "Picks": [
-        { "Any": [ 77 ], "Why": "Copy a party member's role. Use it on a DPS for the damage bonus." },
-        { "Any": [ 39 ], "Why": "Burst window. Leaves you unable to act afterwards, so time it with the fight." },
-        { "Any": [ 12 ], "Why": "Boosts the next spell's damage." },
-        { "Any": [ 64 ], "Why": "Boosts the next physical spell's damage." },
-        { "Any": [ 82 ], "Why": "Damage plus a boost to the next physical spell." },
-        { "Any": [ 20 ], "Why": "Raises the damage the target takes." },
-        { "Any": [ 9 ], "Why": "Damage over time." },
-        { "Any": [ 104 ], "Why": "Damage over time on a cooldown." },
-        { "Any": [ 80 ], "Why": "Gap closer with heavy damage." },
-        { "Any": [ 81 ], "Why": "Heavy physical damage." },
-        { "Any": [ 90 ], "Why": "Strong single-target cooldown." },
-        { "Any": [ 44 ], "Why": "Damage plus damage over time." },
-        { "Any": [ 47 ], "Why": "Damage on a cooldown." },
-        { "Any": [ 48 ], "Why": "Damage on a cooldown." },
-        { "Any": [ 100 ], "Why": "Multi-hit single-target damage." },
-        { "Any": [ 78 ], "Why": "Charges that stack damage when used back to back." },
-        { "Any": [ 103 ], "Why": "Channeled damage." },
-        { "Any": [ 118 ], "Why": "Stacking damage cooldown." },
-        { "Any": [ 122 ], "Why": "Big damage on a long cooldown." },
-        { "Any": [ 123 ], "Why": "Big channeled damage on a long cooldown." },
-        { "Any": [ 124 ], "Why": "Big damage on a long cooldown." },
-        { "Any": [ 109 ], "Why": "Damage over time." },
-        { "Any": [ 121 ], "Why": "Long damage over time." },
-        { "Any": [ 63, 1 ], "Why": "Single-target filler." },
-        { "Any": [ 72 ], "Why": "Raise." },
-        { "Any": [ 73 ], "Why": "Cleanses debuffs." },
-        { "Any": [ 43 ], "Why": "Raises magic damage enemies take." },
-        { "Any": [ 7 ], "Why": "Dash." },
-        { "Any": [ 13 ], "Why": "Emergency self heal." }
+        { "Spell": 77, "Why": "Copy a party member's role. Use it on a DPS for the damage bonus." },  // Aetheric Mimicry
+        { "Spell": 39, "Why": "Burst window. Leaves you unable to act afterwards, so time it with the fight." },  // Moon Flute
+        { "Spell": 12, "Why": "Boosts the next spell's damage." },  // Bristle
+        { "Spell": 64, "Why": "Boosts the next physical spell's damage." },  // Whistle
+        { "Spell": 82, "Why": "Damage plus a boost to the next physical spell." },  // Tingle
+        { "Spell": 20, "Why": "Raises the damage the target takes." },  // Off-guard
+        { "Spell": 9, "Why": "Damage over time." },  // Song of Torment
+        { "Spell": 104, "Why": "Damage over time on a cooldown." },  // Nightbloom
+        { "Spell": 80, "Why": "Gap closer with heavy damage." },  // J Kick
+        { "Spell": 81, "Why": "Heavy physical damage." },  // Triple Trident
+        { "Spell": 90, "Why": "Strong single-target cooldown." },  // The Rose of Destruction
+        { "Spell": 44, "Why": "Damage plus damage over time." },  // Feather Rain
+        { "Spell": 47, "Why": "Damage on a cooldown." },  // Shock Strike
+        { "Spell": 48, "Why": "Damage on a cooldown." },  // Glass Dance
+        { "Spell": 100, "Why": "Multi-hit single-target damage." },  // Matra Magic
+        { "Spell": 78, "Why": "Charges that stack damage when used back to back." },  // Surpanakha
+        { "Spell": 103, "Why": "Channeled damage." },  // Phantom Flurry
+        { "Spell": 118, "Why": "Stacking damage cooldown." },  // Winged Reprobation
+        { "Spell": 122, "Why": "Big damage on a long cooldown." },  // Sea Shanty
+        { "Spell": 123, "Why": "Big channeled damage on a long cooldown." },  // Apokalypsis
+        { "Spell": 124, "Why": "Big damage on a long cooldown." },  // Being Mortal
+        { "Spell": 109, "Why": "Damage over time." },  // Breath of Magic
+        { "Spell": 121, "Why": "Long damage over time." },  // Mortal Flame
+        { "Spell": [ 63, 1 ], "Why": "Single-target filler." },  // Sonic Boom or Water Cannon
+        { "Spell": 72, "Why": "Raise." },  // Angel Whisper
+        { "Spell": 73, "Why": "Cleanses debuffs." },  // Exuviation
+        { "Spell": 43, "Why": "Raises magic damage enemies take." },  // Peculiar Light
+        { "Spell": 7, "Why": "Dash." },  // Loom
+        { "Spell": 13, "Why": "Emergency self heal." }  // White Wind
       ]
     },
     {
@@ -248,35 +251,35 @@
       "Role": "Tank",
       "Description": "Main tank for trials and raids. Mighty Guard plus Tank mimicry, a deep defensive kit for tankbusters, and single-target damage for the boss.",
       "Picks": [
-        { "Any": [ 30 ], "Why": "Tank stance." },
-        { "Any": [ 77 ], "Why": "Copy a party member's role. Use it on a tank for the defensive bonus." },
-        { "Any": [ 105 ], "Why": "Melee filler. Strongest single-target filler while Mighty Guard is up." },
-        { "Any": [ 63, 1 ], "Why": "Ranged filler, for when mechanics push you away." },
-        { "Any": [ 75 ], "Why": "Heals you and raises max HP." },
-        { "Any": [ 89 ], "Why": "Damage barrier that turns into a follow-up attack." },
-        { "Any": [ 95 ], "Why": "Damage reduction for tankbusters." },
-        { "Any": [ 107 ], "Why": "Defensive cooldown." },
-        { "Any": [ 28 ], "Why": "Weakens the boss, reducing the damage it deals." },
-        { "Any": [ 32 ], "Why": "Raises evasion." },
-        { "Any": [ 108 ], "Why": "Self heal." },
-        { "Any": [ 29 ], "Why": "Emergency mitigation. You cannot act while it lasts." },
-        { "Any": [ 24 ], "Why": "Interrupts enemy casts." },
-        { "Any": [ 31 ], "Why": "Pulls adds to you." },
-        { "Any": [ 9 ], "Why": "Damage over time." },
-        { "Any": [ 104 ], "Why": "Damage over time on a cooldown." },
-        { "Any": [ 20 ], "Why": "Raises the damage the target takes." },
-        { "Any": [ 12 ], "Why": "Boosts the next spell's damage." },
-        { "Any": [ 100 ], "Why": "Multi-hit single-target damage." },
-        { "Any": [ 78 ], "Why": "Charges that stack damage when used back to back." },
-        { "Any": [ 90 ], "Why": "Strong single-target cooldown." },
-        { "Any": [ 80 ], "Why": "Gap closer with heavy damage." },
-        { "Any": [ 81 ], "Why": "Heavy physical damage." },
-        { "Any": [ 47 ], "Why": "Damage on a cooldown." },
-        { "Any": [ 44 ], "Why": "Damage plus damage over time." },
-        { "Any": [ 13 ], "Why": "Heal that scales with your HP." },
-        { "Any": [ 58 ], "Why": "Single-target heal." },
-        { "Any": [ 70 ], "Why": "Mitigation for another party member, such as the co-tank." },
-        { "Any": [ 7 ], "Why": "Dash." }
+        { "Spell": 30, "Why": "Tank stance." },  // Mighty Guard
+        { "Spell": 77, "Why": "Copy a party member's role. Use it on a tank for the defensive bonus." },  // Aetheric Mimicry
+        { "Spell": 105, "Why": "Melee filler. Strongest single-target filler while Mighty Guard is up." },  // Goblin Punch
+        { "Spell": [ 63, 1 ], "Why": "Ranged filler, for when mechanics push you away." },  // Sonic Boom or Water Cannon
+        { "Spell": 75, "Why": "Heals you and raises max HP." },  // Devour
+        { "Spell": 89, "Why": "Damage barrier that turns into a follow-up attack." },  // Chelonian Gate
+        { "Spell": 95, "Why": "Damage reduction for tankbusters." },  // Dragon Force
+        { "Spell": 107, "Why": "Defensive cooldown." },  // Schiltron
+        { "Spell": 28, "Why": "Weakens the boss, reducing the damage it deals." },  // Bad Breath
+        { "Spell": 32, "Why": "Raises evasion." },  // Toad Oil
+        { "Spell": 108, "Why": "Self heal." },  // Rehydration
+        { "Spell": 29, "Why": "Emergency mitigation. You cannot act while it lasts." },  // Diamondback
+        { "Spell": 24, "Why": "Interrupts enemy casts." },  // Flying Sardine
+        { "Spell": 31, "Why": "Pulls adds to you." },  // Sticky Tongue
+        { "Spell": 9, "Why": "Damage over time." },  // Song of Torment
+        { "Spell": 104, "Why": "Damage over time on a cooldown." },  // Nightbloom
+        { "Spell": 20, "Why": "Raises the damage the target takes." },  // Off-guard
+        { "Spell": 12, "Why": "Boosts the next spell's damage." },  // Bristle
+        { "Spell": 100, "Why": "Multi-hit single-target damage." },  // Matra Magic
+        { "Spell": 78, "Why": "Charges that stack damage when used back to back." },  // Surpanakha
+        { "Spell": 90, "Why": "Strong single-target cooldown." },  // The Rose of Destruction
+        { "Spell": 80, "Why": "Gap closer with heavy damage." },  // J Kick
+        { "Spell": 81, "Why": "Heavy physical damage." },  // Triple Trident
+        { "Spell": 47, "Why": "Damage on a cooldown." },  // Shock Strike
+        { "Spell": 44, "Why": "Damage plus damage over time." },  // Feather Rain
+        { "Spell": 13, "Why": "Heal that scales with your HP." },  // White Wind
+        { "Spell": 58, "Why": "Single-target heal." },  // Pom Cure
+        { "Spell": 70, "Why": "Mitigation for another party member, such as the co-tank." },  // Cactguard
+        { "Spell": 7, "Why": "Dash." }  // Loom
       ]
     },
     {
@@ -286,109 +289,112 @@
       "Role": "Healer",
       "Description": "Party healer for trials and raids. Healer mimicry, party heals and barriers for raid-wide hits, a raise and a cleanse, then single-target damage for downtime.",
       "Picks": [
-        { "Any": [ 77 ], "Why": "Copy a party member's role. Use it on a healer for stronger healing." },
-        { "Any": [ 13 ], "Why": "Heal that scales with your HP." },
-        { "Any": [ 58 ], "Why": "Single-target heal." },
-        { "Any": [ 72 ], "Why": "Raise." },
-        { "Any": [ 73 ], "Why": "Cleanses debuffs, which many boss mechanics apply." },
-        { "Any": [ 59 ], "Why": "Party barrier, for raid-wide hits." },
-        { "Any": [ 88 ], "Why": "Party heal over time." },
-        { "Any": [ 85 ], "Why": "Party heal." },
-        { "Any": [ 70 ], "Why": "Mitigation for a tank, for tankbusters." },
-        { "Any": [ 120 ], "Why": "Damage that weakens enemies and restores MP." },
-        { "Any": [ 29 ], "Why": "Emergency mitigation. You cannot act while it lasts." },
-        { "Any": [ 63, 1 ], "Why": "Single-target filler damage." },
-        { "Any": [ 9 ], "Why": "Damage over time." },
-        { "Any": [ 104 ], "Why": "Damage over time on a cooldown." },
-        { "Any": [ 20 ], "Why": "Raises the damage the target takes." },
-        { "Any": [ 12 ], "Why": "Boosts the next spell's damage." },
-        { "Any": [ 100 ], "Why": "Multi-hit single-target damage." },
-        { "Any": [ 78 ], "Why": "Charges that stack damage when used back to back." },
-        { "Any": [ 90 ], "Why": "Strong single-target cooldown." },
-        { "Any": [ 81 ], "Why": "Heavy physical damage." },
-        { "Any": [ 80 ], "Why": "Gap closer with heavy damage." },
-        { "Any": [ 47 ], "Why": "Damage on a cooldown." },
-        { "Any": [ 44 ], "Why": "Damage plus damage over time." },
-        { "Any": [ 108 ], "Why": "Self heal." },
-        { "Any": [ 7 ], "Why": "Dash." },
-        { "Any": [ 24 ], "Why": "Interrupts enemy casts." }
+        { "Spell": 77, "Why": "Copy a party member's role. Use it on a healer for stronger healing." },  // Aetheric Mimicry
+        { "Spell": 13, "Why": "Heal that scales with your HP." },  // White Wind
+        { "Spell": 58, "Why": "Single-target heal." },  // Pom Cure
+        { "Spell": 72, "Why": "Raise." },  // Angel Whisper
+        { "Spell": 73, "Why": "Cleanses debuffs, which many boss mechanics apply." },  // Exuviation
+        { "Spell": 59, "Why": "Party barrier, for raid-wide hits." },  // Gobskin
+        { "Spell": 88, "Why": "Party heal over time." },  // Angel's Snack
+        { "Spell": 85, "Why": "Party heal." },  // Stotram
+        { "Spell": 70, "Why": "Mitigation for a tank, for tankbusters." },  // Cactguard
+        { "Spell": 120, "Why": "Damage that weakens enemies and restores MP." },  // Candy Cane
+        { "Spell": 29, "Why": "Emergency mitigation. You cannot act while it lasts." },  // Diamondback
+        { "Spell": [ 63, 1 ], "Why": "Single-target filler damage." },  // Sonic Boom or Water Cannon
+        { "Spell": 9, "Why": "Damage over time." },  // Song of Torment
+        { "Spell": 104, "Why": "Damage over time on a cooldown." },  // Nightbloom
+        { "Spell": 20, "Why": "Raises the damage the target takes." },  // Off-guard
+        { "Spell": 12, "Why": "Boosts the next spell's damage." },  // Bristle
+        { "Spell": 100, "Why": "Multi-hit single-target damage." },  // Matra Magic
+        { "Spell": 78, "Why": "Charges that stack damage when used back to back." },  // Surpanakha
+        { "Spell": 90, "Why": "Strong single-target cooldown." },  // The Rose of Destruction
+        { "Spell": 81, "Why": "Heavy physical damage." },  // Triple Trident
+        { "Spell": 80, "Why": "Gap closer with heavy damage." },  // J Kick
+        { "Spell": 47, "Why": "Damage on a cooldown." },  // Shock Strike
+        { "Spell": 44, "Why": "Damage plus damage over time." },  // Feather Rain
+        { "Spell": 108, "Why": "Self heal." },  // Rehydration
+        { "Spell": 7, "Why": "Dash." },  // Loom
+        { "Spell": 24, "Why": "Interrupts enemy casts." }  // Flying Sardine
       ]
     }
   ],
+  // Tops up any slots still empty once a profile's picks run out, so knowing plenty
+  // of spells never leaves gaps. These show as "Extra" in the window. A profile can
+  // have its own "Fill" list to replace this one.
   "Fill": [
-    { "Any": [ 104 ], "Why": "Damage over time on a cooldown." },
-    { "Any": [ 9 ], "Why": "Damage over time." },
-    { "Any": [ 20 ], "Why": "Raises the damage the target takes." },
-    { "Any": [ 100 ], "Why": "Multi-hit single-target damage." },
-    { "Any": [ 90 ], "Why": "Strong single-target cooldown." },
-    { "Any": [ 81 ], "Why": "Heavy physical damage." },
-    { "Any": [ 80 ], "Why": "Gap closer with heavy damage." },
-    { "Any": [ 78 ], "Why": "Charges that stack damage when used back to back." },
-    { "Any": [ 103 ], "Why": "Channeled damage." },
-    { "Any": [ 124 ], "Why": "Big area damage on a long cooldown." },
-    { "Any": [ 122 ], "Why": "Big damage on a long cooldown." },
-    { "Any": [ 123 ], "Why": "Big channeled damage on a long cooldown." },
-    { "Any": [ 118 ], "Why": "Stacking damage cooldown." },
-    { "Any": [ 109 ], "Why": "Damage over time." },
-    { "Any": [ 121 ], "Why": "Long damage over time." },
-    { "Any": [ 47 ], "Why": "Area damage on a cooldown." },
-    { "Any": [ 48 ], "Why": "Frontal area damage." },
-    { "Any": [ 44 ], "Why": "Ground-targeted area damage." },
-    { "Any": [ 11 ], "Why": "Area damage around you." },
-    { "Any": [ 101 ], "Why": "Line area damage. Sets up Mustard Bomb." },
-    { "Any": [ 94 ], "Why": "Area damage, stronger after Peripheral Synthesis." },
-    { "Any": [ 33 ], "Why": "Area damage that freezes." },
-    { "Any": [ 92 ], "Why": "Kills frozen or petrified non-boss enemies outright." },
-    { "Any": [ 12 ], "Why": "Boosts the next spell's damage." },
-    { "Any": [ 64 ], "Why": "Boosts the next physical spell's damage." },
-    { "Any": [ 82 ], "Why": "Damage plus a boost to the next physical spell." },
-    { "Any": [ 13 ], "Why": "Heal that scales with your HP." },
-    { "Any": [ 58 ], "Why": "Single-target heal." },
-    { "Any": [ 108 ], "Why": "Self heal." },
-    { "Any": [ 72 ], "Why": "Raise." },
-    { "Any": [ 73 ], "Why": "Cleanses debuffs." },
-    { "Any": [ 7 ], "Why": "Dash." },
-    { "Any": [ 24 ], "Why": "Interrupts enemy casts." },
-    { "Any": [ 63 ], "Why": "Ranged single-target filler." },
-    { "Any": [ 34 ], "Why": "Area damage that paralyzes." },
-    { "Any": [ 5 ], "Why": "Line area damage." },
-    { "Any": [ 19 ], "Why": "Ground-targeted area damage." },
-    { "Any": [ 2 ], "Why": "Frontal area damage." }
+    { "Spell": 104, "Why": "Damage over time on a cooldown." },  // Nightbloom
+    { "Spell": 9, "Why": "Damage over time." },  // Song of Torment
+    { "Spell": 20, "Why": "Raises the damage the target takes." },  // Off-guard
+    { "Spell": 100, "Why": "Multi-hit single-target damage." },  // Matra Magic
+    { "Spell": 90, "Why": "Strong single-target cooldown." },  // The Rose of Destruction
+    { "Spell": 81, "Why": "Heavy physical damage." },  // Triple Trident
+    { "Spell": 80, "Why": "Gap closer with heavy damage." },  // J Kick
+    { "Spell": 78, "Why": "Charges that stack damage when used back to back." },  // Surpanakha
+    { "Spell": 103, "Why": "Channeled damage." },  // Phantom Flurry
+    { "Spell": 124, "Why": "Big area damage on a long cooldown." },  // Being Mortal
+    { "Spell": 122, "Why": "Big damage on a long cooldown." },  // Sea Shanty
+    { "Spell": 123, "Why": "Big channeled damage on a long cooldown." },  // Apokalypsis
+    { "Spell": 118, "Why": "Stacking damage cooldown." },  // Winged Reprobation
+    { "Spell": 109, "Why": "Damage over time." },  // Breath of Magic
+    { "Spell": 121, "Why": "Long damage over time." },  // Mortal Flame
+    { "Spell": 47, "Why": "Area damage on a cooldown." },  // Shock Strike
+    { "Spell": 48, "Why": "Frontal area damage." },  // Glass Dance
+    { "Spell": 44, "Why": "Ground-targeted area damage." },  // Feather Rain
+    { "Spell": 11, "Why": "Area damage around you." },  // Plaincracker
+    { "Spell": 101, "Why": "Line area damage. Sets up Mustard Bomb." },  // Peripheral Synthesis
+    { "Spell": 94, "Why": "Area damage, stronger after Peripheral Synthesis." },  // Mustard Bomb
+    { "Spell": 33, "Why": "Area damage that freezes." },  // The Ram's Voice
+    { "Spell": 92, "Why": "Kills frozen or petrified non-boss enemies outright." },  // Ultravibration
+    { "Spell": 12, "Why": "Boosts the next spell's damage." },  // Bristle
+    { "Spell": 64, "Why": "Boosts the next physical spell's damage." },  // Whistle
+    { "Spell": 82, "Why": "Damage plus a boost to the next physical spell." },  // Tingle
+    { "Spell": 13, "Why": "Heal that scales with your HP." },  // White Wind
+    { "Spell": 58, "Why": "Single-target heal." },  // Pom Cure
+    { "Spell": 108, "Why": "Self heal." },  // Rehydration
+    { "Spell": 72, "Why": "Raise." },  // Angel Whisper
+    { "Spell": 73, "Why": "Cleanses debuffs." },  // Exuviation
+    { "Spell": 7, "Why": "Dash." },  // Loom
+    { "Spell": 24, "Why": "Interrupts enemy casts." },  // Flying Sardine
+    { "Spell": 63, "Why": "Ranged single-target filler." },  // Sonic Boom
+    { "Spell": 34, "Why": "Area damage that paralyzes." },  // The Dragon's Voice
+    { "Spell": 5, "Why": "Line area damage." },  // Drill Cannons
+    { "Spell": 19, "Why": "Ground-targeted area damage." },  // Bomb Toss
+    { "Spell": 2, "Why": "Frontal area damage." }  // Flame Thrower
   ],
   // Tops up every Masked Carnivale stage set after the spells that stage calls for.
   // The stage spells themselves come from Blue Academy's guides (Carnivale.json); this
   // list is ours. No Basic Instinct: the Carnivale is a one-player duty, and Basic
   // Instinct only works in duties meant for two or more.
   "CarnivaleFill": [
-    { "Any": [ 63, 1 ], "Why": "General: wind or water filler." },
-    { "Any": [ 13 ], "Why": "General: heal that scales with your HP." },
-    { "Any": [ 58 ], "Why": "General: single-target heal." },
-    { "Any": [ 24 ], "Why": "General: interrupts enemy casts, which many stages need." },
-    { "Any": [ 7 ], "Why": "General: dash, for getting out of big attacks." },
-    { "Any": [ 29 ], "Why": "General: emergency mitigation. You cannot act while it lasts." },
-    { "Any": [ 12 ], "Why": "General: boosts the next spell's damage." },
-    { "Any": [ 64 ], "Why": "General: boosts the next physical spell's damage." },
-    { "Any": [ 20 ], "Why": "General: raises the damage the target takes." },
-    { "Any": [ 39 ], "Why": "General: burst window for finishing a target fast. Leaves you unable to act afterwards." },
-    { "Any": [ 53 ], "Why": "General: lightning filler, for elemental weaknesses." },
-    { "Any": [ 19, 2 ], "Why": "General: fire damage, for elemental weaknesses." },
-    { "Any": [ 52 ], "Why": "General: ice damage, for elemental weaknesses." },
-    { "Any": [ 11 ], "Why": "General: earth area damage around you." },
-    { "Any": [ 33 ], "Why": "General: freezes enemies, setting up Ultravibration." },
-    { "Any": [ 92 ], "Why": "General: kills frozen or petrified non-boss enemies outright." },
-    { "Any": [ 48 ], "Why": "General: frontal area damage." },
-    { "Any": [ 44 ], "Why": "General: ground-targeted area damage." },
-    { "Any": [ 47 ], "Why": "General: area damage on a cooldown." },
-    { "Any": [ 9 ], "Why": "General: damage over time." },
-    { "Any": [ 104 ], "Why": "General: damage over time on a cooldown." },
-    { "Any": [ 100 ], "Why": "General: multi-hit single-target damage." },
-    { "Any": [ 90 ], "Why": "General: strong single-target cooldown." },
-    { "Any": [ 81 ], "Why": "General: heavy physical damage." },
-    { "Any": [ 80 ], "Why": "General: gap closer with heavy damage." },
-    { "Any": [ 78 ], "Why": "General: charges that stack damage when used back to back." },
-    { "Any": [ 73 ], "Why": "General: cleanses debuffs." },
-    { "Any": [ 108 ], "Why": "General: self heal." },
-    { "Any": [ 23 ], "Why": "General: stuns an enemy." },
-    { "Any": [ 30 ], "Why": "General: reduces damage taken, at a cost to damage dealt." }
+    { "Spell": [ 63, 1 ], "Why": "General: wind or water filler." },  // Sonic Boom or Water Cannon
+    { "Spell": 13, "Why": "General: heal that scales with your HP." },  // White Wind
+    { "Spell": 58, "Why": "General: single-target heal." },  // Pom Cure
+    { "Spell": 24, "Why": "General: interrupts enemy casts, which many stages need." },  // Flying Sardine
+    { "Spell": 7, "Why": "General: dash, for getting out of big attacks." },  // Loom
+    { "Spell": 29, "Why": "General: emergency mitigation. You cannot act while it lasts." },  // Diamondback
+    { "Spell": 12, "Why": "General: boosts the next spell's damage." },  // Bristle
+    { "Spell": 64, "Why": "General: boosts the next physical spell's damage." },  // Whistle
+    { "Spell": 20, "Why": "General: raises the damage the target takes." },  // Off-guard
+    { "Spell": 39, "Why": "General: burst window for finishing a target fast. Leaves you unable to act afterwards." },  // Moon Flute
+    { "Spell": 53, "Why": "General: lightning filler, for elemental weaknesses." },  // Electrogenesis
+    { "Spell": [ 19, 2 ], "Why": "General: fire damage, for elemental weaknesses." },  // Bomb Toss or Flame Thrower
+    { "Spell": 52, "Why": "General: ice damage, for elemental weaknesses." },  // Northerlies
+    { "Spell": 11, "Why": "General: earth area damage around you." },  // Plaincracker
+    { "Spell": 33, "Why": "General: freezes enemies, setting up Ultravibration." },  // The Ram's Voice
+    { "Spell": 92, "Why": "General: kills frozen or petrified non-boss enemies outright." },  // Ultravibration
+    { "Spell": 48, "Why": "General: frontal area damage." },  // Glass Dance
+    { "Spell": 44, "Why": "General: ground-targeted area damage." },  // Feather Rain
+    { "Spell": 47, "Why": "General: area damage on a cooldown." },  // Shock Strike
+    { "Spell": 9, "Why": "General: damage over time." },  // Song of Torment
+    { "Spell": 104, "Why": "General: damage over time on a cooldown." },  // Nightbloom
+    { "Spell": 100, "Why": "General: multi-hit single-target damage." },  // Matra Magic
+    { "Spell": 90, "Why": "General: strong single-target cooldown." },  // The Rose of Destruction
+    { "Spell": 81, "Why": "General: heavy physical damage." },  // Triple Trident
+    { "Spell": 80, "Why": "General: gap closer with heavy damage." },  // J Kick
+    { "Spell": 78, "Why": "General: charges that stack damage when used back to back." },  // Surpanakha
+    { "Spell": 73, "Why": "General: cleanses debuffs." },  // Exuviation
+    { "Spell": 108, "Why": "General: self heal." },  // Rehydration
+    { "Spell": 23, "Why": "General: stuns an enemy." },  // Faze
+    { "Spell": 30, "Why": "General: reduces damage taken, at a cost to damage dealt." }  // Mighty Guard
   ]
 }
