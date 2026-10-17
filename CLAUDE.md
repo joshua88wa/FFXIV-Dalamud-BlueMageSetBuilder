@@ -253,7 +253,9 @@ the game shows.
   learned. A contradiction means `UnlockLink` is the wrong source.
 - Whether other buffs block (Basic Instinct, Mighty Guard, etc.). Unknown; the refusal
   message will name them.
-- Whether the Blue Mage job check is needed at all: log message 9470 suggests active
-  actions can be changed on other jobs, with hotbars only saved on Blue Mage.
+- Confirmed 2026-10-17 (Joshua): active actions can be changed on other jobs, so the
+  Blue Mage job check is gone from `Blockers.HardBlockReason`. Hotbars are only saved
+  on Blue Mage; Layouts shows the game's notice (LogMessage 9470, `Blockers.OtherJobNotice`)
+  when off Blue Mage. Still to check: that `SetBlueMageActions` itself works off Blue Mage.
 - Behaviour inside duties and Masked Carnivale. The game's `CanAssignBlueMageAction`
   is in ClientStructs' data.yml but not yet in the C# structs.

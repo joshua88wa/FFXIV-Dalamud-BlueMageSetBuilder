@@ -52,10 +52,11 @@ public static class Blockers
     /// <summary>A blocker that ending a buff cannot fix, or null.</summary>
     public static string? HardBlockReason()
     {
+        // Not on Blue Mage is fine: the game lets active actions change on any job
+        // (confirmed by Joshua 2026-10-17). Only hotbar changes need Blue Mage; the
+        // window says so with the game's own notice (OtherJobNotice).
         if (!Spellbook.IsLoggedIn)
             return "Log in to a character first.";
-        if (!Spellbook.IsBlueMage)
-            return "Switch to Blue Mage to apply a set.";
 
         foreach (var (flag, reason) in BlockingConditions)
         {
@@ -193,6 +194,25 @@ public static class Blockers
     }
 
     /// <summary>The game's own wording for a LogMessage id, such as "Target not in range."</summary>
+    /// <summary>
+    /// The game's notice when the Blue Magic Spellbook is opened on another job: only
+    /// active action changes are saved, hotbar slots need Blue Mage. Read from the game
+    /// (LogMessage 9470) so it is in the client's language.
+    /// </summary>
+    public static string OtherJobNotice() => otherJobNotice ??= GameText(
+        OtherJobNoticeId,
+        "In your current job/class, only changes to active action selections will be saved. Set job to blue mage if you wish to save blue magic hotbar slots.");
+
+    private const uint OtherJobNoticeId = 9470;
+
+    private static string? otherJobNotice;
+
+    private static string GameText(uint id, string fallback)
+    {
+        var text = DescribeLogMessage(id);
+        return text.StartsWith("game message ", StringComparison.Ordinal) ? fallback : text;
+    }
+
     private static string DescribeLogMessage(uint id)
     {
         try

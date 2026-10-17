@@ -362,6 +362,15 @@ public sealed partial class MainWindow : Window
         else
             ImGui.TextUnformatted($"{built.Chosen.Count} of {Spellbook.SlotCount} slots filled");
 
+        // Applying works on any job, but the game only saves hotbar changes on Blue
+        // Mage, so say so in the game's own words.
+        if (Spellbook.IsLoggedIn && !Spellbook.IsBlueMage)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, ImGuiColors.DalamudYellow);
+            ImGui.TextWrapped(Blockers.OtherJobNotice());
+            ImGui.PopStyleColor();
+        }
+
         ImGui.Spacing();
         this.DrawLearningSummary(profile, built);
         ImGui.Spacing();

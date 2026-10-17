@@ -6,6 +6,8 @@ list. Keep each entry to one bullet a player would care about. When releasing, r
 `## Unreleased` to `## <version> (<date>)`.
 
 ## Unreleased
+- Sets can be applied on any job, as the game allows. On another job the window shows
+  the game's reminder that hotbar changes are only saved on Blue Mage.
 - Masked Carnivale: a set for every stage, built around the spells Blue Academy
   (mage.blue) lists as required or recommended, with each act's enemies and what they
   are vulnerable to, a link to Blue Academy's guide for the stage, and Previous and

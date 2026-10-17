@@ -101,8 +101,10 @@ Other plugins in the same repository are listed at
    required are named right there, in orange, if you do not have them.
 4. Press **Apply this set**.
 
-The window works on any job, so you can plan from anywhere, but applying needs you to
-be on Blue Mage.
+The window works on any job, and so does applying: the game lets you change Blue Mage
+active actions on other jobs. It only saves hotbar changes on Blue Mage, though, so
+switch to Blue Mage before dragging new spells onto your hotbars. The window shows the
+game's own reminder when you are on another job.
 
 ## Commands
 
