@@ -55,6 +55,10 @@ public class Configuration : IPluginConfiguration
     // arrow and the bar's expand button change it only until the spellbook next opens.
     public bool AttachStartShrunk = true;
 
+    // Version of the newest changelog entry the Changelog page has shown, for the New
+    // labels and the sidebar dot.
+    public string LastSeenChangelog = string.Empty;
+
     [NonSerialized] private IDalamudPluginInterface? pluginInterface;
 
     public void Initialize(IDalamudPluginInterface pi) => this.pluginInterface = pi;

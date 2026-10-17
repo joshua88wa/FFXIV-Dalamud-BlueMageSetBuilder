@@ -24,5 +24,6 @@
     <None Remove="Carnivale.json" />
     <EmbeddedResource Include="Carnivale.json" LogicalName="BlueMageSetBuilder.Carnivale.json" />
     <EmbeddedResource Include="..\images\icon.png" LogicalName="BlueMageSetBuilder.icon.png" />
+    <EmbeddedResource Include="..\CHANGELOG.md" LogicalName="BlueMageSetBuilder.CHANGELOG.md" />
   </ItemGroup>
 </Project>

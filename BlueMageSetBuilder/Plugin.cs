@@ -133,42 +133,9 @@ public sealed class Plugin : IDalamudPlugin
     // disagrees with the active set, the learned check is wrong.
     private void PrintDebug()
     {
-        void Line(string s) => Service.Chat.Print($"[BMS] {s}");
-
-        Line($"Logged in: {Spellbook.IsLoggedIn}, on Blue Mage: {Spellbook.IsBlueMage}");
-        Line($"Spells in game data: {this.book.Spells.Count}, learned: {this.book.LearnedCount()}");
-        Line($"Profiles: {this.store.Profiles.Count} from {this.store.LoadedFrom}");
-        Line($"Blocked by state: {Blockers.HardBlockReason() ?? "no"}");
-        var activeSpells = this.book.GetActiveActionIds().Where(id => id != 0).Select(this.book.ByAction).OfType<BlueSpell>();
-        var spellBuffs = Blockers.ActiveStatuses(activeSpells);
-        Line($"Buffs from active spells: {(spellBuffs.Count == 0 ? "none" : string.Join(", ", spellBuffs.Select(b => $"{b.Name} ({b.Id}, from {b.Spell.Name}, ends by {b.Method})")))}");
-        if (this.store.Find(this.config.SelectedProfile) is { } selected)
-        {
-            var blocking = this.applier.BlockingStatusesFor(selected);
-            Line($"Blocking {selected.Name}: {(blocking.Count == 0 ? "nothing" : Blockers.Describe(blocking))}");
-        }
-        Line($"All buffs: {string.Join(", ", Blockers.AllStatusNames())}");
-
-        var active = this.book.GetActiveActionIds();
-        var names = active.Select((id, i) =>
-        {
-            if (id == 0)
-                return $"{i + 1}:-";
-            var s = this.book.ByAction(id);
-            return s is null ? $"{i + 1}:?{id}" : $"{i + 1}:{s.Name}";
-        });
-        Line($"Active slots: {string.Join(", ", names)}");
-
-        var contradictions = active
-            .Where(id => id != 0)
-            .Select(this.book.ByAction)
-            .Where(s => s is not null && !this.book.IsLearned(s))
-            .Select(s => s!.Name)
-            .ToList();
-
-        if (contradictions.Count == 0)
-            Line("Learned check agrees with the active set.");
-        else
-            Service.Chat.PrintError($"[BMS] Active but reported as not learned: {string.Join(", ", contradictions)}. The learned check is wrong.");
-    }
-}
+        var report = DebugReport.Build(this.config, this.book, this.store, this.applier);
+        foreach (var line in report.Lines)
+            Service.Chat.Print($"[BMS] {line}");
+        if (report.Problem is { } problem)
+            Service.Chat.PrintError($"[BMS] {problem}");
+    }}

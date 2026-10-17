@@ -203,6 +203,16 @@ endings, so match on LF-normalised text. An exact CRLF match fails, and the earl
 edits for the sidebar, tabs and docking were silently lost that way (restored
 2026-10-17).
 
+## Changelog
+
+`CHANGELOG.md` at the repo root is embedded (`BlueMageSetBuilder.CHANGELOG.md`) and
+read by `Changelog.cs`: `## <version> (<date>)` or `## Unreleased` headings, `- `
+bullets, two-space continuation lines. Add a bullet under Unreleased with each
+user-visible change. At release, rename Unreleased to the version and date, and use
+`tools/changelog-notes.ps1 -Version <version>` for the GitHub release notes and the
+`Changelog` field in the hub repo.json. `Configuration.LastSeenChangelog` drives the
+New labels and the sidebar dot.
+
 ## Profiles.json format
 
 A pick is `{ "Spell": 30, "Why": "..." }` or `"Spell": [ 11, 2 ]` for stand-ins in order of

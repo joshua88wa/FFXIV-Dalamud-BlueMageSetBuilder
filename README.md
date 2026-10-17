@@ -51,8 +51,10 @@ Magic Spellbook.
 - Opens beside the game's Blue Magic Spellbook and moves with it, on whichever side
   you choose, starting as a slim bar against it that expands with a click. Can be
   turned off.
-- An **About** page with the commands, a button that prints debug information for bug
-  reports, and links to everyone whose work the plugin builds on.
+- A **Changelog** page listing what each version changed, with anything new since your
+  last look marked.
+- An **About** page with the commands, a **Copy debug info** button for bug reports,
+  and links to everyone whose work the plugin builds on.
 - Profiles are a plain JSON file you can export, edit in any text editor, and reload
   without touching the plugin.
 
@@ -78,8 +80,10 @@ Other plugins in the same repository are listed at
 
 ## Using it
 
-1. Type `/blusets`. The window has four pages down the left side: **Layouts**,
-   **Spellbook**, **Settings** and **About**. It opens on Layouts.
+1. Type `/blusets`. The window has pages down the left side: **Layouts**,
+   **Spellbook** and **Settings**, with **Changelog** and **About** at the bottom. It
+   opens on Layouts. A dot on Changelog means there is something new since you last
+   looked.
 2. Pick a category from the tabs across the top: **General**, **Dungeons**, **Trials and
    raids** or **The Masked Carnivale**. Under General, choose open world and FATEs or
    solo duties. Under Dungeons and Trials and raids, choose your **Role**: Tank, Healer
@@ -261,7 +265,8 @@ buff; those remain as the fallback for any other blocking buff added later.
 
 ## Problems and suggestions
 
-Open an issue:
+Press **Copy debug info** on the About page and paste the result into the issue; it
+usually shows what went wrong. Open an issue:
 [github.com/joshua88wa/FFXIV-Dalamud-BlueMageSetBuilder/issues](https://github.com/joshua88wa/FFXIV-Dalamud-BlueMageSetBuilder/issues)
 
 ## Credits

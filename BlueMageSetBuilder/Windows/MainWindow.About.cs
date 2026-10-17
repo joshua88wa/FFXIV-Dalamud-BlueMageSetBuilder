@@ -1,5 +1,7 @@
+using System;
 using System.Numerics;
 using Dalamud.Bindings.ImGui;
+using Dalamud.Interface.Colors;
 using Dalamud.Interface.Utility;
 using Dalamud.Utility;
 
@@ -10,6 +12,8 @@ public sealed partial class MainWindow
 {
     private const string RepoUrl = "https://github.com/joshua88wa/FFXIV-Dalamud-BlueMageSetBuilder";
     private const string IssuesUrl = RepoUrl + "/issues";
+
+    private long copiedAt = long.MinValue;
 
     private void DrawAbout()
     {
@@ -42,9 +46,25 @@ public sealed partial class MainWindow
         Command("/blusets debug", "Prints what the plugin can see to chat.");
 
         Section("Reporting a problem");
-        ImGui.TextWrapped("Please include what /blusets debug prints. It lists your job, learned spells and active set, which is usually enough to see what went wrong.");
-        if (ImGui.Button("Print debug info to chat"))
+        ImGui.TextWrapped("Please include the debug information, from the button below or /blusets debug. It shows whether you are on Blue Mage, how many spells you have learned, your active set and your current buffs, which is usually enough to see what went wrong.");
+        if (ImGui.Button("Copy debug info"))
+        {
+            ImGui.SetClipboardText(this.DebugText());
+            this.copiedAt = Environment.TickCount64;
+        }
+
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip("Copies it to the clipboard, ready to paste into an issue on GitHub.");
+
+        ImGui.SameLine();
+        if (ImGui.Button("Print it to chat"))
             GameUi.SendTextCommand("/blusets debug");
+
+        if (Environment.TickCount64 - this.copiedAt < 3000)
+        {
+            ImGui.SameLine();
+            ImGui.TextColored(ImGuiColors.HealerGreen, "Copied.");
+        }
 
         Section("Credits");
         Credit(
@@ -69,6 +89,17 @@ public sealed partial class MainWindow
         ImGui.Separator();
         ImGui.Spacing();
         ImGui.TextDisabled("Free to use, change and share under the 0BSD licence. Written with the help of an LLM.");
+    }
+
+    private string DebugText()
+    {
+        var report = DebugReport.Build(this.config, this.book, this.store, this.applier);
+        var version = typeof(MainWindow).Assembly.GetName().Version;
+        var lines = new System.Collections.Generic.List<string> { $"Blue Mage Set Builder {version}" };
+        lines.AddRange(report.Lines);
+        if (report.Problem is { } problem)
+            lines.Add(problem);
+        return string.Join("\n", lines);
     }
 
     private static void Section(string title)

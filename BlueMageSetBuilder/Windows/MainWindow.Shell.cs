@@ -21,6 +21,7 @@ public sealed partial class MainWindow : IDisposable
         Layouts,
         Spellbook,
         Settings,
+        Changelog,
         About,
     }
 
@@ -73,6 +74,9 @@ public sealed partial class MainWindow : IDisposable
         this.DrawSidebar(compact);
         ImGui.SameLine();
 
+        if (this.page != Page.Changelog)
+            this.changelogVisited = false;
+
         if (ImGui.BeginChild("##bms_page", Vector2.Zero))
         {
             switch (this.page)
@@ -89,6 +93,9 @@ public sealed partial class MainWindow : IDisposable
                 case Page.Settings:
                     this.PageTitle("Settings");
                     this.DrawSettings();
+                    break;
+                case Page.Changelog:
+                    this.DrawChangelog();
                     break;
                 case Page.About:
                     this.DrawAbout();
@@ -151,11 +158,12 @@ public sealed partial class MainWindow : IDisposable
             this.SidebarEntry(Page.Spellbook, FontAwesomeIcon.BookOpen, "Spellbook", compact);
             this.SidebarEntry(Page.Settings, FontAwesomeIcon.Cog, "Settings", compact);
 
-            // About sits at the bottom, apart from the working pages.
+            // Changelog and About sit at the bottom, apart from the working pages.
             var row = SidebarRowHeight * scale;
-            var bottom = ImGui.GetWindowHeight() - ImGui.GetStyle().WindowPadding.Y - row;
+            var bottom = ImGui.GetWindowHeight() - ImGui.GetStyle().WindowPadding.Y - (row * 2) - ImGui.GetStyle().ItemSpacing.Y;
             if (ImGui.GetCursorPosY() < bottom)
                 ImGui.SetCursorPosY(bottom);
+            this.SidebarEntry(Page.Changelog, FontAwesomeIcon.History, "Changelog", compact, this.HasUnseenChangelog);
             this.SidebarEntry(Page.About, FontAwesomeIcon.InfoCircle, "About", compact);
         }
 
@@ -190,7 +198,7 @@ public sealed partial class MainWindow : IDisposable
         ImGui.SetCursorPos(new Vector2(start.X, start.Y + size.Y + 4f * scale));
     }
 
-    private void SidebarEntry(Page target, FontAwesomeIcon icon, string label, bool compact)
+    private void SidebarEntry(Page target, FontAwesomeIcon icon, string label, bool compact, bool dot = false)
     {
         var scale = ImGuiHelpers.GlobalScale;
         var selected = this.page == target;
@@ -228,6 +236,18 @@ public sealed partial class MainWindow : IDisposable
                 selected ? accent : ImGui.GetColorU32(ImGuiCol.TextDisabled),
                 glyph);
         }
+
+        // Something new behind this entry, such as changelog entries not seen yet.
+        if (dot)
+        {
+            drawList.AddCircleFilled(
+                new Vector2(iconX + iconBox, start.Y + (height * 0.3f)),
+                3.5f * scale,
+                ImGui.GetColorU32(ImGuiColors.DalamudOrange));
+        }
+
+        if (compact && dot && ImGui.IsItemHovered())
+            ImGui.SetTooltip($"{label} (new)");
 
         if (!compact)
         {
