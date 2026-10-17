@@ -34,6 +34,12 @@ public sealed partial class MainWindow : Window
     // makes the list look like spells are missing.
     private string search = string.Empty;
 
+    // Spellbook page filters: 0 is "any". Not saved either.
+    private int rankFilter;
+    private int learnedFilter;
+
+    private static readonly string[] LearnedFilterNames = { "Learned or not", "Learned", "Not learned" };
+
     public MainWindow(Configuration config, Spellbook book, ProfileStore store, SetApplier applier, IReadOnlyList<CarnivaleStage> stages)
         : base("Blue Mage Set Builder##BlueMageSetBuilder")
     {
@@ -511,23 +517,60 @@ public sealed partial class MainWindow : Window
 
     private void DrawSpellbook()
     {
-        ImGui.SetNextItemWidth(260 * ImGuiHelpers.GlobalScale);
+        var scale = ImGuiHelpers.GlobalScale;
+        ImGui.SetNextItemWidth(MathF.Min(320 * scale, ImGui.GetContentRegionAvail().X));
         ImGui.InputTextWithHint("##bms_search", "Search by name, number, place or creature", ref this.search, 64);
-        if (this.search.Length > 0)
+
+        // Filters for the Rank and Learned columns, on their own line so they fit a
+        // narrow window. Not saved, for the same reason as the search.
+        var maxRank = this.book.Spells.Count > 0 ? this.book.Spells.Max(s => (int)s.Rank) : 5;
+        ImGui.SetNextItemWidth(110 * scale);
+        if (ImGui.BeginCombo("##bms_rank", this.rankFilter == 0 ? "Any rank" : $"{this.rankFilter} star"))
         {
-            ImGui.SameLine();
-            if (ImGui.Button("Clear##bms_search_clear"))
-                this.search = string.Empty;
+            if (ImGui.Selectable("Any rank", this.rankFilter == 0))
+                this.rankFilter = 0;
+            for (var r = 1; r <= maxRank; r++)
+            {
+                if (ImGui.Selectable($"{r} star", this.rankFilter == r))
+                    this.rankFilter = r;
+            }
+
+            ImGui.EndCombo();
         }
 
         ImGui.SameLine();
-        if (ImGui.Checkbox("Show spells I have not learned", ref this.config.ShowUnlearned))
-            this.config.Save();
+        ImGui.SetNextItemWidth(140 * scale);
+        if (ImGui.BeginCombo("##bms_learned", LearnedFilterNames[this.learnedFilter]))
+        {
+            for (var i = 0; i < LearnedFilterNames.Length; i++)
+            {
+                if (ImGui.Selectable(LearnedFilterNames[i], this.learnedFilter == i))
+                    this.learnedFilter = i;
+            }
+
+            ImGui.EndCombo();
+        }
+
+        var filtersOn = this.rankFilter != 0 || this.learnedFilter != 0;
+        if (filtersOn || this.search.Length > 0)
+        {
+            ImGui.SameLine();
+            if (ImGui.Button("Clear##bms_filters_clear"))
+            {
+                this.search = string.Empty;
+                this.rankFilter = 0;
+                this.learnedFilter = 0;
+                filtersOn = false;
+            }
+
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Clears the search and both filters.");
+        }
 
         ImGui.SameLine();
         ImGui.TextDisabled("(?)");
         if (ImGui.IsItemHovered())
-            ImGui.SetTooltip("Tick Exclude to keep a spell out of every suggested set, for example one you find awkward to use.");
+            ImGui.SetTooltip("Narrow the list by rank or by whether you have learned the spell.\nTick Exclude to keep a spell out of every suggested set, for example one you find awkward to use.");
 
         if (!ImGui.BeginChild("##bms_book", Vector2.Zero))
         {
@@ -549,7 +592,9 @@ public sealed partial class MainWindow : Window
             foreach (var spell in this.book.Spells)
             {
                 var learned = this.book.IsLearned(spell);
-                if (!learned && !this.config.ShowUnlearned)
+                if ((this.learnedFilter == 1 && !learned) || (this.learnedFilter == 2 && learned))
+                    continue;
+                if (this.rankFilter != 0 && spell.Rank != this.rankFilter)
                     continue;
                 if (!MatchesSearch(spell, this.search))
                     continue;
@@ -591,10 +636,8 @@ public sealed partial class MainWindow : Window
             if (shown == 0)
             {
                 ImGui.TextDisabled(this.search.Length > 0
-                    ? $"No spells match \"{this.search}\"."
-                    : "No spells to show.");
-                if (this.search.Length > 0 && !this.config.ShowUnlearned)
-                    ImGui.TextDisabled("Spells you have not learned are hidden. Tick the box above to include them.");
+                    ? $"No spells match \"{this.search}\"{(filtersOn ? " with these filters" : string.Empty)}."
+                    : filtersOn ? "No spells match these filters." : "No spells to show.");
             }
         }
 

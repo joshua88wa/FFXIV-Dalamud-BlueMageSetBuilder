@@ -38,7 +38,7 @@ Magic Spellbook.
   spells you know, marked as extras, so the set is never left with gaps.
 - The whole spellbook in one table: number, rank, learned or not, and where to get it,
   with a search box that matches the name, the spellbook number, the place, or the
-  creature that teaches it.
+  creature that teaches it, and filters for rank and for learned or not learned.
   Any spell can be excluded from every suggestion, for example one you find awkward.
 - Spells are laid out in the profile's order by default. Turn on **Keep spells in the
   same slot** to leave spells that are already active where they are, so as little
@@ -168,7 +168,6 @@ lists your current buffs. Please report it with that list so the cause can be ad
   default. The button in the window always names them before turning them off; this
   lets the command do the same. With it off, the command stops and says what is in the
   way.
-- **Show spells I have not learned** on the Spellbook page.
 - **Exclude** any spell from every suggested set, on the Spellbook page.
 - **Profiles:** export, reload, open the config folder, or go back to the built-in set.
 

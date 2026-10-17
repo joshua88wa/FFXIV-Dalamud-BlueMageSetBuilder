@@ -36,7 +36,6 @@ public class Configuration : IPluginConfiguration
     // with it off the set is laid out in the profile's priority order.
     public bool KeepSlots = false;
 
-    public bool ShowUnlearned = true;
 
     // Let /blusets apply turn off Mighty Guard, Aetheric Mimicry and similar spell
     // effects that stop spells moving, the same as the window's button does. The window
