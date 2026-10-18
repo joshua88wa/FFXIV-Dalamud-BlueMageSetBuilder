@@ -48,7 +48,7 @@ public static unsafe class GameUi
             return "not open";
 
         var root = TryGetRootRect(addon, out var rp, out var rs) ? Box(rp, rs) : "none";
-        var drawn = TryGetDrawnBounds(addon, out var dp, out var ds) ? Box(dp, ds) : "none";
+        var drawn = TryGetDrawnBounds(addon, out var dp, out var ds, out var parts) ? $"{Box(dp, ds)} from {parts} parts" : "none";
         return $"root {root} (addon scale {addon->Scale:0.###}), drawn {drawn}";
 
         static string Box(Vector2 p, Vector2 s) => $"{p.X:0},{p.Y:0} {s.X:0}x{s.Y:0}";
@@ -71,10 +71,13 @@ public static unsafe class GameUi
         return size.X > 0 && size.Y > 0;
     }
 
-    private static bool TryGetDrawnBounds(AtkUnitBase* addon, out Vector2 position, out Vector2 size)
+    private static bool TryGetDrawnBounds(AtkUnitBase* addon, out Vector2 position, out Vector2 size) => TryGetDrawnBounds(addon, out position, out size, out _);
+
+    private static bool TryGetDrawnBounds(AtkUnitBase* addon, out Vector2 position, out Vector2 size, out int parts)
     {
         position = Vector2.Zero;
         size = Vector2.Zero;
+        parts = 0;
 
         var min = new Vector2(float.MaxValue);
         var max = new Vector2(float.MinValue);
@@ -85,9 +88,12 @@ public static unsafe class GameUi
             if (node == null || node->Width == 0 || node->Height == 0)
                 continue;
 
-            // Only parts that draw something; resource and collision nodes are layout
-            // boxes and can be larger than the window looks.
-            if (node->Type is not (NodeType.Image or NodeType.NineGrid or NodeType.Text or NodeType.Counter))
+            // Parts that draw something: images, frames, text, and components (the window
+            // frame, buttons and the Active Actions panel are components, measured by their
+            // own box). Resource and collision nodes are layout boxes and can be larger than
+            // the window looks.
+            var isComponent = (ushort)node->Type >= 1000;
+            if (!isComponent && node->Type is not (NodeType.Image or NodeType.NineGrid or NodeType.Text or NodeType.Counter))
                 continue;
 
             // Visible only if it and every parent are, and its on-screen size is its own
@@ -112,6 +118,7 @@ public static unsafe class GameUi
             var bottomRight = topLeft + (new Vector2(node->Width, node->Height) * scale);
             min = Vector2.Min(min, topLeft);
             max = Vector2.Max(max, bottomRight);
+            parts++;
         }
 
         if (min.X >= max.X || min.Y >= max.Y)
