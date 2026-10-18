@@ -6,6 +6,8 @@ list. Keep each entry to one bullet a player would care about. When releasing, r
 `## Unreleased` to `## <version> (<date>)`.
 
 ## Unreleased
+- Docking lines up with the Blue Magic Spellbook on more setups, including other UI
+  scales and spellbooks changed by other plugins.
 - Sets can be applied on any job, as the game allows. On another job the window shows
   the game's reminder that hotbar changes are only saved on Blue Mage.
 - Masked Carnivale: a set for every stage, built around the spells Blue Academy

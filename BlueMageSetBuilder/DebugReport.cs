@@ -20,6 +20,7 @@ public static class DebugReport
             $"Spells in game data: {book.Spells.Count}, learned: {book.LearnedCount()}",
             $"Profiles: {store.Profiles.Count} from {store.LoadedFrom}",
             $"Blocked by state: {Blockers.HardBlockReason() ?? "no"}",
+            $"Spellbook window: {GameUi.DescribeSpellbookRects()}; Dalamud scale {Dalamud.Interface.Utility.ImGuiHelpers.GlobalScale:0.###}",
         };
 
         var activeSpells = book.GetActiveActionIds().Where(id => id != 0).Select(book.ByAction).OfType<BlueSpell>();
