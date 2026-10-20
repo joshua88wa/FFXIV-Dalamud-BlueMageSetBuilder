@@ -2,7 +2,7 @@
   "Name": "Blue Mage Set Builder",
   "InternalName": "BlueMageSetBuilder",
   "Author": "joshua88wa",
-  "AssemblyVersion": "0.1.0.3",
+  "AssemblyVersion": "0.1.1.0",
   "Punchline": "Builds the best Blue Mage spell set from the spells you have learned.",
   "Description": "Reads which Blue Mage spells you have learned and builds a 24-spell active set for the content you pick: solo and FATE leveling, dungeons, trials and raids, tanking or healing. Shows why each spell made the cut, lists the spells worth learning next and where to get them, and applies the set with one click when you are out of combat.",
   "ApplicableVersion": "any",

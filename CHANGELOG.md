@@ -5,7 +5,7 @@ release notes: `tools/changelog-notes.ps1 -Version <version>` prints one version
 list. Keep each entry to one bullet a player would care about. When releasing, rename
 `## Unreleased` to `## <version> (<date>)`.
 
-## Unreleased
+## 0.1.1.0 (2026-10-19)
 - Docking lines up with the Blue Magic Spellbook on more setups, including other UI
   scales and spellbooks changed by other plugins.
 - Sets can be applied on any job, as the game allows. On another job the window shows

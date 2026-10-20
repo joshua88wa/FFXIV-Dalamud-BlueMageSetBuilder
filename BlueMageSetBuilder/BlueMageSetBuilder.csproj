@@ -1,6 +1,6 @@
 <Project Sdk="Dalamud.NET.Sdk/15.0.0">
   <PropertyGroup>
-    <Version>0.1.0.3</Version>
+    <Version>0.1.1.0</Version>
     <Authors>joshua88wa</Authors>
     <Company></Company>
     <Description>Reads which Blue Mage spells you have learned and builds the best 24-spell active set for the content you pick.</Description>
