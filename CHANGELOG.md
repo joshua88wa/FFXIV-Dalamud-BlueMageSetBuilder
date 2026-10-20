@@ -6,10 +6,6 @@ list. Keep each entry to one bullet a player would care about. When releasing, r
 `## Unreleased` to `## <version> (<date>)`.
 
 ## 0.1.1.0 (2026-10-19)
-- Docking lines up with the Blue Magic Spellbook on more setups, including other UI
-  scales and spellbooks changed by other plugins.
-- Sets can be applied on any job, as the game allows. On another job the window shows
-  the game's reminder that hotbar changes are only saved on Blue Mage.
 - Masked Carnivale: a set for every stage, built around the spells Blue Academy
   (mage.blue) lists as required or recommended, with each act's enemies and what they
   are vulnerable to, a link to Blue Academy's guide for the stage, and Previous and
@@ -21,6 +17,8 @@ list. Keep each entry to one bullet a player would care about. When releasing, r
   dungeons and trials and raids. Each tab remembers what you last picked.
 - Opens beside the Blue Magic Spellbook and moves with it, starting as a slim bar that
   expands with a click. Choose the side, or turn it off, in Settings.
+- Sets can be applied on any job, as the game allows. On another job the window shows
+  the game's reminder that hotbar changes are only saved on Blue Mage.
 - Spellbook page: filters for rank and for learned or not learned, and where to learn
   each spell now wraps instead of being cut off.
 - About page with the commands, credits, and a button that copies debug information
